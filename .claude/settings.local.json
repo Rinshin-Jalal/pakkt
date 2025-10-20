@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add test-hook.swift)",
+      "Bash(git commit -m \"Test pre-commit hook\")",
+      "Bash(git rm test-hook.swift)",
+      "Bash(git commit -m \"Remove test file for pre-commit hook\")",
+      "Bash(git commit --no-verify -m \"$(cat <<''EOF''\nAdd comprehensive Git hooks documentation\n\n- Document pre-commit hook installation and configuration\n- List all validation checks (Swift, TypeScript, security)\n- Provide troubleshooting guide for common issues\n- Include setup instructions for new developers\n- Reference Issue #5: Establish CI/CD Pipeline\n\nNote: Contains example secret patterns for documentation purposes\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

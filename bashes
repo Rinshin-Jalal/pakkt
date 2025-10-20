@@ -1,0 +1,269 @@
+Shell Check if GitHub CLI is available
+
+$ gh --version
+gh version 2.80.0 (2025-09-23)
+https://github.com/cli/cli/releases/tag/v2.80.0
+
+Shell Check if we're in a git repository and get the rem...
+
+$ git remote -v
+origin    https://github.com/Rinshin-Jalal/pakkt.git (fetch)
+origin    https://github.com/Rinshin-Jalal/pakkt.git (push)
+
+Shell Create a new GitHub project called 'Pakkt Developm...
+
+$ gh project create "Pakkt Development" --owner
+Rinshin-Jalal --format json
+To get started with GitHub CLI, please run:  gh auth login
+Alternatively, populate the GH_TOKEN environment variable
+with a GitHub API authentication token.
+
+Shell Show the commands that would create the GitHub pro...
+
+$ echo "# GitHub Project Setup Commands
+
+# 1. Create GitHub Project
+gh project create 'Pakkt Development' --owner Rinshin-Jalal -
+-format json
+
+# 2. Create project columns
+gh project field-create 'Pakkt Development' --owner
+Rinshin-Jalal --name 'Status' --type 'single-select' -
+-options 'Backlog,Phase 0 (Foundation),Phase 1 (MVP),Phase
+2 (Consequences),Phase 3 (Social),Phase 4 (Payments),Phase
+5 (Polish),Phase 6 (Launch),Phase 7 (Growth),Done'
+
+# 3. Create labels for organization
+gh label create 'priority:high' --color 'B60205' -
+-description 'High priority - critical for launch'
+gh label create 'priority:medium' --color 'FBCA04' -
+-description 'Medium priority - important but not blocking'
+gh label create 'priority:low' --color '0E8A16' -
+-description 'Low priority - nice to have'
+gh label create 'area:ios' --color '0052CC' --description
+'iOS app development'
+gh label create 'area:backend' --color '006B75' -
+-description 'Backend/API development'
+gh label create 'area:design' --color 'BF4F74' -
+-description 'Design system and UI/UX'
+gh label create 'area:infrastructure' --color 'D73A49' -
+-description 'DevOps, CI/CD, infrastructure'
+gh label create 'area:testing' --color '0366D6' -
+-description 'Testing and QA'
+gh label create 'area:marketing' --color 'FBCA04' -
+-description 'Marketing and go-to-market'
+gh label create 'phase:foundation' --color '7057FF' -
+-description 'Phase 0: Foundation & Planning'
+gh label create 'phase:mvp' --color '008672' --description
+'Phase 1: Core MVP'
+gh label create 'phase:consequences' --color 'D73A49' -
+-description 'Phase 2: Consequences System'
+gh label create 'phase:social' --color 'FBCA04' -
+-description 'Phase 3: Social & Engagement'
+gh label create 'phase:payments' --color '0366D6' -
+-description 'Phase 4: Payments & Monetization'
+gh label create 'phase:polish' --color '28A745' -
+-description 'Phase 5: Polish & Launch Prep'
+gh label create 'phase:launch' --color 'FFD33D' -
+-description 'Phase 6: Launch'
+gh label create 'phase:growth' --color 'FF6B6B' -
+-description 'Phase 7: Growth & Iteration'"
+# GitHub Project Setup Commands
+
+# 1. Create GitHub Project
+gh project create 'Pakkt Development' --owner Rinshin-Jalal -
+-format json
+
+# 2. Create project columns
+gh project field-create 'Pakkt Development' --owner
+Rinshin-Jalal --name 'Status' --type 'single-select' -
+-options 'Backlog,Phase 0 (Foundation),Phase 1 (MVP),Phase
+2 (Consequences),Phase 3 (Social),Phase 4 (Payments),Phase
+5 (Polish),Phase 6 (Launch),Phase 7 (Growth),Done'
+
+# 3. Create labels for organization
+gh label create 'priority:high' --color 'B60205' -
+-description 'High priority - critical for launch'
+gh label create 'priority:medium' --color 'FBCA04' -
+-description 'Medium priority - important but not blocking'
+gh label create 'priority:low' --color '0E8A16' -
+-description 'Low priority - nice to have'
+gh label create 'area:ios' --color '0052CC' --description
+'iOS app development'
+gh label create 'area:backend' --color '006B75' -
+-description 'Backend/API development'
+gh label create 'area:design' --color 'BF4F74' -
+-description 'Design system and UI/UX'
+gh label create 'area:infrastructure' --color 'D73A49' -
+-description 'DevOps, CI/CD, infrastructure'
+gh label create 'area:testing' --color '0366D6' -
+-description 'Testing and QA'
+gh label create 'area:marketing' --color 'FBCA04' -
+-description 'Marketing and go-to-market'
+gh label create 'phase:foundation' --color '7057FF' -
+-description 'Phase 0: Foundation & Planning'
+gh label create 'phase:mvp' --color '008672' --description
+'Phase 1: Core MVP'
+gh label create 'phase:consequences' --color 'D73A49' -
+-description 'Phase 2: Consequences System'
+gh label create 'phase:social' --color 'FBCA04' -
+-description 'Phase 3: Social & Engagement'
+gh label create 'phase:payments' --color '0366D6' -
+-description 'Phase 4: Payments & Monetization'
+gh label create 'phase:polish' --color '28A745' -
+-description 'Phase 5: Polish & Launch Prep'
+gh label create 'phase:launch' --color 'FFD33D' -
+-description 'Phase 6: Launch'
+gh label create 'phase:growth' --color 'FF6B6B' -
+-description 'Phase 7: Growth & Iteration'
+
+Shell Show example GitHub issue creation commands for Ph...
+
+$ echo "# Phase 0: Foundation & Planning - GitHub Issues
+
+# Issue 1: Complete Planning Documents and Todo Lists
+gh issue create \\
+  --title \"Phase 0.1: Complete All Planning Documents and
+Todo Lists\" \\
+  --body \"## Description
+Complete all planning documents and todo lists to establish
+solid project foundation.
+
+## Tasks
+- [ ] Review and finalize all documents in /todos/ folder
+- [ ] Create comprehensive project timeline (Weeks 1-25)
+- [ ] Define success metrics for each phase
+- [ ] Create risk assessment document
+- [ ] Establish communication protocols (daily standups,
+weekly reviews)
+- [ ] Set up project management tools (GitHub Projects,
+milestones)
+
+## Success Criteria
+- All planning documents reviewed and approved
+- Timeline created with realistic deadlines
+- Team aligned on goals and processes
+- Risk mitigation strategies documented
+
+## Labels
+priority:high, phase:foundation, area:infrastructure\" \\
+  --label \"priority:high,phase:foundation,
+area:infrastructure\"
+
+# Issue 2: Set Up Development Environment
+gh issue create \\
+  --title \"Phase 0.2: Set Up Development Environment\" \\
+  --body \"## Description
+Configure complete development environment for iOS, backend,
+and infrastructure work.
+
+## iOS Development Setup
+- [ ] Install Xcode 15+ (latest stable)
+- [ ] Install Homebrew package manager
+- [ ] Install Swift CLI tools
+- [ ] Configure iOS Simulator for testing
+- [ ] Set up iOS development certificates
+
+## Backend Development Setup
+- [ ] Install Node.js 20+ LTS
+- [ ] Install Wrangler CLI (npm install -g wrangler)
+- [ ] Install Supabase CLI (brew install
+supabase/tap/supabase)
+- [ ] Configure Cloudflare account and API tokens
+
+## Development Tools
+- [ ] Install SwiftLint for code quality
+- [ ] Install SwiftFormat for code formatting
+- [ ] Set up Git hooks for pre-commit checks
+- [ ] Configure SSH keys for GitHub access
+
+## Verification
+- [ ] xcodebuild -version works
+- [ ] swift --version works
+- [ ] node --version works
+- [ ] wrangler --version works
+- [ ] supabase --version works
+
+## Success Criteria
+- All development tools installed and verified
+- Local development environment fully functional
+- Team members can build and run basic projects
+
+## Labels
+priority:high, phase:foundation, area:infrastructure\" \\
+  --label \"priority:high,phase:foundation,
+area:infrastructure\""
+# Phase 0: Foundation & Planning - GitHub Issues
+
+# Issue 1: Complete Planning Documents and Todo Lists
+gh issue create \
+  --title "Phase 0.1: Complete All Planning Documents and
+Todo Lists" \
+  --body "## Description
+Complete all planning documents and todo lists to establish
+solid project foundation.
+
+## Tasks
+- [ ] Review and finalize all documents in /todos/ folder
+- [ ] Create comprehensive project timeline (Weeks 1-25)
+- [ ] Define success metrics for each phase
+- [ ] Create risk assessment document
+- [ ] Establish communication protocols (daily standups,
+weekly reviews)
+- [ ] Set up project management tools (GitHub Projects,
+milestones)
+
+## Success Criteria
+- All planning documents reviewed and approved
+- Timeline created with realistic deadlines
+- Team aligned on goals and processes
+- Risk mitigation strategies documented
+
+## Labels
+priority:high, phase:foundation, area:infrastructure" \
+  --label "priority:high,phase:foundation,
+area:infrastructure"
+
+# Issue 2: Set Up Development Environment
+gh issue create \
+  --title "Phase 0.2: Set Up Development Environment" \
+  --body "## Description
+Configure complete development environment for iOS, backend,
+and infrastructure work.
+
+## iOS Development Setup
+- [ ] Install Xcode 15+ (latest stable)
+- [ ] Install Homebrew package manager
+- [ ] Install Swift CLI tools
+- [ ] Configure iOS Simulator for testing
+- [ ] Set up iOS development certificates
+
+## Backend Development Setup
+- [ ] Install Node.js 20+ LTS
+- [ ] Install Wrangler CLI (npm install -g wrangler)
+- [ ] Install Supabase CLI (brew install
+supabase/tap/supabase)
+- [ ] Configure Cloudflare account and API tokens
+
+## Development Tools
+- [ ] Install SwiftLint for code quality
+- [ ] Install SwiftFormat for code formatting
+- [ ] Set up Git hooks for pre-commit checks
+- [ ] Configure SSH keys for GitHub access
+
+## Verification
+- [ ] xcodebuild -version works
+- [ ] swift --version works
+- [ ] node --version works
+- [ ] wrangler --version works
+- [ ] supabase --version works
+
+## Success Criteria
+- All development tools installed and verified
+- Local development environment fully functional
+- Team members can build and run basic projects
+
+## Labels
+priority:high, phase:foundation, area:infrastructure" \
+  --label "priority:high,phase:foundation,
+area:infrastructure"
