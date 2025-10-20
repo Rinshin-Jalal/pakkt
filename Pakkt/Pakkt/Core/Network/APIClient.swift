@@ -56,7 +56,7 @@ actor APIClient {
             case 500...599:
                 if retryCount < maxRetries {
                     try await Task.sleep(nanoseconds: UInt64(pow(2.0, Double(retryCount))) * 1_000_000_000)
-                    return try await request(endpoint, retryCount: retryCount + 1)
+                    return try await self.request(endpoint, retryCount: retryCount + 1)
                 }
                 throw APIError.serverError(statusCode: httpResponse.statusCode, message: nil)
             default:
@@ -107,7 +107,7 @@ actor APIClient {
             case 500...599:
                 if retryCount < maxRetries {
                     try await Task.sleep(nanoseconds: UInt64(pow(2.0, Double(retryCount))) * 1_000_000_000)
-                    return try await request(endpoint, retryCount: retryCount + 1)
+                    return try await self.request(endpoint, retryCount: retryCount + 1)
                 }
                 throw APIError.serverError(statusCode: httpResponse.statusCode, message: nil)
             default:

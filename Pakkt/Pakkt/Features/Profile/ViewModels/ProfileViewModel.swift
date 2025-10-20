@@ -1,4 +1,6 @@
 import Foundation
+import SwiftUI
+import Combine
 
 struct Profile: Codable {
     let userId: String
