@@ -85,9 +85,21 @@ extension AppleSignInService: ASAuthorizationControllerDelegate {
                 return
             }
 
-            // TODO: Implement Supabase sign in
-            // For now, just set authenticated state
-            isAuthenticated = true
+            // Create unstructured task to call async Supabase method
+            let signInTask = _Concurrency.Task { @MainActor in
+                do {
+                    let session = try await SupabaseClient.shared.signInWithApple(
+                        idToken: idTokenString,
+                        nonce: nonce
+                    )
+                    self.isAuthenticated = true
+                    print("✅ Signed in with Supabase: \(session.user.id)")
+                } catch {
+                    self.errorMessage = "Sign in failed: \(error.localizedDescription)"
+                    print("❌ Supabase sign in error: \(error)")
+                }
+            }
+            _ = signInTask
         }
     }
 
