@@ -11,7 +11,7 @@ class AuthViewModel: BaseViewModel {
     func signInWithApple() async {
         do {
             try await withLoading {
-                try await appleSignInService.signIn()
+                try await self.appleSignInService.signIn()
                 self.isAuthenticated = true
             }
         } catch {
@@ -32,9 +32,9 @@ class AuthViewModel: BaseViewModel {
 
     func checkAuthStatus() async {
         if let _ = await SupabaseClient.shared.getCurrentSession() {
-            isAuthenticated = true
+            self.isAuthenticated = true
         } else {
-            isAuthenticated = false
+            self.isAuthenticated = false
         }
     }
 }
