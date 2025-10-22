@@ -38,8 +38,6 @@ export async function createPack(
       p_goal_type: input.goal_type || 'general',
     });
 
-  console.log('RPC Response:', { data, error: packError });
-
   if (packError) {
     console.error('Pack creation error:', {
       code: packError?.code,

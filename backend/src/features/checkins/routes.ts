@@ -32,19 +32,15 @@ import { z } from 'zod';
 export async function createCheckInHandler(c: Context) {
   const userId = getAuthenticatedUserId(c);
   const supabase = getSupabaseClient(c);
-  console.log('userId:', userId);
 
   // Validate request body
   const input = await validateBody(c, createCheckInSchema);
-  console.log('reached here input : ', input);
 
   // Verify user has access to the goal
   await requireGoalAccess(c, input.goal_id);
-  console.log('reached here, userId:', userId);
 
   // Create check-in
   const checkIn = await createCheckIn(supabase, userId, input);
-  console.log('reached here ');
 
   return c.json(successResponse(checkIn), 201);
 }

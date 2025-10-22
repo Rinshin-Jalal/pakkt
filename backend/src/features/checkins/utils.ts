@@ -54,7 +54,7 @@ export function calculateLevelFromXP(xp: number): number {
  * Returns streak information
  */
 export function calculateStreak(
-  previousCheckIns: Array<{ checked_in_at: string }>,
+  previousCheckIns: Array<{ created_at: string }>,
   currentDate: Date = new Date()
 ): StreakResult {
   if (!previousCheckIns || previousCheckIns.length === 0) {
@@ -68,10 +68,10 @@ export function calculateStreak(
 
   // Sort by date descending
   const sorted = [...previousCheckIns].sort(
-    (a, b) => new Date(b.checked_in_at).getTime() - new Date(a.checked_in_at).getTime()
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  const lastCheckIn = new Date(sorted[0].checked_in_at);
+  const lastCheckIn = new Date(sorted[0].created_at);
   lastCheckIn.setHours(0, 0, 0, 0);
   
   const today = new Date(currentDate);
@@ -102,10 +102,10 @@ export function calculateStreak(
 
     // Count consecutive days
     for (let i = 0; i < sorted.length - 1; i++) {
-      const current = new Date(sorted[i].checked_in_at);
+      const current = new Date(sorted[i].created_at);
       current.setHours(0, 0, 0, 0);
-      
-      const next = new Date(sorted[i + 1].checked_in_at);
+
+      const next = new Date(sorted[i + 1].created_at);
       next.setHours(0, 0, 0, 0);
 
       const diff = Math.floor(
@@ -140,7 +140,7 @@ export function calculateStreak(
  * Check if user already checked in for this goal today
  */
 export function hasCheckedInToday(
-  checkIns: Array<{ checked_in_at: string }>,
+  checkIns: Array<{ created_at: string }>,
   currentDate: Date = new Date()
 ): boolean {
   if (!checkIns || checkIns.length === 0) {
@@ -151,7 +151,7 @@ export function hasCheckedInToday(
   today.setHours(0, 0, 0, 0);
 
   return checkIns.some((checkIn) => {
-    const checkInDate = new Date(checkIn.checked_in_at);
+    const checkInDate = new Date(checkIn.created_at);
     checkInDate.setHours(0, 0, 0, 0);
     return checkInDate.getTime() === today.getTime();
   });
@@ -163,7 +163,7 @@ export function hasCheckedInToday(
 export function determineCheckInStatus(
   goalCheckInTime: string,
   currentTime: Date = new Date()
-): 'pending' | 'verified' | 'late' {
+): 'success' | 'missed' | 'pending_vote' {
   // Parse goal check-in time
   const [hours, minutes] = goalCheckInTime.split(':').map(Number);
   const goalTime = new Date(currentTime);
@@ -178,16 +178,16 @@ export function determineCheckInStatus(
 
   // Check if within window
   if (currentTime >= windowStart && currentTime <= windowEnd) {
-    return 'verified';
+    return 'success';
   }
 
-  // Check if late (after window)
+  // Check if late (after window) - needs voting
   if (currentTime > windowEnd) {
-    return 'late';
+    return 'pending_vote';
   }
 
-  // Too early
-  return 'pending';
+  // Too early - also needs voting
+  return 'pending_vote';
 }
 
 /**

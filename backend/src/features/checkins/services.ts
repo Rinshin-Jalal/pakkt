@@ -38,7 +38,6 @@ export async function createCheckIn(
     .single();
 
   if (goalError || !goal) {
-    console.log('Goal not found', goalError);
     throw new NotFoundError('Goal');
   }
 
@@ -55,10 +54,10 @@ export async function createCheckIn(
   // Check for duplicate check-in today
   const { data: todayCheckIns } = await supabase
     .from('check_ins')
-    .select('checked_in_at')
+    .select('created_at')
     .eq('goal_id', input.goal_id)
     .eq('user_id', userId)
-    .gte('checked_in_at', new Date().toISOString().split('T')[0]); // Today
+    .gte('created_at', new Date().toISOString().split('T')[0]); // Today
 
   if (hasCheckedInToday(todayCheckIns || [])) {
     throw new ConflictError('You have already checked in for this goal today');
@@ -67,10 +66,10 @@ export async function createCheckIn(
   // Get previous check-ins for streak calculation
   const { data: previousCheckIns } = await supabase
     .from('check_ins')
-    .select('checked_in_at, streak_count')
+    .select('created_at')
     .eq('goal_id', input.goal_id)
     .eq('user_id', userId)
-    .order('checked_in_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(30);
 
   // Calculate streak
@@ -104,15 +103,10 @@ export async function createCheckIn(
       user_id: userId,
       pack_id: goal.pack_id,
       proof_url: input.proof_url,
-      caption: input.caption,
       status,
-      streak_count: streakResult.streak_count,
       xp_awarded: xpAward.total_xp,
-      checked_in_at: new Date().toISOString(),
     })
-    .select(
-      '*, goal:goals(title, base_xp), user:users(username, display_name, avatar_url)'
-    )
+    .select('*')
     .single();
 
   if (error || !checkIn) {
@@ -120,56 +114,47 @@ export async function createCheckIn(
     throw new InternalError('Failed to create check-in');
   }
 
-  // Update user stats
-  await supabase
-    .from('users')
-    .update({
-      total_xp: (user?.total_xp || 0) + xpAward.total_xp,
-      current_level: xpAward.new_level || user?.current_level || 1,
-      current_streak: streakResult.streak_count,
-      longest_streak: Math.max(
-        streakResult.streak_count,
-        user?.longest_streak || 0
-      ),
-      total_checkins: (user?.total_checkins || 0) + 1,
-    })
-    .eq('id', userId);
+  // TODO: Update user stats once schema is aligned
+  // await supabase
+  //   .from('users')
+  //   .update({
+  //     xp: (user?.xp || 0) + xpAward.total_xp,
+  //     level: xpAward.new_level || user?.level || 1,
+  //     streak_count: streakResult.streak_count,
+  //   })
+  //   .eq('id', userId);
 
-  // Update pack member stats
-  await supabase.rpc('increment_pack_member_xp', {
-    p_pack_id: goal.pack_id,
-    p_user_id: userId,
-    p_xp_amount: xpAward.total_xp,
-    p_streak: streakResult.streak_count,
-  });
+  // TODO: Update pack member stats once RPC function exists
+  // await supabase.rpc('increment_pack_member_xp', {
+  //   p_pack_id: goal.pack_id,
+  //   p_user_id: userId,
+  //   p_xp_amount: xpAward.total_xp,
+  //   p_streak: streakResult.streak_count,
+  // });
 
-  // Update pack total XP and level
-  const { data: packMembers } = await supabase
-    .from('pack_members')
-    .select('total_xp')
-    .eq('pack_id', goal.pack_id);
+  // TODO: Update pack total XP and level once schema is aligned
+  // const { data: packMembers } = await supabase
+  //   .from('pack_members')
+  //   .select('reputation_xp')
+  //   .eq('pack_id', goal.pack_id);
+  //
+  // if (packMembers) {
+  //   const totalPackXP = packMembers.reduce(
+  //     (sum, m) => sum + (m.reputation_xp || 0),
+  //     0
+  //   );
+  //   const packLevel = calculateLevelFromXP(totalPackXP);
+  //
+  //   await supabase
+  //     .from('packs')
+  //     .update({
+  //       xp: totalPackXP,
+  //       level: packLevel,
+  //     })
+  //     .eq('id', goal.pack_id);
+  // }
 
-  if (packMembers) {
-    const totalPackXP = packMembers.reduce(
-      (sum, m) => sum + (m.total_xp || 0),
-      0
-    );
-    const packLevel = calculateLevelFromXP(totalPackXP);
-
-    await supabase
-      .from('packs')
-      .update({
-        total_xp: totalPackXP,
-        current_level: packLevel,
-      })
-      .eq('id', goal.pack_id);
-  }
-
-  return {
-    ...checkIn,
-    goal: checkIn.goal,
-    user: checkIn.user,
-  } as CheckIn;
+  return checkIn as CheckIn;
 }
 
 /**
@@ -201,15 +186,9 @@ export async function getFeed(
   // Get check-ins
   let query = supabase
     .from('check_ins')
-    .select(
-      `
-      *,
-      goal:goals(title, base_xp),
-      user:users(username, display_name, avatar_url)
-    `
-    )
+    .select('*')
     .in('pack_id', packIds)
-    .order('checked_in_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(filters?.limit || 20)
     .range(
       filters?.offset || 0,
@@ -223,30 +202,7 @@ export async function getFeed(
     throw new InternalError('Failed to fetch feed');
   }
 
-  // Get reactions and comments count for each check-in
-  const checkInsWithCounts = await Promise.all(
-    (checkIns || []).map(async (checkIn) => {
-      const { count: reactionsCount } = await supabase
-        .from('reactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('check_in_id', checkIn.id);
-
-      const { count: commentsCount } = await supabase
-        .from('comments')
-        .select('*', { count: 'exact', head: true })
-        .eq('check_in_id', checkIn.id);
-
-      return {
-        ...checkIn,
-        goal: checkIn.goal,
-        user: checkIn.user,
-        reactions_count: reactionsCount || 0,
-        comments_count: commentsCount || 0,
-      } as FeedItem;
-    })
-  );
-
-  return checkInsWithCounts;
+  return (checkIns || []) as FeedItem[];
 }
 
 /**
@@ -265,11 +221,9 @@ export async function getPackCheckIns(
 ): Promise<CheckIn[]> {
   let query = supabase
     .from('check_ins')
-    .select(
-      '*, goal:goals(title, base_xp), user:users(username, display_name, avatar_url)'
-    )
+    .select('*')
     .eq('pack_id', packId)
-    .order('checked_in_at', { ascending: false });
+    .order('created_at', { ascending: false });
 
   if (filters?.user_id) {
     query = query.eq('user_id', filters.user_id);
@@ -297,11 +251,7 @@ export async function getPackCheckIns(
     throw new InternalError('Failed to fetch check-ins');
   }
 
-  return (checkIns || []).map((checkIn) => ({
-    ...checkIn,
-    goal: checkIn.goal,
-    user: checkIn.user,
-  })) as CheckIn[];
+  return (checkIns || []) as CheckIn[];
 }
 
 /**
@@ -313,9 +263,7 @@ export async function getCheckIn(
 ): Promise<CheckIn> {
   const { data: checkIn, error } = await supabase
     .from('check_ins')
-    .select(
-      '*, goal:goals(title, base_xp), user:users(username, display_name, avatar_url)'
-    )
+    .select('*')
     .eq('id', checkInId)
     .single();
 
@@ -323,11 +271,7 @@ export async function getCheckIn(
     throw new NotFoundError('Check-in');
   }
 
-  return {
-    ...checkIn,
-    goal: checkIn.goal,
-    user: checkIn.user,
-  } as CheckIn;
+  return checkIn as CheckIn;
 }
 
 /**
@@ -355,11 +299,11 @@ export async function getUserCheckInStats(
   const monthRange = getDateRange('month');
 
   const thisWeek = (checkIns || []).filter(
-    (c) => new Date(c.checked_in_at) >= weekRange.start
+    (c) => new Date(c.created_at) >= weekRange.start
   ).length;
 
   const thisMonth = (checkIns || []).filter(
-    (c) => new Date(c.checked_in_at) >= monthRange.start
+    (c) => new Date(c.created_at) >= monthRange.start
   ).length;
 
   // Calculate success rate (simplified)
