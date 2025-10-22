@@ -59,6 +59,10 @@ export const createGoalSchema = z.object({
     .string()
     .max(500, 'Description must be at most 500 characters')
     .optional(),
+  goal_type: z.enum(['personal', 'pack'], {
+    errorMap: () => ({ message: 'Goal type must be "personal" or "pack"' }),
+  }).default('personal'),
+  assigned_to_user_id: z.string().uuid().optional(),
   check_in_time: timeSchema,
   recurrence_rule: recurrenceRuleSchema,
   fine_amount: z

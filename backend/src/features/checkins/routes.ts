@@ -2,7 +2,11 @@ import { Context } from 'hono';
 import { getAuthenticatedUserId } from '../../middleware/auth';
 import { getSupabaseClient } from '../../lib/supabase';
 import { successResponse } from '../../lib/response';
-import { validateBody, validateParams, validateQuery } from '../../utils/validation';
+import {
+  validateBody,
+  validateParams,
+  validateQuery,
+} from '../../utils/validation';
 import { requireGoalAccess } from '../../utils/permissions';
 import {
   createCheckInSchema,
@@ -28,15 +32,19 @@ import { z } from 'zod';
 export async function createCheckInHandler(c: Context) {
   const userId = getAuthenticatedUserId(c);
   const supabase = getSupabaseClient(c);
+  console.log('userId:', userId);
 
   // Validate request body
   const input = await validateBody(c, createCheckInSchema);
+  console.log('reached here input : ', input);
 
   // Verify user has access to the goal
   await requireGoalAccess(c, input.goal_id);
+  console.log('reached here, userId:', userId);
 
   // Create check-in
   const checkIn = await createCheckIn(supabase, userId, input);
+  console.log('reached here ');
 
   return c.json(successResponse(checkIn), 201);
 }
@@ -63,10 +71,7 @@ export async function getFeedHandler(c: Context) {
  * Get check-ins for a specific pack
  */
 export async function getPackCheckInsHandler(c: Context) {
-  const { packId } = validateParams(
-    c,
-    z.object({ packId: uuidSchema })
-  );
+  const { packId } = validateParams(c, z.object({ packId: uuidSchema }));
   const supabase = getSupabaseClient(c);
 
   // Parse filters

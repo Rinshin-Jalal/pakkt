@@ -33,16 +33,17 @@ export async function createCheckIn(
   // Get goal details
   const { data: goal, error: goalError } = await supabase
     .from('goals')
-    .select('*, packs(default_fine_amount)')
+    .select('*')
     .eq('id', input.goal_id)
     .single();
 
   if (goalError || !goal) {
+    console.log('Goal not found', goalError);
     throw new NotFoundError('Goal');
   }
 
   // Verify goal is active
-  if (!goal.is_active) {
+  if (!goal.active) {
     throw new ValidationError('Goal is not active');
   }
 
@@ -89,8 +90,11 @@ export async function createCheckIn(
     user?.total_xp || 0
   );
 
+  // Extract check-in time from schedule
+  const checkInTime = goal.schedule?.time || '09:00';
+
   // Determine status
-  const status = determineCheckInStatus(goal.check_in_time);
+  const status = determineCheckInStatus(checkInTime);
 
   // Create check-in
   const { data: checkIn, error } = await supabase
@@ -146,7 +150,10 @@ export async function createCheckIn(
     .eq('pack_id', goal.pack_id);
 
   if (packMembers) {
-    const totalPackXP = packMembers.reduce((sum, m) => sum + (m.total_xp || 0), 0);
+    const totalPackXP = packMembers.reduce(
+      (sum, m) => sum + (m.total_xp || 0),
+      0
+    );
     const packLevel = calculateLevelFromXP(totalPackXP);
 
     await supabase
@@ -204,7 +211,10 @@ export async function getFeed(
     .in('pack_id', packIds)
     .order('checked_in_at', { ascending: false })
     .limit(filters?.limit || 20)
-    .range(filters?.offset || 0, (filters?.offset || 0) + (filters?.limit || 20) - 1);
+    .range(
+      filters?.offset || 0,
+      (filters?.offset || 0) + (filters?.limit || 20) - 1
+    );
 
   const { data: checkIns, error } = await query;
 

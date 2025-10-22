@@ -22,22 +22,29 @@ export async function createGoal(
     .eq('id', packId)
     .single();
 
+  // Build schedule object from check_in_time and recurrence_rule
+  const schedule = {
+    time: input.check_in_time,
+    type: input.recurrence_rule.type,
+    interval: input.recurrence_rule.interval,
+    days: input.recurrence_rule.days_of_week,
+  };
+
   const { data: goal, error } = await supabase
     .from('goals')
     .insert({
       pack_id: packId,
-      user_id: userId,
+      creator_id: userId,
       title: input.title,
-      description: input.description,
-      check_in_time: input.check_in_time,
-      recurrence_rule: input.recurrence_rule,
+      schedule: schedule,
+      goal_type: input.goal_type || 'personal',
+      assigned_to_user_id: input.goal_type === 'personal' ? (input.assigned_to_user_id || userId) : null,
       fine_amount: input.fine_amount ?? pack?.default_fine_amount ?? 5,
       jail_duration: input.jail_duration ?? pack?.default_jail_duration ?? 30,
       proof_required: input.proof_required ?? false,
-      base_xp: input.base_xp ?? 100,
-      is_active: true,
+      active: true,
     })
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*')
     .single();
 
   if (error || !goal) {
@@ -45,10 +52,7 @@ export async function createGoal(
     throw new InternalError('Failed to create goal');
   }
 
-  return {
-    ...goal,
-    user: goal.users,
-  } as Goal;
+  return goal as Goal;
 }
 
 /**
@@ -58,22 +62,22 @@ export async function listPackGoals(
   supabase: SupabaseClient,
   packId: string,
   filters?: {
-    is_active?: boolean;
+    active?: boolean;
     user_id?: string;
   }
 ): Promise<Goal[]> {
   let query = supabase
     .from('goals')
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*')
     .eq('pack_id', packId)
     .order('created_at', { ascending: false });
 
-  if (filters?.is_active !== undefined) {
-    query = query.eq('is_active', filters.is_active);
+  if (filters?.active !== undefined) {
+    query = query.eq('active', filters.active);
   }
 
   if (filters?.user_id) {
-    query = query.eq('user_id', filters.user_id);
+    query = query.eq('creator_id', filters.user_id);
   }
 
   const { data: goals, error } = await query;
@@ -83,10 +87,7 @@ export async function listPackGoals(
     throw new InternalError('Failed to list goals');
   }
 
-  return (goals || []).map((goal) => ({
-    ...goal,
-    user: goal.users,
-  })) as Goal[];
+  return (goals || []) as Goal[];
 }
 
 /**
@@ -98,7 +99,7 @@ export async function getGoal(
 ): Promise<Goal> {
   const { data: goal, error } = await supabase
     .from('goals')
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, display_name, avatar_url)')
     .eq('id', goalId)
     .single();
 
@@ -106,10 +107,7 @@ export async function getGoal(
     throw new NotFoundError('Goal');
   }
 
-  return {
-    ...goal,
-    user: goal.users,
-  } as Goal;
+  return goal as Goal;
 }
 
 /**
@@ -124,7 +122,7 @@ export async function updateGoal(
   // Verify goal ownership
   const goal = await getGoal(supabase, goalId);
   
-  if (goal.user_id !== userId) {
+  if (goal.creator_id !== userId) {
     throw new ForbiddenError('You can only update your own goals');
   }
 
@@ -135,7 +133,7 @@ export async function updateGoal(
       updated_at: new Date().toISOString(),
     })
     .eq('id', goalId)
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, display_name, avatar_url)')
     .single();
 
   if (error || !updatedGoal) {
@@ -160,7 +158,7 @@ export async function deleteGoal(
   // Verify goal ownership
   const goal = await getGoal(supabase, goalId);
   
-  if (goal.user_id !== userId) {
+  if (goal.creator_id !== userId) {
     throw new ForbiddenError('You can only delete your own goals');
   }
 
@@ -174,7 +172,7 @@ export async function deleteGoal(
     // Don't actually delete, just deactivate
     await supabase
       .from('goals')
-      .update({ is_active: false })
+      .update({ active: false })
       .eq('id', goalId);
   } else {
     // No check-ins, safe to delete
@@ -201,18 +199,18 @@ export async function toggleGoalStatus(
   // Verify goal ownership
   const goal = await getGoal(supabase, goalId);
   
-  if (goal.user_id !== userId) {
+  if (goal.creator_id !== userId) {
     throw new ForbiddenError('You can only toggle your own goals');
   }
 
   const { data: updatedGoal, error } = await supabase
     .from('goals')
     .update({
-      is_active: !goal.is_active,
+      active: !goal.active,
       updated_at: new Date().toISOString(),
     })
     .eq('id', goalId)
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, display_name, avatar_url)')
     .single();
 
   if (error || !updatedGoal) {
@@ -299,9 +297,9 @@ export async function getUserActiveGoals(
 
   const { data: goals, error } = await supabase
     .from('goals')
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, display_name, avatar_url)')
     .in('pack_id', packIds)
-    .eq('is_active', true)
+    .eq('active', true)
     .order('check_in_time', { ascending: true });
 
   if (error) {
@@ -309,8 +307,5 @@ export async function getUserActiveGoals(
     return [];
   }
 
-  return (goals || []).map((goal) => ({
-    ...goal,
-    user: goal.users,
-  })) as Goal[];
+  return (goals || []) as Goal[];
 }

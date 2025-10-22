@@ -14,6 +14,18 @@ export async function requirePackMembership(
   const userId = getAuthenticatedUserId(c);
   const supabase = getSupabaseClient(c);
 
+  // First check if user is the pack creator (no RLS issues)
+  const { data: pack } = await supabase
+    .from('packs')
+    .select('creator_id')
+    .eq('id', packId)
+    .single();
+
+  if (pack && pack.creator_id === userId) {
+    return; // User is the creator, they have access
+  }
+
+  // Then check pack_members (may be blocked by RLS in some cases)
   const { data, error } = await supabase
     .from('pack_members')
     .select('user_id')
@@ -22,6 +34,7 @@ export async function requirePackMembership(
     .single();
 
   if (error || !data) {
+    console.error('Pack membership check failed:', { userId, packId, error });
     throw new ForbiddenError('You must be a member of this pack');
   }
 }

@@ -17,20 +17,30 @@ export function createSupabaseClient(env: Env): SupabaseClient {
 }
 
 /**
- * Get Supabase client from Hono context
+ * Get Supabase client from Hono context with user authentication
  * Creates a new client if one doesn't exist
+ * This client respects RLS policies using the user's JWT token
  */
 export function getSupabaseClient(c: Context): SupabaseClient {
   // Check if client already exists in context
   let client = c.get('supabase');
-  
+
   if (!client) {
-    // Create new client using environment bindings
+    // Get user's JWT token from auth middleware
+    const accessToken = c.get('accessToken');
     const env = c.env as Env;
-    client = createSupabaseClient(env);
+
+    if (accessToken) {
+      // Create client with user's auth token (respects RLS)
+      client = createSupabaseClientWithAuth(env, accessToken);
+    } else {
+      // Fallback to service role (bypasses RLS) if no token
+      client = createSupabaseClient(env);
+    }
+
     c.set('supabase', client);
   }
-  
+
   return client;
 }
 

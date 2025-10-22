@@ -33,9 +33,10 @@ export const requireAuth = async (
       return c.json({ error: "Invalid or expired token" }, 401);
     }
 
-    // Store user ID in context for use in route handlers
+    // Store user ID and token in context for use in route handlers
     c.set("userId", user.id);
     c.set("userEmail", user.email);
+    c.set("accessToken", token); // Store token for RLS-aware Supabase client
 
     return await next();
   } catch (error) {
@@ -68,9 +69,10 @@ export const optionalAuth = async (
       } = await supabase.auth.getUser(token);
 
       if (!error && user) {
-        // Attach user info to context
+        // Attach user info and token to context
         c.set("userId", user.id);
         c.set("userEmail", user.email);
+        c.set("accessToken", token);
       }
     } catch (error) {
       // Silently fail for optional auth

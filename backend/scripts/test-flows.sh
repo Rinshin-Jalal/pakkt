@@ -68,8 +68,9 @@ api_call() {
             -H "Authorization: Bearer $AUTH_TOKEN")
     fi
     
-    body=$(echo "$response" | head -n -1)
+    # BSD/macOS compatible way to split response
     status=$(echo "$response" | tail -n 1)
+    body=$(echo "$response" | sed '$d')  # Delete last line
     
     echo "$status|$body"
 }
@@ -124,6 +125,16 @@ test_pack_goal_flow() {
     
     pack_id=$(get_field "$response" "id")
     pack_name=$(get_field "$response" "name")
+
+    # Debug output
+    echo "DEBUG - Response body: $(get_body "$response")"
+    echo "DEBUG - pack_id extracted: '$pack_id'"
+    echo "DEBUG - pack_name extracted: '$pack_name'"
+
+    if [ -z "$pack_id" ] || [ "$pack_id" = "null" ]; then
+        log_error "Failed to extract pack_id from response"
+    fi
+
     log_success "Created pack: $pack_name (ID: $pack_id)"
     
     # Step 3: Get pack details
@@ -142,40 +153,76 @@ test_pack_goal_flow() {
     
     log_success "Pack verified with correct creator"
     
-    # Step 4: Create goal for pack
-    log_step "4" "Create morning workout goal"
-    goal_data='{
-        "name": "Morning Workout",
+    # Step 4a: Create personal goal (any member can do this)
+    log_step "4a" "Create personal morning workout goal"
+    personal_goal_data='{
+        "title": "Personal Morning Workout",
         "description": "30 minutes of exercise before 9 AM",
-        "recurrence": "daily",
-        "checkin_time": "09:00",
-        "requires_proof": true,
-        "fine_amount": 1000
+        "goal_type": "personal",
+        "recurrence_rule": {
+            "type": "daily",
+            "interval": 1
+        },
+        "check_in_time": "09:00",
+        "proof_required": true,
+        "fine_amount": 10
     }'
-    
-    response=$(api_call POST "/api/packs/$pack_id/goals" "$goal_data")
+
+    response=$(api_call POST "/api/packs/$pack_id/goals" "$personal_goal_data")
     status=$(get_status "$response")
-    
+
     if [ "$status" != "201" ]; then
-        log_error "Failed to create goal (status: $status)"
+        log_error "Failed to create personal goal (status: $status)"
     fi
+
+    personal_goal_id=$(get_field "$response" "id")
+    personal_goal_title=$(get_field "$response" "title")
+    log_success "Created personal goal: $personal_goal_title (ID: $personal_goal_id)"
+
+    # Step 4b: Create pack goal (only pack creator/admin can do this)
+    log_step "4b" "Create pack-wide study goal"
+    pack_goal_data='{
+        "title": "Daily Study Session",
+        "description": "Everyone must study for 1 hour",
+        "goal_type": "pack",
+        "recurrence_rule": {
+            "type": "daily",
+            "interval": 1
+        },
+        "check_in_time": "20:00",
+        "proof_required": false,
+        "fine_amount": 5
+    }'
+
+    response=$(api_call POST "/api/packs/$pack_id/goals" "$pack_goal_data")
+    status=$(get_status "$response")
+
+    if [ "$status" != "201" ]; then
+        log_error "Failed to create pack goal (status: $status)"
+    fi
+
+    pack_goal_id=$(get_field "$response" "id")
+    pack_goal_title=$(get_field "$response" "title")
+    log_success "Created pack goal: $pack_goal_title (ID: $pack_goal_id)"
+
+    # Use personal goal for subsequent tests
+    goal_id=$personal_goal_id
     
-    goal_id=$(get_field "$response" "id")
-    goal_name=$(get_field "$response" "name")
-    log_success "Created goal: $goal_name (ID: $goal_id)"
-    
-    # Step 5: List pack goals
+    # Step 5: List pack goals (should show both personal and pack goals)
     log_step "5" "List all pack goals"
     response=$(api_call GET "/api/packs/$pack_id/goals")
     status=$(get_status "$response")
-    
+
     if [ "$status" != "200" ]; then
         log_error "Failed to list goals (status: $status)"
     fi
-    
+
     goal_count=$(echo "$(get_body "$response")" | jq '.data | length')
-    log_success "Pack has $goal_count goal(s)"
-    
+    if [ "$goal_count" -lt "2" ]; then
+        log_error "Expected at least 2 goals (1 personal + 1 pack), got $goal_count"
+    fi
+    log_success "Pack has $goal_count goal(s) (personal + pack goals)"
+
     # Step 6: Get pack stats
     log_step "6" "Get pack statistics"
     response=$(api_call GET "/api/packs/$pack_id/stats")

@@ -46,6 +46,8 @@ export interface CreateGoalInput {
   description?: string;
   check_in_time: string;
   recurrence_rule: RecurrenceRule;
+  goal_type: 'personal' | 'pack'; // Type of goal
+  assigned_to_user_id?: string; // For personal goals, who it's assigned to
   fine_amount?: number;
   jail_duration?: number;
   proof_required?: boolean;

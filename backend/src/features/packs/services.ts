@@ -29,22 +29,18 @@ export async function createPack(
   userId: string,
   input: CreatePackInput
 ): Promise<Pack> {
-  // Generate unique invite code
-  const inviteCode = generateInviteCode();
+  // Use database function to create pack and add creator as member
+  // This bypasses RLS recursion issues between packs and pack_members
+  const { data, error: packError } = await supabase
+    .rpc('create_pack_with_creator', {
+      p_name: input.name,
+      p_creator_id: userId,
+      p_goal_type: input.goal_type || 'general',
+    });
 
-  // Create pack
-  const { data: pack, error: packError } = await supabase
-    .from('packs')
-    .insert({
-      name: input.name,
-      creator_id: userId,
-      goal_type: input.goal_type || 'general',
-      status: 'active',
-    })
-    .select()
-    .single();
+  console.log('RPC Response:', { data, error: packError });
 
-  if (packError || !pack) {
+  if (packError) {
     console.error('Pack creation error:', {
       code: packError?.code,
       message: packError?.message,
@@ -57,25 +53,12 @@ export async function createPack(
     throw new InternalError('Failed to create pack');
   }
 
-  // Add creator as admin member (skip for now due to RLS issues)
-  try {
-    const { error: memberError } = await supabase
-      .from('pack_members')
-      .insert({
-        pack_id: pack.id,
-        user_id: userId,
-        role: 'admin',
-        reputation_xp: 0,
-        is_active: true,
-      });
+  // RPC returns array of rows, get first one
+  const pack = Array.isArray(data) ? data[0] : data;
 
-    if (memberError) {
-      console.warn('Member creation failed (RLS issue), continuing anyway:', memberError);
-      // Don't fail the pack creation due to member creation issues
-    }
-  } catch (err) {
-    console.warn('Member creation error (RLS issue), continuing anyway:', err);
-    // Don't fail the pack creation
+  if (!pack) {
+    console.error('Pack creation returned null', { data });
+    throw new InternalError('Failed to create pack - no data returned');
   }
 
   return pack as Pack;
@@ -178,8 +161,15 @@ export async function addMember(
   // Get pack to check member count
   const pack = await getPack(supabase, packId);
 
+  // Count current members
+  const { count: memberCount } = await supabase
+    .from('pack_members')
+    .select('*', { count: 'exact', head: true })
+    .eq('pack_id', packId)
+    .eq('is_active', true);
+
   // Validate member limit
-  if (!validateMemberLimit(pack.member_count, 1)) {
+  if (!validateMemberLimit(memberCount || 0, 1)) {
     throw new ValidationError('Pack has reached maximum member limit (10)');
   }
 
@@ -202,8 +192,8 @@ export async function addMember(
       pack_id: packId,
       user_id: userId,
       role: 'member',
-      total_xp: 0,
-      current_streak: 0,
+      reputation_xp: 0,
+      is_active: true,
     })
     .select('*, users:user_id(username, display_name, avatar_url)')
     .single();
@@ -212,15 +202,6 @@ export async function addMember(
     console.error('Member addition error:', error);
     throw new InternalError('Failed to add member to pack');
   }
-
-  // Update pack member count
-  await supabase
-    .from('packs')
-    .update({
-      member_count: pack.member_count + 1,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', packId);
 
   return {
     ...member,
@@ -269,22 +250,18 @@ export async function removeMember(
     throw new InternalError('Failed to remove member');
   }
 
-  // Update pack member count
-  const newCount = pack.member_count - 1;
-  
+  // Count remaining members
+  const { count: remainingCount } = await supabase
+    .from('pack_members')
+    .select('*', { count: 'exact', head: true })
+    .eq('pack_id', packId)
+    .eq('is_active', true);
+
   // Check if pack still meets minimum requirement
-  if (newCount < 3) {
+  if ((remainingCount || 0) < 3) {
     // Optionally dissolve pack or mark as inactive
     console.warn(`Pack ${packId} now has less than 3 members`);
   }
-
-  await supabase
-    .from('packs')
-    .update({
-      member_count: newCount,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', packId);
 }
 
 /**
@@ -300,18 +277,28 @@ export async function getPackStats(
   // Get members with stats
   const { data: members } = await supabase
     .from('pack_members')
-    .select('user_id, total_xp, current_streak, users:user_id(username)')
+    .select('user_id, reputation_xp')
     .eq('pack_id', packId)
-    .order('total_xp', { ascending: false });
+    .eq('is_active', true)
+    .order('reputation_xp', { ascending: false });
 
-  // Get check-ins count
-  const { count: checkinsCount } = await supabase
-    .from('check_ins')
-    .select('*', { count: 'exact', head: true })
-    .in(
-      'goal_id',
-      supabase.from('goals').select('id').eq('pack_id', packId)
-    );
+  // Get goal IDs for this pack
+  const { data: goals } = await supabase
+    .from('goals')
+    .select('id')
+    .eq('pack_id', packId);
+
+  const goalIds = goals?.map(g => g.id) || [];
+
+  // Get check-ins count (only if we have goals)
+  let checkinsCount = 0;
+  if (goalIds.length > 0) {
+    const { count } = await supabase
+      .from('check_ins')
+      .select('*', { count: 'exact', head: true })
+      .in('goal_id', goalIds);
+    checkinsCount = count || 0;
+  }
 
   // Get fines count
   const { count: finesCount } = await supabase
@@ -319,40 +306,34 @@ export async function getPackStats(
     .select('*', { count: 'exact', head: true })
     .eq('pack_id', packId);
 
-  // Get jails count
-  const { count: jailsCount } = await supabase
-    .from('phone_jails')
-    .select('*', { count: 'exact', head: true })
-    .in(
-      'goal_id',
-      supabase.from('goals').select('id').eq('pack_id', packId)
-    );
+  // Get jails count (only if we have goals)
+  let jailsCount = 0;
+  if (goalIds.length > 0) {
+    const { count } = await supabase
+      .from('phone_jails')
+      .select('*', { count: 'exact', head: true })
+      .in('goal_id', goalIds);
+    jailsCount = count || 0;
+  }
 
-  // Calculate average streak
-  const streaks = members?.map((m) => m.current_streak) || [];
-  const averageStreak =
-    streaks.length > 0
-      ? streaks.reduce((a, b) => a + b, 0) / streaks.length
-      : 0;
-
-  // Get top performers (top 3)
+  // Get top performers (top 3) based on reputation XP
   const topPerformers =
     members?.slice(0, 3).map((m) => ({
       user_id: m.user_id,
-      username: (m.users as any)?.username || 'Unknown',
-      xp: m.total_xp,
-      streak: m.current_streak,
+      username: m.user_id, // Just use user_id since username might be null
+      xp: m.reputation_xp,
+      streak: 0, // TODO: Calculate from check_ins
     })) || [];
 
   return {
     pack_id: packId,
-    total_xp: pack.total_xp,
-    current_level: pack.current_level,
-    member_count: pack.member_count,
+    total_xp: pack.xp,
+    current_level: pack.level,
+    member_count: members?.length || 0,
     total_checkins: checkinsCount || 0,
     total_fines: finesCount || 0,
     total_jails: jailsCount || 0,
-    average_streak: Math.round(averageStreak * 10) / 10,
+    average_streak: 0, // TODO: Calculate from check_ins
     top_performers: topPerformers,
   };
 }
