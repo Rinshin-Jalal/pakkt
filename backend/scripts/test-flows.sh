@@ -285,15 +285,15 @@ test_checkin_accountability_flow() {
     verified=$(get_field "$response" "verified")
     log_success "Check-in verified: $verified"
     
-    # Step 3: List my check-ins
+    # Step 3: List my check-ins (use feed endpoint)
     log_step "3" "List my check-ins"
-    response=$(api_call GET "/api/checkins?limit=10")
+    response=$(api_call GET "/api/checkins/feed?limit=10")
     status=$(get_status "$response")
-    
+
     if [ "$status" != "200" ]; then
         log_error "Failed to list check-ins (status: $status)"
     fi
-    
+
     checkin_count=$(echo "$(get_body "$response")" | jq '.data | length')
     log_success "Found $checkin_count check-in(s)"
     

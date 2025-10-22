@@ -78,15 +78,16 @@ export async function createCheckIn(
   // Get user's current XP
   const { data: user } = await supabase
     .from('users')
-    .select('total_xp, current_level')
+    .select('xp, level, streak_count')
     .eq('id', userId)
     .single();
 
-  // Calculate XP award
+  // Calculate XP award (use default 100 for base_xp since column doesn't exist yet)
+  const baseXP = 100; // TODO: Add base_xp column to goals table
   const xpAward = calculateXPAward(
-    goal.base_xp,
+    baseXP,
     streakResult.streak_count,
-    user?.total_xp || 0
+    user?.xp || 0
   );
 
   // Extract check-in time from schedule
@@ -114,47 +115,60 @@ export async function createCheckIn(
     throw new InternalError('Failed to create check-in');
   }
 
-  // TODO: Update user stats once schema is aligned
-  // await supabase
-  //   .from('users')
-  //   .update({
-  //     xp: (user?.xp || 0) + xpAward.total_xp,
-  //     level: xpAward.new_level || user?.level || 1,
-  //     streak_count: streakResult.streak_count,
-  //   })
-  //   .eq('id', userId);
+  // Update user stats
+  await supabase
+    .from('users')
+    .update({
+      xp: (user?.xp || 0) + xpAward.total_xp,
+      level: xpAward.new_level || user?.level || 1,
+      streak_count: streakResult.streak_count,
+    })
+    .eq('id', userId);
 
-  // TODO: Update pack member stats once RPC function exists
-  // await supabase.rpc('increment_pack_member_xp', {
-  //   p_pack_id: goal.pack_id,
-  //   p_user_id: userId,
-  //   p_xp_amount: xpAward.total_xp,
-  //   p_streak: streakResult.streak_count,
-  // });
+  // Update pack member reputation XP
+  const { data: packMember } = await supabase
+    .from('pack_members')
+    .select('reputation_xp')
+    .eq('pack_id', goal.pack_id)
+    .eq('user_id', userId)
+    .single();
 
-  // TODO: Update pack total XP and level once schema is aligned
-  // const { data: packMembers } = await supabase
-  //   .from('pack_members')
-  //   .select('reputation_xp')
-  //   .eq('pack_id', goal.pack_id);
-  //
-  // if (packMembers) {
-  //   const totalPackXP = packMembers.reduce(
-  //     (sum, m) => sum + (m.reputation_xp || 0),
-  //     0
-  //   );
-  //   const packLevel = calculateLevelFromXP(totalPackXP);
-  //
-  //   await supabase
-  //     .from('packs')
-  //     .update({
-  //       xp: totalPackXP,
-  //       level: packLevel,
-  //     })
-  //     .eq('id', goal.pack_id);
-  // }
+  await supabase
+    .from('pack_members')
+    .update({
+      reputation_xp: (packMember?.reputation_xp || 0) + xpAward.total_xp,
+    })
+    .eq('pack_id', goal.pack_id)
+    .eq('user_id', userId);
 
-  return checkIn as CheckIn;
+  // Update pack total XP and level
+  const { data: packMembers } = await supabase
+    .from('pack_members')
+    .select('reputation_xp')
+    .eq('pack_id', goal.pack_id);
+
+  if (packMembers) {
+    const totalPackXP = packMembers.reduce(
+      (sum, m) => sum + (m.reputation_xp || 0),
+      0
+    );
+    const packLevel = calculateLevelFromXP(totalPackXP);
+
+    await supabase
+      .from('packs')
+      .update({
+        xp: totalPackXP,
+        level: packLevel,
+      })
+      .eq('id', goal.pack_id);
+  }
+
+  // Return check-in with calculated streak and XP
+  return {
+    ...checkIn,
+    streak_count: streakResult.streak_count,
+    xp_awarded: xpAward.total_xp,
+  } as CheckIn;
 }
 
 /**
