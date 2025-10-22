@@ -1,0 +1,1265 @@
+{
+  "info": {
+    "name": "Pakkt API - Complete Collection",
+    "description": "Comprehensive API testing collection for Pakkt accountability app with dark neobrutalism UI. Includes all endpoints for Users, Packs, Goals, Check-ins, Fines, Jail, Social, and Uploads features.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string",
+      "description": "API base URL (local dev)"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "Supabase JWT token - get from Supabase Auth"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "packId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "goalId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "checkInId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fineId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "jailSessionId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "📋 Setup & Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "✅ Check API health status (no auth required)\n\n**Expected Response:**\n```json\n{\n  \"status\": \"ok\",\n  \"timestamp\": \"2025-10-22T...\",\n  \"version\": \"1.0.0\"\n}\n```"
+          }
+        },
+        {
+          "name": "Get Current User Info",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('userId', response.data.userId);",
+                  "    console.log('✅ UserId set:', response.data.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me"]
+            },
+            "description": "🔐 Get authenticated user info and auto-set userId variable\n\n**Auto-sets:** `userId` collection variable"
+          }
+        },
+        {
+          "name": "Public Feed (Optional Auth Demo)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/feed",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feed"]
+            },
+            "description": "🔓 Test optional auth endpoint - works with or without token"
+          }
+        }
+      ],
+      "description": "Initial setup, health checks, and auth testing"
+    },
+    {
+      "name": "👤 Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Get current user's profile\n\n**Returns:** username, bio, profile_pic, XP, level, created_at"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"pakkt_warrior\",\n  \"bio\": \"Building habits, crushing goals 💪🔥\",\n  \"profile_pic\": \"https://r2.pakkt.app/user123/profile/avatar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Update user profile\n\n**Fields:** username, bio, profile_pic (all optional)"
+          }
+        },
+        {
+          "name": "Register Push Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ExponentPushToken[xxxxxxxxxxxxxx]\",\n  \"device_type\": \"ios\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/push-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "push-token"]
+            },
+            "description": "Register push notification token\n\n**device_type:** ios | android"
+          }
+        },
+        {
+          "name": "Remove Push Token",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/push-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "push-token"]
+            },
+            "description": "Remove push token for current device"
+          }
+        }
+      ],
+      "description": "User profile management and push notifications"
+    },
+    {
+      "name": "📦 Packs",
+      "item": [
+        {
+          "name": "Create Pack",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('packId', response.data.id);",
+                  "    console.log('✅ PackId set:', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Morning Warriors 🌅\",\n  \"description\": \"Early risers crushing goals before 8am\",\n  \"visibility\": \"private\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs"]
+            },
+            "description": "Create a new pack (3-10 members)\n\n**visibility:** private | public\n**Auto-sets:** `packId` variable"
+          }
+        },
+        {
+          "name": "Get My Packs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs"]
+            },
+            "description": "Get all packs user is a member of"
+          }
+        },
+        {
+          "name": "Get Pack Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}"]
+            },
+            "description": "Get pack details with member list"
+          }
+        },
+        {
+          "name": "Update Pack (Creator Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Elite Morning Warriors 💪\",\n  \"description\": \"Updated description\",\n  \"visibility\": \"public\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}"]
+            },
+            "description": "⚠️ **Creator only** - Update pack details"
+          }
+        },
+        {
+          "name": "Add Member to Pack",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"uuid-of-user-to-add\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "members"]
+            },
+            "description": "Add member to pack\n\n**Limit:** 3-10 members per pack"
+          }
+        },
+        {
+          "name": "Remove Member from Pack",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/members/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "members", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "uuid-of-user"
+                }
+              ]
+            },
+            "description": "⚠️ **Creator only** - Remove member from pack"
+          }
+        },
+        {
+          "name": "Get Pack Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "stats"]
+            },
+            "description": "Get pack statistics\n\n**Returns:** total_xp, pack_level, member_count, active_goals, total_checkins"
+          }
+        },
+        {
+          "name": "Dissolve Pack (Creator Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}"]
+            },
+            "description": "⚠️⚠️ **Creator only** - Delete pack permanently\n\n**Blocked if:** active fines exist"
+          }
+        }
+      ],
+      "description": "Pack creation and management (3-10 member groups)"
+    },
+    {
+      "name": "🎯 Goals",
+      "item": [
+        {
+          "name": "Create Goal for Pack",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('goalId', response.data.id);",
+                  "    console.log('✅ GoalId set:', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Morning Workout 💪\",\n  \"description\": \"30 min workout before 7am\",\n  \"recurrence_rule\": \"FREQ=DAILY\",\n  \"check_in_time\": \"07:00:00\",\n  \"requires_proof\": true,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/goals",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "goals"]
+            },
+            "description": "Create goal for a pack\n\n**Recurrence patterns:**\n- Daily: `FREQ=DAILY`\n- Weekly: `FREQ=WEEKLY;BYDAY=MO,WE,FR`\n- Weekdays: `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR`\n\n**Auto-sets:** `goalId` variable"
+          }
+        },
+        {
+          "name": "Create Weekly Goal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Gym Session 🏋️\",\n  \"description\": \"Hit the gym on workout days\",\n  \"recurrence_rule\": \"FREQ=WEEKLY;BYDAY=MO,WE,FR\",\n  \"check_in_time\": \"18:00:00\",\n  \"requires_proof\": true,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/goals",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "goals"]
+            },
+            "description": "Create weekly goal (Mon, Wed, Fri)"
+          }
+        },
+        {
+          "name": "List Pack Goals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/goals",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "goals"]
+            },
+            "description": "Get all goals for a pack"
+          }
+        },
+        {
+          "name": "Get My Active Goals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/my-active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "my-active"]
+            },
+            "description": "Get all active goals across all packs for current user"
+          }
+        },
+        {
+          "name": "Get Goal Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/{{goalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "{{goalId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Goal Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/{{goalId}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "{{goalId}}", "stats"]
+            },
+            "description": "Get goal stats\n\n**Returns:** total_checkins, completion_rate, current_streak, best_streak"
+          }
+        },
+        {
+          "name": "Update Goal",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intense Morning Workout 🔥\",\n  \"check_in_time\": \"06:30:00\",\n  \"requires_proof\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/{{goalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "{{goalId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Goal Status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/{{goalId}}/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "{{goalId}}", "toggle"]
+            },
+            "description": "Activate or deactivate goal"
+          }
+        },
+        {
+          "name": "Delete Goal",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goals/{{goalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goals", "{{goalId}}"]
+            },
+            "description": "⚠️ Delete goal permanently"
+          }
+        }
+      ],
+      "description": "Goal management with recurrence rules and check-in schedules"
+    },
+    {
+      "name": "✅ Check-ins",
+      "item": [
+        {
+          "name": "Submit Check-in",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('checkInId', response.data.id);",
+                  "    console.log('✅ CheckInId set:', response.data.id);",
+                  "    console.log('🎉 XP awarded:', response.data.xp_awarded);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goal_id\": \"{{goalId}}\",\n  \"proof_url\": \"https://r2.pakkt.app/user123/pack456/checkin/workout.jpg\",\n  \"notes\": \"Crushed it today! 30 min HIIT 💪🔥\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins"]
+            },
+            "description": "Submit check-in for goal\n\n**Awards:** 10 XP base + streak bonuses\n**Generates:** feed event\n**Auto-sets:** `checkInId` variable"
+          }
+        },
+        {
+          "name": "Submit Without Proof",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goal_id\": \"{{goalId}}\",\n  \"notes\": \"Done! No photo needed for this one\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins"]
+            },
+            "description": "Submit check-in without proof (if goal doesn't require it)"
+          }
+        },
+        {
+          "name": "Get My Feed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins/feed?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins", "feed"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get check-ins from all user's packs (paginated)"
+          }
+        },
+        {
+          "name": "Get Pack Check-ins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/checkins?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "checkins"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get check-ins for specific pack"
+          }
+        },
+        {
+          "name": "Get Check-in Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins/{{checkInId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins", "{{checkInId}}"]
+            },
+            "description": "Get check-in with reactions and comments"
+          }
+        },
+        {
+          "name": "Get My Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins", "stats"]
+            },
+            "description": "Get user statistics\n\n**Returns:** total_xp, level, current_streak, best_streak, total_checkins"
+          }
+        },
+        {
+          "name": "Delete Check-in",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/checkins/{{checkInId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "checkins", "{{checkInId}}"]
+            },
+            "description": "⚠️ Delete check-in (owner only)"
+          }
+        }
+      ],
+      "description": "Check-in submission with XP rewards and streak tracking"
+    },
+    {
+      "name": "💰 Fines & Voting",
+      "item": [
+        {
+          "name": "Create Fine",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('fineId', response.data.id);",
+                  "    console.log('✅ FineId set:', response.data.id);",
+                  "    console.log('⏰ Voting ends:', response.data.voting_ends_at);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goal_id\": \"{{goalId}}\",\n  \"user_id\": \"{{userId}}\",\n  \"missed_date\": \"2025-10-22\",\n  \"amount\": 500,\n  \"reason\": \"Missed morning workout check-in\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines"]
+            },
+            "description": "Create fine for missed check-in\n\n**Amount:** in cents (500 = $5.00)\n**Voting window:** 24 hours\n**Auto-sets:** `fineId` variable"
+          }
+        },
+        {
+          "name": "Get My Fines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/my?status=voting",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "my"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "voting",
+                  "description": "voting | enforced | cancelled"
+                }
+              ]
+            },
+            "description": "Get user's fines\n\n**status:** voting | enforced | cancelled"
+          }
+        },
+        {
+          "name": "Get Pack Fines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/packs/{{packId}}/fines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "packs", "{{packId}}", "fines"]
+            }
+          }
+        },
+        {
+          "name": "Get Fine Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/{{fineId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "{{fineId}}"]
+            },
+            "description": "Get fine with vote counts and status"
+          }
+        },
+        {
+          "name": "Vote - Enforce Fine",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vote\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/{{fineId}}/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "{{fineId}}", "vote"]
+            },
+            "description": "🔨 Vote to ENFORCE fine\n\n**vote:** true = enforce, false = dismiss\n**Limit:** One vote per pack member"
+          }
+        },
+        {
+          "name": "Vote - Dismiss Fine",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vote\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/{{fineId}}/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "{{fineId}}", "vote"]
+            },
+            "description": "❌ Vote to DISMISS fine"
+          }
+        },
+        {
+          "name": "Manually Resolve Fine",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/{{fineId}}/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "{{fineId}}", "resolve"]
+            },
+            "description": "Manually trigger resolution\n\n**Note:** Auto-resolves after 24 hours"
+          }
+        },
+        {
+          "name": "Appeal Fine",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"I was sick that day and notified the pack beforehand\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fines/{{fineId}}/appeal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fines", "{{fineId}}", "appeal"]
+            },
+            "description": "Appeal an enforced fine"
+          }
+        }
+      ],
+      "description": "Democratic fine system with 24h pack voting window"
+    },
+    {
+      "name": "🔒 Phone Jail",
+      "item": [
+        {
+          "name": "Start Jail Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jailSessionId', response.data.id);",
+                  "    console.log('✅ JailSessionId set:', response.data.id);",
+                  "    console.log('⏱️ Duration:', response.data.duration_minutes, 'minutes');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"punishment_id\": \"uuid-of-punishment\",\n  \"duration_minutes\": 30,\n  \"blocked_apps\": [\n    \"com.instagram.ios\",\n    \"com.twitter.ios\",\n    \"com.tiktok.ios\",\n    \"com.facebook.ios\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jail/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jail", "start"]
+            },
+            "description": "Start jail session\n\n**Heartbeat:** Must send every 30s or timer pauses\n**Apps:** iOS bundle IDs to block\n**Auto-sets:** `jailSessionId` variable"
+          }
+        },
+        {
+          "name": "Get Active Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jail/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jail", "active"]
+            },
+            "description": "Get all active jail sessions for current user"
+          }
+        },
+        {
+          "name": "Get Session Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jail/{{jailSessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jail", "{{jailSessionId}}"]
+            },
+            "description": "Get session progress\n\n**Returns:** elapsed_time, remaining_time, paused_duration, status"
+          }
+        },
+        {
+          "name": "Send Heartbeat",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jail/{{jailSessionId}}/heartbeat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jail", "{{jailSessionId}}", "heartbeat"]
+            },
+            "description": "💓 Send heartbeat to keep timer running\n\n**Frequency:** Every 30 seconds\n**Pause trigger:** >1 minute gap"
+          }
+        },
+        {
+          "name": "Break Jail (Pay 2x)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jail/{{jailSessionId}}/break",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jail", "{{jailSessionId}}", "break"]
+            },
+            "description": "⚠️💰 Break out early by paying 2x the original fine\n\n**Cost:** 2x original fine amount\n**Effect:** Ends session immediately"
+          }
+        }
+      ],
+      "description": "Phone jail with heartbeat tracking and early release (2x fine)"
+    },
+    {
+      "name": "💬 Social",
+      "item": [
+        {
+          "name": "Reactions",
+          "item": [
+            {
+              "name": "Add Reaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"target_id\": \"{{checkInId}}\",\n  \"target_type\": \"checkin\",\n  \"emoji\": \"🔥\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/reactions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "reactions"]
+                },
+                "description": "Add reaction to check-in\n\n**Emojis:** 🔥💪👏🎉😂❤️👀\n**Limit:** One per user per target"
+              }
+            },
+            {
+              "name": "Update Reaction",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"target_id\": \"{{checkInId}}\",\n  \"target_type\": \"checkin\",\n  \"emoji\": \"💪\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/reactions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "reactions"]
+                },
+                "description": "Change existing reaction emoji"
+              }
+            },
+            {
+              "name": "Remove Reaction",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/reactions/:reactionId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "reactions", ":reactionId"],
+                  "variable": [
+                    {
+                      "key": "reactionId",
+                      "value": "uuid-of-reaction"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Check-in Reactions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/checkins/{{checkInId}}/reactions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "checkins", "{{checkInId}}", "reactions"]
+                },
+                "description": "Get all reactions for a check-in"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comments",
+          "item": [
+            {
+              "name": "Add Comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"checkin_id\": \"{{checkInId}}\",\n  \"content\": \"Great job! Keep crushing it! 💪🔥\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/comments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "comments"]
+                },
+                "description": "Add comment to check-in\n\n**Max length:** 500 characters"
+              }
+            },
+            {
+              "name": "Edit Comment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Updated comment text\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/comments/:commentId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "comments", ":commentId"],
+                  "variable": [
+                    {
+                      "key": "commentId",
+                      "value": "uuid-of-comment"
+                    }
+                  ]
+                },
+                "description": "⏰ Edit comment (within 5 minutes, author only)"
+              }
+            },
+            {
+              "name": "Delete Comment",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/social/comments/:commentId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "social", "comments", ":commentId"],
+                  "variable": [
+                    {
+                      "key": "commentId",
+                      "value": "uuid-of-comment"
+                    }
+                  ]
+                },
+                "description": "Delete comment (author only)"
+              }
+            },
+            {
+              "name": "Get Check-in Comments",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/checkins/{{checkInId}}/comments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "checkins", "{{checkInId}}", "comments"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Feed Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/social/feed-events?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "social", "feed-events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get feed events\n\n**Events:** checkin_success, fine_voted, jail_served, level_up, pack_milestone"
+          }
+        }
+      ],
+      "description": "Reactions, comments, and feed events for social engagement"
+    },
+    {
+      "name": "📤 Uploads",
+      "item": [
+        {
+          "name": "Get Presigned URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_type\": \"image/jpeg\",\n  \"purpose\": \"checkin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/presigned-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", "presigned-url"]
+            },
+            "description": "Get presigned URL for R2 upload\n\n**file_type:** image/jpeg, image/png, image/heic, video/mp4, video/quicktime\n**purpose:** checkin | profile\n**Expires:** 5 minutes\n**Max size:** 10MB images, 50MB videos"
+          }
+        },
+        {
+          "name": "Upload File to R2 (Direct)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "image/jpeg"
+              }
+            ],
+            "body": {
+              "mode": "file",
+              "file": {}
+            },
+            "url": {
+              "raw": "PRESIGNED_URL_FROM_PREVIOUS_REQUEST",
+              "host": ["PRESIGNED_URL_FROM_PREVIOUS_REQUEST"]
+            },
+            "description": "📸 Upload file directly to R2\n\n**Use:** Presigned URL from previous request\n**Method:** PUT with file binary\n**Note:** This bypasses the API server"
+          }
+        },
+        {
+          "name": "Get Upload History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/history?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", "history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get user's upload history"
+          }
+        },
+        {
+          "name": "Get Upload Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", "stats"]
+            },
+            "description": "Get storage usage stats"
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/uploads/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "uploads", ":key"],
+              "variable": [
+                {
+                  "key": "key",
+                  "value": "user123/pack456/checkin/1234567890-abc123.jpg",
+                  "description": "Full R2 object key"
+                }
+              ]
+            },
+            "description": "⚠️ Delete file from R2 (owner only)"
+          }
+        }
+      ],
+      "description": "File uploads via R2 presigned URLs (10MB images, 50MB videos)"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('🚀 Request:', pm.request.method, pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "const status = pm.response.code;",
+          "const emoji = status < 300 ? '✅' : status < 500 ? '⚠️' : '❌';",
+          "console.log(emoji, 'Response:', status, pm.response.status);"
+        ]
+      }
+    }
+  ]
+}
