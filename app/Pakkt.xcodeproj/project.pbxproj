@@ -24,16 +24,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0E6DF8032EA657C20087589D /* Pakkt */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0E6DF8442EACF1230087589D /* Info.plist */,
-			);
 			path = Pakkt;
 			sourceTree = "<group>";
-		};
-		0E6DF8442EACF1230087589D /* Info.plist */ = {
-			isa = PBXFileSystemSynchronizedBuildFileException;
-			path = Info.plist;
-			target = 0E6DF8002EA657C20087589D /* Pakkt */;
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
