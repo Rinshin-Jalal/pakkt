@@ -6,6 +6,8 @@ import {
   ForbiddenError,
   ValidationError,
 } from '../../lib/errors';
+import { createSupabaseClient } from '../../lib/supabase';
+import type { Env } from '../../types/env';
 import type {
   Pack,
   PackMember,
@@ -83,7 +85,7 @@ export async function getPack(
   if (includeMembers) {
     const { data: members } = await supabase
       .from('pack_members')
-      .select('*, users:user_id(username, display_name, avatar_url)')
+      .select('*, users:user_id(username, profile_pic)')
       .eq('pack_id', packId)
       .order('joined_at', { ascending: true });
 
@@ -154,7 +156,8 @@ export async function dissolvePack(
 export async function addMember(
   supabase: SupabaseClient,
   packId: string,
-  userId: string
+  userId: string,
+  env: Env
 ): Promise<PackMember> {
   // Get pack to check member count
   const pack = await getPack(supabase, packId);
@@ -183,8 +186,12 @@ export async function addMember(
     throw new ConflictError('User is already a member of this pack');
   }
 
-  // Add member
-  const { data: member, error } = await supabase
+  // Add member using service role client to bypass RLS
+  // Note: We use service role here because auth.uid() is null in server context
+  // Permissions are already checked in the route handler (requirePackCreator)
+  const serviceSupabase = createSupabaseClient(env);
+
+  const { data: member, error } = await serviceSupabase
     .from('pack_members')
     .insert({
       pack_id: packId,
@@ -193,7 +200,7 @@ export async function addMember(
       reputation_xp: 0,
       is_active: true,
     })
-    .select('*, users:user_id(username, display_name, avatar_url)')
+    .select('*, users:user_id(username, profile_pic)')
     .single();
 
   if (error || !member) {
@@ -364,7 +371,7 @@ export async function getUserPacks(
 }
 
 /**
- * Find pack by invite code
+ * Find pack by invite code (DEPRECATED - use new invite code system)
  */
 export async function findPackByInviteCode(
   supabase: SupabaseClient,
@@ -381,4 +388,258 @@ export async function findPackByInviteCode(
   }
 
   return pack as Pack;
+}
+
+/**
+ * Create a new invite code for a pack
+ */
+export async function createPackInviteCode(
+  supabase: SupabaseClient,
+  packId: string,
+  userId: string,
+  input: { max_uses?: number; expires_in_hours?: number }
+): Promise<any> {
+  // Verify user is pack creator
+  const { data: pack } = await supabase
+    .from('packs')
+    .select('creator_id')
+    .eq('id', packId)
+    .single();
+
+  if (!pack) {
+    throw new NotFoundError('Pack');
+  }
+
+  if (pack.creator_id !== userId) {
+    throw new ForbiddenError('Only pack creator can create invite codes');
+  }
+
+  // Generate unique code
+  const code = generateInviteCode();
+
+  // Calculate expiration
+  const expiresInHours = input.expires_in_hours || 24;
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + expiresInHours);
+
+  // Create invite code
+  const { data: inviteCode, error } = await supabase
+    .from('pack_invite_codes')
+    .insert({
+      pack_id: packId,
+      code,
+      created_by: userId,
+      max_uses: input.max_uses || 1,
+      current_uses: 0,
+      expires_at: expiresAt.toISOString(),
+      is_active: true,
+    })
+    .select()
+    .single();
+
+  if (error || !inviteCode) {
+    console.error('Invite code creation error:', error);
+    throw new InternalError('Failed to create invite code');
+  }
+
+  return inviteCode;
+}
+
+/**
+ * Validate an invite code (check if it's usable)
+ */
+export async function validatePackInviteCode(
+  supabase: SupabaseClient,
+  code: string
+): Promise<{ valid: boolean; pack_id?: string; reason?: string }> {
+  const { data: inviteCode } = await supabase
+    .from('pack_invite_codes')
+    .select('*, packs:pack_id(name)')
+    .eq('code', code)
+    .single();
+
+  if (!inviteCode) {
+    return { valid: false, reason: 'Invalid invite code' };
+  }
+
+  if (!inviteCode.is_active) {
+    return { valid: false, reason: 'Invite code is no longer active' };
+  }
+
+  if (new Date(inviteCode.expires_at) < new Date()) {
+    return { valid: false, reason: 'Invite code has expired' };
+  }
+
+  if (inviteCode.current_uses >= inviteCode.max_uses) {
+    return { valid: false, reason: 'Invite code has reached maximum uses' };
+  }
+
+  return {
+    valid: true,
+    pack_id: inviteCode.pack_id,
+  };
+}
+
+/**
+ * Use an invite code to join a pack
+ */
+export async function usePackInviteCode(
+  supabase: SupabaseClient,
+  userId: string,
+  code: string
+): Promise<{ pack: Pack; member: PackMember }> {
+  // Use database function for atomic operation
+  // Function returns pack and member details directly (bypasses RLS)
+  const { data, error } = await supabase
+    .rpc('use_invite_code', {
+      p_code: code,
+      p_user_id: userId,
+    })
+    .single();
+
+  if (error) {
+    console.error('Invite code usage error:', error);
+    if (error.message.includes('already a member')) {
+      throw new ConflictError('You are already a member of this pack');
+    }
+    if (error.message.includes('Invalid or expired')) {
+      throw new ValidationError('Invalid or expired invite code');
+    }
+    throw new InternalError('Failed to use invite code');
+  }
+
+  if (!data) {
+    throw new InternalError('Failed to join pack');
+  }
+
+  // Function returns both pack and member data
+  const pack: Pack = {
+    id: data.result_pack_id,
+    name: data.result_pack_name,
+    creator_id: data.result_pack_creator_id,
+    xp: data.result_pack_xp,
+    level: data.result_pack_level,
+    status: data.result_pack_status,
+    created_at: '', // Not returned by function but not critical
+    updated_at: '',
+  };
+
+  const member: PackMember = {
+    id: data.result_member_id,
+    pack_id: data.result_pack_id,
+    user_id: userId,
+    role: data.result_member_role,
+    reputation_xp: data.result_member_reputation_xp,
+    is_active: true,
+    join_date: new Date().toISOString(),
+    created_at: '',
+    updated_at: '',
+  };
+
+  return { pack, member };
+}
+
+/**
+ * List all invite codes for a pack
+ */
+export async function listPackInviteCodes(
+  supabase: SupabaseClient,
+  packId: string,
+  userId: string
+): Promise<any[]> {
+  // Verify user is pack creator
+  const { data: pack } = await supabase
+    .from('packs')
+    .select('creator_id')
+    .eq('id', packId)
+    .single();
+
+  if (!pack) {
+    throw new NotFoundError('Pack');
+  }
+
+  if (pack.creator_id !== userId) {
+    throw new ForbiddenError('Only pack creator can view invite codes');
+  }
+
+  // Get invite codes
+  const { data: inviteCodes } = await supabase
+    .from('pack_invite_codes')
+    .select('*')
+    .eq('pack_id', packId)
+    .order('created_at', { ascending: false });
+
+  return inviteCodes || [];
+}
+
+/**
+ * Deactivate an invite code
+ */
+export async function deactivatePackInviteCode(
+  supabase: SupabaseClient,
+  codeId: string,
+  userId: string
+): Promise<void> {
+  // Get invite code with pack info
+  const { data: inviteCode } = await supabase
+    .from('pack_invite_codes')
+    .select('*, packs:pack_id(creator_id)')
+    .eq('id', codeId)
+    .single();
+
+  if (!inviteCode) {
+    throw new NotFoundError('Invite code');
+  }
+
+  // Verify user is pack creator
+  if (inviteCode.packs.creator_id !== userId) {
+    throw new ForbiddenError('Only pack creator can deactivate invite codes');
+  }
+
+  // Deactivate
+  const { error } = await supabase
+    .from('pack_invite_codes')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', codeId);
+
+  if (error) {
+    console.error('Deactivate invite code error:', error);
+    throw new InternalError('Failed to deactivate invite code');
+  }
+}
+
+/**
+ * Delete an invite code
+ */
+export async function deletePackInviteCode(
+  supabase: SupabaseClient,
+  codeId: string,
+  userId: string
+): Promise<void> {
+  // Get invite code with pack info
+  const { data: inviteCode } = await supabase
+    .from('pack_invite_codes')
+    .select('*, packs:pack_id(creator_id)')
+    .eq('id', codeId)
+    .single();
+
+  if (!inviteCode) {
+    throw new NotFoundError('Invite code');
+  }
+
+  // Verify user is pack creator
+  if (inviteCode.packs.creator_id !== userId) {
+    throw new ForbiddenError('Only pack creator can delete invite codes');
+  }
+
+  // Delete
+  const { error } = await supabase
+    .from('pack_invite_codes')
+    .delete()
+    .eq('id', codeId);
+
+  if (error) {
+    console.error('Delete invite code error:', error);
+    throw new InternalError('Failed to delete invite code');
+  }
 }

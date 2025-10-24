@@ -56,6 +56,7 @@ export function createSupabaseClientWithAuth(
     global: {
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        apikey: env.SUPABASE_ANON_KEY,
       },
     },
     auth: {

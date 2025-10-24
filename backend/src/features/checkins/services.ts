@@ -21,6 +21,8 @@ import {
   getDateRange,
   calculateLevelFromXP,
 } from './utils';
+import { createSupabaseClient } from '../../lib/supabase';
+import type { Env } from '../../types';
 
 /**
  * Create a check-in for a goal
@@ -28,7 +30,8 @@ import {
 export async function createCheckIn(
   supabase: SupabaseClient,
   userId: string,
-  input: CreateCheckInInput
+  input: CreateCheckInInput,
+  env: Env
 ): Promise<CheckIn> {
   // Get goal details
   const { data: goal, error: goalError } = await supabase
@@ -115,8 +118,11 @@ export async function createCheckIn(
     throw new InternalError('Failed to create check-in');
   }
 
+  // Use service role for XP updates (bypasses RLS for system operations)
+  const serviceSupabase = createSupabaseClient(env);
+
   // Update user stats
-  await supabase
+  const { error: userUpdateError } = await serviceSupabase
     .from('users')
     .update({
       xp: (user?.xp || 0) + xpAward.total_xp,
@@ -125,15 +131,20 @@ export async function createCheckIn(
     })
     .eq('id', userId);
 
+  if (userUpdateError) {
+    console.error('Failed to update user XP:', userUpdateError);
+    throw new InternalError('Failed to award user XP');
+  }
+
   // Update pack member reputation XP
-  const { data: packMember } = await supabase
+  const { data: packMember } = await serviceSupabase
     .from('pack_members')
     .select('reputation_xp')
     .eq('pack_id', goal.pack_id)
     .eq('user_id', userId)
     .single();
 
-  await supabase
+  const { error: memberUpdateError } = await serviceSupabase
     .from('pack_members')
     .update({
       reputation_xp: (packMember?.reputation_xp || 0) + xpAward.total_xp,
@@ -141,8 +152,13 @@ export async function createCheckIn(
     .eq('pack_id', goal.pack_id)
     .eq('user_id', userId);
 
+  if (memberUpdateError) {
+    console.error('Failed to update pack member XP:', memberUpdateError);
+    throw new InternalError('Failed to award pack member XP');
+  }
+
   // Update pack total XP and level
-  const { data: packMembers } = await supabase
+  const { data: packMembers } = await serviceSupabase
     .from('pack_members')
     .select('reputation_xp')
     .eq('pack_id', goal.pack_id);
@@ -154,13 +170,18 @@ export async function createCheckIn(
     );
     const packLevel = calculateLevelFromXP(totalPackXP);
 
-    await supabase
+    const { error: packUpdateError } = await serviceSupabase
       .from('packs')
       .update({
         xp: totalPackXP,
         level: packLevel,
       })
       .eq('id', goal.pack_id);
+
+    if (packUpdateError) {
+      console.error('Failed to update pack XP:', packUpdateError);
+      throw new InternalError('Failed to award pack XP');
+    }
   }
 
   // Return check-in with calculated streak and XP

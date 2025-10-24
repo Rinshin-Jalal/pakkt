@@ -49,10 +49,9 @@ export async function addReaction(
       .from('reactions')
       .update({
         emoji: input.emoji,
-        updated_at: new Date().toISOString(),
       })
       .eq('id', existing.id)
-      .select('*, user:users(username, display_name, avatar_url)')
+      .select('*, user:users(username, profile_pic)')
       .single();
 
     if (error || !updated) {
@@ -75,7 +74,7 @@ export async function addReaction(
       feed_event_id: input.feed_event_id,
       emoji: input.emoji,
     })
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .single();
 
   if (error || !reaction) {
@@ -131,7 +130,7 @@ export async function getCheckInReactions(
 ): Promise<{ reactions: Reaction[]; counts: ReactionCounts }> {
   const { data: reactions, error } = await supabase
     .from('reactions')
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .eq('check_in_id', checkInId)
     .order('created_at', { ascending: false });
 
@@ -179,9 +178,8 @@ export async function addComment(
       check_in_id: input.check_in_id,
       user_id: userId,
       content: input.content,
-      edited: false,
     })
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .single();
 
   if (error || !comment) {
@@ -230,11 +228,10 @@ export async function editComment(
     .from('comments')
     .update({
       content: input.content,
-      edited: true,
       updated_at: new Date().toISOString(),
     })
     .eq('id', commentId)
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .single();
 
   if (error || !updated) {
@@ -289,7 +286,7 @@ export async function getCheckInComments(
 ): Promise<Comment[]> {
   const { data: comments, error } = await supabase
     .from('comments')
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .eq('check_in_id', checkInId)
     .order('created_at', { ascending: true });
 
@@ -323,7 +320,7 @@ export async function createFeedEvent(
       visibility,
       metadata: input.metadata,
     })
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .single();
 
   if (error || !feedEvent) {
@@ -361,7 +358,7 @@ export async function getFeedEvents(
   // Get feed events
   const { data: events, error } = await supabase
     .from('feed_events')
-    .select('*, user:users(username, display_name, avatar_url)')
+    .select('*, user:users(username, profile_pic)')
     .in('pack_id', packIds)
     .in('visibility', ['pack', 'public'])
     .order('created_at', { ascending: false })

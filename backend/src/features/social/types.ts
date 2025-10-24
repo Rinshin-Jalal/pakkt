@@ -13,11 +13,9 @@ export interface Reaction {
   feed_event_id?: string;
   emoji: EmojiType;
   created_at: string;
-  updated_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
 }
 
@@ -40,13 +38,11 @@ export interface Comment {
   check_in_id: string;
   user_id: string;
   content: string;
-  edited: boolean;
   created_at: string;
   updated_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
 }
 
@@ -74,8 +70,7 @@ export interface FeedEvent {
   created_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
 }
 

@@ -16,8 +16,7 @@ export interface Fine {
   updated_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
   goal?: {
     title: string;
@@ -36,7 +35,6 @@ export interface FineVote {
   created_at: string;
   user?: {
     username: string;
-    display_name?: string;
   };
 }
 

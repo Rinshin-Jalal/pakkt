@@ -99,7 +99,7 @@ export async function getGoal(
 ): Promise<Goal> {
   const { data: goal, error } = await supabase
     .from('goals')
-    .select('*, users:creator_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, profile_pic)')
     .eq('id', goalId)
     .single();
 
@@ -133,7 +133,7 @@ export async function updateGoal(
       updated_at: new Date().toISOString(),
     })
     .eq('id', goalId)
-    .select('*, users:creator_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, profile_pic)')
     .single();
 
   if (error || !updatedGoal) {
@@ -210,7 +210,7 @@ export async function toggleGoalStatus(
       updated_at: new Date().toISOString(),
     })
     .eq('id', goalId)
-    .select('*, users:creator_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, profile_pic)')
     .single();
 
   if (error || !updatedGoal) {
@@ -297,7 +297,7 @@ export async function getUserActiveGoals(
 
   const { data: goals, error } = await supabase
     .from('goals')
-    .select('*, users:creator_id(username, display_name, avatar_url)')
+    .select('*, users:creator_id(username, profile_pic)')
     .in('pack_id', packIds)
     .eq('active', true)
     .order('check_in_time', { ascending: true });

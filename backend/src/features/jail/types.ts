@@ -19,8 +19,7 @@ export interface PhoneJail {
   updated_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
   goal?: {
     title: string;

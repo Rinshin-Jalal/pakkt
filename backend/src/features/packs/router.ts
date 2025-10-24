@@ -9,6 +9,12 @@ import {
   addMemberHandler,
   removeMemberHandler,
   getPackStatsHandler,
+  createInviteCodeHandler,
+  listInviteCodesHandler,
+  validateInviteCodeHandler,
+  useInviteCodeHandler,
+  deactivateInviteCodeHandler,
+  deleteInviteCodeHandler,
 } from './routes';
 import type { Env } from '../../types/env';
 
@@ -24,11 +30,17 @@ packs.get('/:id', getPackHandler);
 packs.patch('/:id', updatePackHandler);
 packs.delete('/:id', dissolvePackHandler);
 
-// Member management
+// Member management (DEPRECATED - use invite codes instead)
 packs.post('/:id/members', addMemberHandler);
 packs.delete('/:id/members/:userId', removeMemberHandler);
 
 // Pack stats
 packs.get('/:id/stats', getPackStatsHandler);
+
+// Invite codes
+packs.post('/:id/invite-codes', createInviteCodeHandler);
+packs.get('/:id/invite-codes', listInviteCodesHandler);
+packs.patch('/:id/invite-codes/:codeId/deactivate', deactivateInviteCodeHandler);
+packs.delete('/:id/invite-codes/:codeId', deleteInviteCodeHandler);
 
 export default packs;

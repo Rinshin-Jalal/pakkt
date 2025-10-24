@@ -34,10 +34,10 @@ export async function createFine(
   creatorId: string,
   input: CreateFineInput
 ): Promise<Fine> {
-  // Get goal and pack details
+  // Get goal and pack details (RLS allows pack members to read goals)
   const { data: goal } = await supabase
     .from('goals')
-    .select('title, fine_amount, pack_id, packs(default_fine_amount)')
+    .select('title, fine_amount, pack_id')
     .eq('id', input.goal_id)
     .single();
 
@@ -45,28 +45,26 @@ export async function createFine(
     throw new NotFoundError('Goal not found in this pack');
   }
 
-  // Calculate fine amount
-  const amount =
-    input.amount || calculateFineAmount(goal.fine_amount, (goal.packs as any)?.default_fine_amount);
+  // Calculate fine amount (use goal's fine_amount or input amount)
+  const amount = input.amount || goal.fine_amount || 500; // Default 500 cents = $5
 
   // Calculate voting end time
   const votingEndsAt = calculateVotingEndTime();
 
-  // Create fine
+  // Create fine (RLS allows pack members to create fines)
   const { data: fine, error } = await supabase
     .from('fines')
     .insert({
       pack_id: packId,
       user_id: input.user_id,
       goal_id: input.goal_id,
-      check_in_id: input.check_in_id,
+      check_in_id: input.check_in_id || null,
       amount,
-      reason: input.reason,
-      status: 'voting',
+      status: 'voting', // Status: voting (pack voting in progress)
       voting_ends_at: votingEndsAt.toISOString(),
     })
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -93,7 +91,7 @@ export async function getFineWithVotes(
   const { data: fine, error: fineError } = await supabase
     .from('fines')
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .eq('id', fineId)
     .single();
@@ -105,7 +103,7 @@ export async function getFineWithVotes(
   // Get votes
   const { data: votes } = await supabase
     .from('fine_votes')
-    .select('*, user:users(username, display_name)')
+    .select('*, user:users(username)')
     .eq('fine_id', fineId)
     .order('created_at', { ascending: false });
 
@@ -133,7 +131,7 @@ export async function getFineWithVotes(
     const { data: updatedFine } = await supabase
       .from('fines')
       .select(
-        '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+        '*, user:users(username, profile_pic), goal:goals(title)'
       )
       .eq('id', fineId)
       .single();
@@ -194,20 +192,27 @@ export async function castVote(
     throw new ForbiddenError(canVote.reason || 'Cannot vote on this fine');
   }
 
-  // Cast vote
+  // Cast vote (RLS allows pack members to vote, unique constraint prevents duplicates)
   const { data: vote, error } = await supabase
     .from('fine_votes')
     .insert({
       fine_id: fineId,
-      user_id: userId,
+      voter_id: userId,
       vote: input.vote,
-      comment: input.comment,
     })
-    .select('*, user:users(username, display_name)')
+    .select('*, user:voter_id(username)')
     .single();
 
-  if (error || !vote) {
+  if (error) {
+    // Check if it's a duplicate vote (unique constraint violation)
+    if (error.code === '23505') {
+      throw new ConflictError('You have already voted on this fine');
+    }
     console.error('Vote creation error:', error);
+    throw new InternalError('Failed to cast vote');
+  }
+
+  if (!vote) {
     throw new InternalError('Failed to cast vote');
   }
 
@@ -234,16 +239,15 @@ export async function resolveFine(
   const { consensus } = fineWithVotes.vote_result;
   const newStatus = determineFineStatus(consensus);
 
-  // Update fine status
+  // Update fine status (RLS allows pack members to update fines)
   const { data: updatedFine, error } = await supabase
     .from('fines')
     .update({
       status: newStatus,
-      resolved_at: new Date().toISOString(),
     })
     .eq('id', fineId)
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -368,7 +372,7 @@ export async function appealFine(
     })
     .eq('id', fineId)
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -400,7 +404,7 @@ export async function listPackFines(
   let query = supabase
     .from('fines')
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .eq('pack_id', packId)
     .order('created_at', { ascending: false });
@@ -444,7 +448,7 @@ export async function getUserFines(
   const { data: fines, error } = await supabase
     .from('fines')
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .eq('user_id', userId)
     .order('created_at', { ascending: false });

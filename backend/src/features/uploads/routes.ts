@@ -12,7 +12,9 @@ import {
   deleteUploadedFile,
   getUserUploads,
   getUserUploadStats,
+  markUploadCompleted,
 } from './services';
+import { uploadFile } from '../../lib/r2';
 
 /**
  * POST /api/uploads/presigned-url
@@ -42,7 +44,75 @@ export async function generatePresignedURLHandler(c: Context) {
   // Generate presigned URL
   const response = await generateUploadURL(bucket, supabase, userId, request);
 
-  return c.json(successResponse(response), 201);
+  return c.json(successResponse(response), 200);
+}
+
+/**
+ * PUT /api/uploads/direct/:key
+ * Direct upload to R2 via Worker
+ */
+export async function directUploadHandler(c: Context) {
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+  const bucket = c.env.PAKKT_UPLOADS as R2Bucket;
+  const key = c.req.param('key');
+
+  if (!bucket) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: 'R2_NOT_CONFIGURED',
+          message: 'File uploads are not configured',
+        },
+      },
+      500
+    );
+  }
+
+  // Verify upload metadata exists and belongs to user
+  const { data: metadata } = await supabase
+    .from('upload_metadata')
+    .select('*')
+    .eq('key', key)
+    .eq('user_id', userId)
+    .eq('status', 'pending')
+    .single();
+
+  if (!metadata) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: 'INVALID_UPLOAD',
+          message: 'Upload not found or already completed',
+        },
+      },
+      404
+    );
+  }
+
+  // Get file content type from header
+  const contentType = c.req.header('content-type') || 'application/octet-stream';
+
+  // Get file from request body
+  const body = await c.req.arrayBuffer();
+
+  // Upload to R2
+  const result = await uploadFile(bucket, key, body, { contentType });
+
+  // Mark upload as completed
+  await markUploadCompleted(supabase, key, body.byteLength);
+
+  return c.json(
+    successResponse({
+      message: 'File uploaded successfully',
+      key,
+      size: body.byteLength,
+      public_url: metadata.public_url,
+    }),
+    201
+  );
 }
 
 /**

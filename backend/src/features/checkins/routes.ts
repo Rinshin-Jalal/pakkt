@@ -32,6 +32,7 @@ import { z } from 'zod';
 export async function createCheckInHandler(c: Context) {
   const userId = getAuthenticatedUserId(c);
   const supabase = getSupabaseClient(c);
+  const env = c.env;
 
   // Validate request body
   const input = await validateBody(c, createCheckInSchema);
@@ -40,7 +41,7 @@ export async function createCheckInHandler(c: Context) {
   await requireGoalAccess(c, input.goal_id);
 
   // Create check-in
-  const checkIn = await createCheckIn(supabase, userId, input);
+  const checkIn = await createCheckIn(supabase, userId, input, env);
 
   return c.json(successResponse(checkIn), 201);
 }

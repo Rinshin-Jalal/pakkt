@@ -77,3 +77,42 @@ export const removeMemberParamSchema = z.object({
   id: uuidSchema,
   userId: uuidSchema,
 });
+
+/**
+ * Schema for creating an invite code
+ */
+export const createInviteCodeSchema = z.object({
+  max_uses: z
+    .number()
+    .int()
+    .min(1, 'Max uses must be at least 1')
+    .max(100, 'Max uses must be at most 100')
+    .default(1),
+  expires_in_hours: z
+    .number()
+    .int()
+    .min(1, 'Expiration must be at least 1 hour')
+    .max(168, 'Expiration must be at most 168 hours (7 days)')
+    .default(24),
+});
+
+export type CreateInviteCodeData = z.infer<typeof createInviteCodeSchema>;
+
+/**
+ * Schema for using an invite code
+ */
+export const useInviteCodeSchema = z.object({
+  code: z
+    .string()
+    .length(8, 'Invite code must be 8 characters')
+    .regex(/^[A-Z0-9]+$/, 'Invite code must contain only uppercase letters and numbers'),
+});
+
+export type UseInviteCodeData = z.infer<typeof useInviteCodeSchema>;
+
+/**
+ * Schema for invite code ID parameter
+ */
+export const inviteCodeIdParamSchema = z.object({
+  codeId: uuidSchema,
+});

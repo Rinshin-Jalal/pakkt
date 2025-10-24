@@ -6,8 +6,7 @@ export interface UserProfile {
   phone_number?: string;
   email?: string;
   username: string;
-  display_name?: string;
-  avatar_url?: string;
+  profile_pic?: string;
   bio?: string;
   subscription_status: 'free' | 'trial' | 'pro';
   subscription_expires_at?: string;
@@ -27,8 +26,7 @@ export interface UserProfile {
  */
 export interface UpdateProfileInput {
   username?: string;
-  display_name?: string;
-  avatar_url?: string;
+  profile_pic?: string;
   bio?: string;
 }
 

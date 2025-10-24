@@ -5,7 +5,7 @@ import {
   ForbiddenError,
   ValidationError,
 } from '../../lib/errors';
-import { generatePresignedURL, deleteObject, getPublicURL } from '../../lib/r2';
+import { generateUploadEndpoint, deleteObject, getPublicURL } from '../../lib/r2';
 import type {
   UploadRequest,
   PresignedURLResponse,
@@ -49,12 +49,12 @@ export async function generateUploadURL(
     request.pack_id
   );
 
-  // Generate presigned URL (5 minutes expiry)
-  const presignedUrl = await generatePresignedURL(
-    bucket,
-    key,
-    DEFAULT_UPLOAD_CONFIG.presignedUrlExpiry
-  );
+  // Generate upload endpoint (Worker direct upload, not presigned URL)
+  // Use localhost for dev, production domain for prod
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://api.pakkt.app'
+    : 'http://localhost:8787';
+  const { upload_url } = generateUploadEndpoint(baseUrl, key);
 
   // Generate public URL
   const publicUrl = getPublicURL('pakkt-uploads', key);
@@ -74,7 +74,7 @@ export async function generateUploadURL(
   });
 
   return {
-    presigned_url: presignedUrl,
+    presigned_url: upload_url, // Return Worker upload URL (named presigned_url for compatibility)
     public_url: publicUrl,
     key,
     expires_in: DEFAULT_UPLOAD_CONFIG.presignedUrlExpiry,

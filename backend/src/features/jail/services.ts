@@ -79,7 +79,7 @@ export async function startJailSession(
       total_paused_duration: 0,
     })
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -150,7 +150,7 @@ export async function sendHeartbeat(
     .update(updates)
     .eq('id', jailId)
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -241,7 +241,7 @@ export async function breakJailEarly(
     })
     .eq('id', jailId)
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 
@@ -267,7 +267,7 @@ export async function getJailSession(
   const { data: session, error } = await supabase
     .from('phone_jails')
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .eq('id', jailId)
     .single();
@@ -318,7 +318,7 @@ export async function getActiveJailSessions(
   const { data: sessions, error } = await supabase
     .from('phone_jails')
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .eq('user_id', userId)
     .eq('status', 'active')
@@ -365,7 +365,7 @@ async function completeJailSession(
     })
     .eq('id', jailId)
     .select(
-      '*, user:users(username, display_name, avatar_url), goal:goals(title)'
+      '*, user:users(username, profile_pic), goal:goals(title)'
     )
     .single();
 

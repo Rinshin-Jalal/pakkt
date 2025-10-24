@@ -1,11 +1,14 @@
 /**
- * Generate a random invite code
+ * Generate a cryptographically secure random invite code
  */
 export function generateInviteCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude ambiguous chars
+  const randomValues = new Uint8Array(8);
+  crypto.getRandomValues(randomValues); // Cryptographically secure random
+
   let code = '';
   for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(randomValues[i] % chars.length);
   }
   return code;
 }
@@ -69,11 +72,13 @@ export function getXPProgress(totalXP: number): {
 }
 
 /**
- * Validate member count is within limits (3-10)
+ * Validate member count upper limit (<= 10)
+ * Note: Minimum pack size (3) is enforced in pack health checks,
+ * not when adding members. This allows building up from the creator.
  */
 export function validateMemberLimit(currentCount: number, adding: number = 1): boolean {
   const newCount = currentCount + adding;
-  return newCount >= 3 && newCount <= 10;
+  return newCount <= 10;
 }
 
 /**

@@ -34,7 +34,7 @@ export async function createFineHandler(c: Context) {
   // Validate request body
   const input = await validateBody(c, createFineSchema);
 
-  // Get goal's pack_id
+  // Get goal's pack_id (RLS allows pack members to read goals)
   const { data: goal } = await supabase
     .from('goals')
     .select('pack_id')

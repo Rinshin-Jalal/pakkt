@@ -7,7 +7,15 @@
       "Bash(gh issue create --title \"API: Fines & Voting Feature Implementation\" --body \"$(cat <<''EOF''\n## Overview\nImplement democratic fine system with pack voting, consensus resolution, and punishment enforcement.\n\n## Phase\n**Phase 3: Accountability Features** - Day 7\n\n## Objectives\n- Build fine creation on missed check-ins\n- Implement democratic voting system\n- Create consensus resolution algorithm\n- Handle appeals process\n- Generate punishment records\n- Create transaction placeholders (payment later)\n- Write comprehensive tests\n\n## Endpoints\n- POST /api/fines - Create fine for missed check-in\n- GET /api/fines/:id - Get fine details with vote count\n- POST /api/fines/:id/vote - Cast vote (enforce/dismiss)\n- POST /api/fines/:id/resolve - Manually resolve after voting window\n- POST /api/fines/:id/appeal - Appeal fine decision\n- GET /api/packs/:packId/fines - List pack fines\n\n## Implementation Tasks\n1. Create feature folder structure with voting utils\n2. Define types (Fine, FineVote, VoteResult, CreateFineInput, VoteInput)\n3. Zod schemas for fine creation and voting\n4. Services: createFine, getFine, castVote, resolveFine, appealFine, listPackFines\n5. Voting consensus algorithm\n6. Auto-resolution after voting window\n7. Punishment record creation on enforcement\n8. Transaction placeholder creation\n\n## Business Logic\n\n### Voting Rules\n- Only pack members can vote\n- One vote per member\n- Voting window: 24 hours from creation\n- vote: true = enforce, false = dismiss\n\n### Consensus Algorithm\n```\nenforceVotes = count(vote === true)\ndismissVotes = totalVotes - enforceVotes\n\nif (enforceVotes > dismissVotes):\n  status = ''enforced''\n  createPunishment(fine)\nelse:\n  status = ''cancelled''\n```\n\n### Auto-Resolution\n- Check voting_ends_at timestamp\n- Resolve if window expired\n- Can also manually trigger resolution\n\n### Punishment Creation\n- Type: ''fine''\n- Amount: fine amount in cents\n- Status: ''pending'' (until payment integration)\n- Links to check_in_id\n\n## Acceptance Criteria\n- [ ] Fine creation functional\n- [ ] Voting system working\n- [ ] One vote per member enforced\n- [ ] Consensus algorithm correct\n- [ ] Auto-resolution after 24 hours\n- [ ] Punishment records created when enforced\n- [ ] Appeal system functional\n- [ ] Transaction placeholders created\n- [ ] Comprehensive tests\n\n## Estimated Time\n**1 day** (6-8 hours)\n\n## Dependencies\nRequires: #76 (Check-ins feature)\n\n## Labels\n`feature`, `fines`, `voting`, `phase-3`, `core-logic`\nEOF\n)\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(chmod:*)",
+      "Bash(./scripts/setup-test-users.sh:*)",
+      "Skill(brainstorming)",
+      "Skill(plan)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(./scripts/test-social-flows.sh:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,12 +6,7 @@ import { usernameSchema, urlSchema } from '../../utils/validation';
  */
 export const updateProfileSchema = z.object({
   username: usernameSchema.optional(),
-  display_name: z
-    .string()
-    .min(1, 'Display name cannot be empty')
-    .max(50, 'Display name must be at most 50 characters')
-    .optional(),
-  avatar_url: urlSchema.optional(),
+  profile_pic: urlSchema.optional(),
   bio: z
     .string()
     .max(500, 'Bio must be at most 500 characters')

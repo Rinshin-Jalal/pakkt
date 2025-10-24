@@ -10,6 +10,9 @@ import {
   addMemberSchema,
   packIdParamSchema,
   removeMemberParamSchema,
+  createInviteCodeSchema,
+  useInviteCodeSchema,
+  inviteCodeIdParamSchema,
 } from './validators';
 import {
   createPack,
@@ -21,6 +24,12 @@ import {
   getPackStats,
   getUserPacks,
   findPackByInviteCode,
+  createPackInviteCode,
+  validatePackInviteCode,
+  usePackInviteCode,
+  listPackInviteCodes,
+  deactivatePackInviteCode,
+  deletePackInviteCode,
 } from './services';
 
 /**
@@ -134,15 +143,15 @@ export async function addMemberHandler(c: Context) {
     }
     targetUserId = userId; // User is joining themselves
   } else if (input.user_id) {
-    // Admin adding another user
-    await requirePackMembership(c, packId);
+    // Creator adding another user
+    await requirePackCreator(c, packId);
     targetUserId = input.user_id;
   } else {
     throw new Error('Either user_id or invite_code must be provided');
   }
 
   // Add member
-  const member = await addMember(supabase, packId, targetUserId);
+  const member = await addMember(supabase, packId, targetUserId, c.env);
 
   return c.json(successResponse(member), 201);
 }
@@ -189,4 +198,98 @@ export async function getPackStatsHandler(c: Context) {
   const stats = await getPackStats(supabase, packId);
 
   return c.json(successResponse(stats));
+}
+
+/**
+ * POST /api/packs/:id/invite-codes
+ * Create a new invite code for a pack
+ */
+export async function createInviteCodeHandler(c: Context) {
+  const { id: packId } = validateParams(c, packIdParamSchema);
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+
+  // Validate request body
+  const input = await validateBody(c, createInviteCodeSchema);
+
+  // Create invite code
+  const inviteCode = await createPackInviteCode(supabase, packId, userId, input);
+
+  return c.json(successResponse(inviteCode), 201);
+}
+
+/**
+ * GET /api/packs/:id/invite-codes
+ * List all invite codes for a pack
+ */
+export async function listInviteCodesHandler(c: Context) {
+  const { id: packId } = validateParams(c, packIdParamSchema);
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+
+  // List invite codes
+  const inviteCodes = await listPackInviteCodes(supabase, packId, userId);
+
+  return c.json(successResponse(inviteCodes));
+}
+
+/**
+ * GET /api/invite-codes/:code/validate
+ * Validate an invite code
+ */
+export async function validateInviteCodeHandler(c: Context) {
+  const code = c.req.param('code');
+  const supabase = getSupabaseClient(c);
+
+  // Validate code
+  const validation = await validatePackInviteCode(supabase, code);
+
+  return c.json(successResponse(validation));
+}
+
+/**
+ * POST /api/invite-codes/use
+ * Use an invite code to join a pack
+ */
+export async function useInviteCodeHandler(c: Context) {
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+
+  // Validate request body
+  const input = await validateBody(c, useInviteCodeSchema);
+
+  // Use invite code
+  const result = await usePackInviteCode(supabase, userId, input.code);
+
+  return c.json(successResponse(result), 201);
+}
+
+/**
+ * PATCH /api/packs/:id/invite-codes/:codeId/deactivate
+ * Deactivate an invite code
+ */
+export async function deactivateInviteCodeHandler(c: Context) {
+  const { codeId } = validateParams(c, inviteCodeIdParamSchema);
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+
+  // Deactivate invite code
+  await deactivatePackInviteCode(supabase, codeId, userId);
+
+  return c.json(successResponse({ message: 'Invite code deactivated' }));
+}
+
+/**
+ * DELETE /api/packs/:id/invite-codes/:codeId
+ * Delete an invite code
+ */
+export async function deleteInviteCodeHandler(c: Context) {
+  const { codeId } = validateParams(c, inviteCodeIdParamSchema);
+  const userId = getAuthenticatedUserId(c);
+  const supabase = getSupabaseClient(c);
+
+  // Delete invite code
+  await deletePackInviteCode(supabase, codeId, userId);
+
+  return c.json(successResponse({ message: 'Invite code deleted' }));
 }

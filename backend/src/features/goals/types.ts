@@ -33,8 +33,7 @@ export interface Goal {
   updated_at: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
 }
 

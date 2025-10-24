@@ -21,6 +21,7 @@ import { createGoalHandler, listPackGoalsHandler } from './features/goals/routes
 import { getPackCheckInsHandler } from './features/checkins/routes';
 import { listPackFinesHandler } from './features/fines/routes';
 import { getReactionsHandler, getCommentsHandler } from './features/social/routes';
+import { validateInviteCodeHandler, useInviteCodeHandler } from './features/packs/routes';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -57,6 +58,10 @@ app.get('/api/packs/:packId/fines', requireAuth, listPackFinesHandler);
 // Check-in nested routes (reactions & comments)
 app.get('/api/checkins/:checkInId/reactions', requireAuth, getReactionsHandler);
 app.get('/api/checkins/:checkInId/comments', requireAuth, getCommentsHandler);
+
+// Invite code routes (top-level for easy access)
+app.get('/api/invite-codes/:code/validate', requireAuth, validateInviteCodeHandler);
+app.post('/api/invite-codes/use', requireAuth, useInviteCodeHandler);
 
 // Protected routes (examples for testing)
 app.get('/api/me', requireAuth, (c) => {

@@ -3,20 +3,44 @@
  */
 
 /**
- * Generate presigned URL for upload
+ * Upload file directly to R2
+ * Cloudflare Workers best practice: Direct upload through Worker, not presigned URLs
  */
-export async function generatePresignedURL(
+export async function uploadFile(
   bucket: R2Bucket,
   key: string,
-  expiresIn: number = 300 // 5 minutes
-): Promise<string> {
-  // Generate presigned URL for PUT operation
-  const presignedUrl = await bucket.createPresignedUrl(key, {
-    method: 'PUT',
-    expiresIn,
+  file: ReadableStream | ArrayBuffer | string | Blob,
+  options?: {
+    contentType?: string;
+    metadata?: Record<string, string>;
+  }
+): Promise<R2Object> {
+  const httpMetadata: R2HTTPMetadata = {};
+
+  if (options?.contentType) {
+    httpMetadata.contentType = options.contentType;
+  }
+
+  const result = await bucket.put(key, file, {
+    httpMetadata,
+    customMetadata: options?.metadata,
   });
 
-  return presignedUrl;
+  return result;
+}
+
+/**
+ * Generate upload URL (returns Worker endpoint, not presigned URL)
+ * Client uploads directly to Worker which proxies to R2
+ */
+export function generateUploadEndpoint(
+  baseUrl: string,
+  key: string
+): { upload_url: string; key: string } {
+  return {
+    upload_url: `${baseUrl}/api/uploads/direct/${key}`,
+    key,
+  };
 }
 
 /**

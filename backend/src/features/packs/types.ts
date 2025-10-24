@@ -29,8 +29,7 @@ export interface PackMember {
   updated_at?: string;
   user?: {
     username: string;
-    display_name?: string;
-    avatar_url?: string;
+    profile_pic?: string;
   };
 }
 
@@ -79,4 +78,35 @@ export interface UpdatePackInput {
 export interface AddMemberInput {
   user_id?: string;
   invite_code?: string;
+}
+
+/**
+ * Pack invite code data structure
+ */
+export interface PackInviteCode {
+  id: string;
+  pack_id: string;
+  code: string;
+  created_by: string;
+  max_uses: number;
+  current_uses: number;
+  expires_at: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Input for creating an invite code
+ */
+export interface CreateInviteCodeInput {
+  max_uses?: number; // Default: 1
+  expires_in_hours?: number; // Default: 24
+}
+
+/**
+ * Input for using an invite code
+ */
+export interface UseInviteCodeInput {
+  code: string;
 }
