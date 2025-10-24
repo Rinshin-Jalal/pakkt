@@ -1,6 +1,6 @@
 import Foundation
 
-struct PackStats: Codable, Equatable {
+struct PackStats: Codable, Equatable, Sendable {
     let packId: UUID
     let totalXp: Int
     let currentLevel: Int
@@ -11,7 +11,7 @@ struct PackStats: Codable, Equatable {
     let averageStreak: Double
     let topPerformers: [TopPerformer]
 
-    struct TopPerformer: Codable, Equatable {
+    struct TopPerformer: Codable, Equatable, Sendable {
         let userId: UUID
         let username: String
         let xp: Int
@@ -19,7 +19,7 @@ struct PackStats: Codable, Equatable {
     }
 }
 
-struct PackStatsResponse: Codable {
+struct PackStatsResponse: Codable, Sendable {
     let success: Bool
     let data: PackStats
 }

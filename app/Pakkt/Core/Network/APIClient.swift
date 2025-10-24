@@ -57,7 +57,7 @@ actor APIClient {
     // MARK: - Request without Response
 
     func request(_ endpoint: Endpoint) async throws {
-        let urlRequest = try await buildURLRequest(from: endpoint)
+        let urlRequest = try buildURLRequest(from: endpoint)
 
         requestLogger?(urlRequest)
 
@@ -74,7 +74,7 @@ actor APIClient {
 
     // MARK: - Private Helpers
 
-    private func buildURLRequest(from endpoint: Endpoint) async throws -> URLRequest {
+    private func buildURLRequest(from endpoint: Endpoint) throws -> URLRequest {
         guard let url = buildURL(from: endpoint) else {
             throw APIError.invalidURL
         }
@@ -132,3 +132,4 @@ actor APIClient {
         }
     }
 }
+

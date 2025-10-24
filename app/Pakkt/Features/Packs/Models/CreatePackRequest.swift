@@ -1,6 +1,6 @@
 import Foundation
 
-struct CreatePackRequest: Codable {
+struct CreatePackRequest: Codable, Sendable {
     let name: String
     let goalType: String?
 
@@ -10,7 +10,7 @@ struct CreatePackRequest: Codable {
     }
 }
 
-struct UpdatePackRequest: Codable {
+struct UpdatePackRequest: Codable, Sendable {
     let name: String?
     let description: String?
 

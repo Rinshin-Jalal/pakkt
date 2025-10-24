@@ -1,6 +1,6 @@
 import Foundation
 
-struct UserProfile: Codable, Identifiable, Equatable {
+struct UserProfile: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     let phoneNumber: String?
     let email: String?
@@ -19,7 +19,7 @@ struct UserProfile: Codable, Identifiable, Equatable {
     let createdAt: Date
     let updatedAt: Date
 
-    enum SubscriptionStatus: String, Codable {
+    enum SubscriptionStatus: String, Codable, Sendable {
         case free
         case trial
         case pro
@@ -27,7 +27,7 @@ struct UserProfile: Codable, Identifiable, Equatable {
 }
 
 // API Response wrapper
-struct UserProfileResponse: Codable {
+struct UserProfileResponse: Codable, Sendable {
     let success: Bool
     let data: UserProfile
 }

@@ -8,11 +8,22 @@ enum PakktEndpoint: Endpoint {
     case deletePushToken
     
     // Packs
-    case getPacks
-    case createPack(data: Data)
-    case getPack(id: String)
-    case updatePack(id: String, data: Data)
-    case deletePack(id: String)
+    case listPacks
+    case createPack(CreatePackRequest)
+    case getPack(id: UUID)
+    case updatePack(id: UUID, request: UpdatePackRequest)
+    case dissolvePack(id: UUID)
+    case getPackMembers(packId: UUID)
+    case removePackMember(packId: UUID, userId: UUID)
+    case getPackStats(packId: UUID)
+    
+    // Invite Codes (Self-Join System)
+    case createInviteCode(packId: UUID, request: CreateInviteCodeRequest)
+    case listInviteCodes(packId: UUID)
+    case validateInviteCode(String)
+    case useInviteCode(UseInviteCodeRequest)
+    case deactivateInviteCode(packId: UUID, codeId: UUID)
+    case deleteInviteCode(packId: UUID, codeId: UUID)
 
     // Tasks
     case getTasks(packId: String)
@@ -32,10 +43,26 @@ enum PakktEndpoint: Endpoint {
             return "/api/users/push-token"
         case .deletePushToken:
             return "/api/users/push-token"
-        case .getPacks, .createPack:
-            return "/rest/v1/packs"
-        case .getPack(let id), .updatePack(let id, _), .deletePack(let id):
-            return "/rest/v1/packs?id=eq.\(id)"
+        case .listPacks, .createPack:
+            return "/api/packs"
+        case .getPack(let id), .updatePack(let id, _), .dissolvePack(let id):
+            return "/api/packs/\(id.uuidString)"
+        case .getPackMembers(let packId):
+            return "/api/packs/\(packId.uuidString)/members"
+        case .removePackMember(let packId, let userId):
+            return "/api/packs/\(packId.uuidString)/members/\(userId.uuidString)"
+        case .getPackStats(let packId):
+            return "/api/packs/\(packId.uuidString)/stats"
+        case .createInviteCode(let packId, _), .listInviteCodes(let packId):
+            return "/api/packs/\(packId.uuidString)/invite-codes"
+        case .validateInviteCode(let code):
+            return "/api/invite-codes/\(code)/validate"
+        case .useInviteCode:
+            return "/api/invite-codes/use"
+        case .deactivateInviteCode(let packId, let codeId):
+            return "/api/packs/\(packId.uuidString)/invite-codes/\(codeId.uuidString)/deactivate"
+        case .deleteInviteCode(let packId, let codeId):
+            return "/api/packs/\(packId.uuidString)/invite-codes/\(codeId.uuidString)"
         case .getTasks(let packId):
             return "/rest/v1/tasks?pack_id=eq.\(packId)"
         case .createTask:
@@ -51,13 +78,17 @@ enum PakktEndpoint: Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .getProfile, .getPacks, .getPack, .getTasks, .getFeed, .getPost:
+        case .getProfile, .listPacks, .getPack, .getPackMembers, .getPackStats,
+             .listInviteCodes, .validateInviteCode,
+             .getTasks, .getFeed, .getPost:
             return .get
-        case .registerPushToken, .createPack, .createTask:
+        case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
+             .createTask:
             return .post
-        case .updateProfile, .updatePack, .updateTask:
+        case .updateProfile, .updatePack, .deactivateInviteCode, .updateTask:
             return .patch
-        case .deletePushToken, .deletePack, .deleteTask:
+        case .deletePushToken, .dissolvePack, .removePackMember, .deleteInviteCode,
+             .deleteTask:
             return .delete
         }
     }
@@ -68,8 +99,15 @@ enum PakktEndpoint: Endpoint {
             return try? JSONEncoder().encode(request)
         case .registerPushToken(let request):
             return try? JSONEncoder().encode(request)
-        case .createPack(let data), .updatePack(_, let data),
-             .createTask(_, let data), .updateTask(_, let data):
+        case .createPack(let request):
+            return try? JSONEncoder().encode(request)
+        case .updatePack(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .createInviteCode(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .useInviteCode(let request):
+            return try? JSONEncoder().encode(request)
+        case .createTask(_, let data), .updateTask(_, let data):
             return data
         default:
             return nil

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Pack: Codable, Identifiable, Equatable {
+struct Pack: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     let name: String
     let creatorId: UUID
@@ -12,18 +12,18 @@ struct Pack: Codable, Identifiable, Equatable {
     let updatedAt: Date?
     let lastActivity: Date?
 
-    enum PackStatus: String, Codable {
+    enum PackStatus: String, Codable, Sendable {
         case active
         case dissolved
     }
 }
 
-struct PackResponse: Codable {
+struct PackResponse: Codable, Sendable {
     let success: Bool
     let data: Pack
 }
 
-struct PackListResponse: Codable {
+struct PackListResponse: Codable, Sendable {
     let success: Bool
     let data: [Pack]
 }

@@ -41,7 +41,7 @@ actor UsersService {
 
 // MARK: - Push Token Request
 
-struct PushTokenRequest: Codable {
+struct PushTokenRequest: Codable, Sendable {
     let token: String
     let deviceType: String
     let deviceId: String?

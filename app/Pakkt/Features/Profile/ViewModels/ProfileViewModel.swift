@@ -2,59 +2,41 @@ import Foundation
 import SwiftUI
 import Combine
 
-struct Profile: Codable {
-    let userId: String
-    let username: String?
-    let displayName: String?
-    let bio: String?
-    let avatarUrl: String?
-    let createdAt: String
-
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case username
-        case displayName = "display_name"
-        case bio
-        case avatarUrl = "avatar_url"
-        case createdAt = "created_at"
-    }
-}
-
 @MainActor
 class ProfileViewModel: BaseViewModel {
-    @Published var profile: Profile?
+    @Published var profile: UserProfile?
+    
+    private let usersService: UsersService
 
-    func loadProfile(userId: String) async {
+    init(usersService: UsersService = UsersService()) {
+        self.usersService = usersService
+        super.init()
+    }
+
+    func loadProfile() async {
         do {
-            let profiles: [Profile] = try await withLoading {
-                try await APIClient.shared.request(PakktEndpoint.getProfile(userId: userId))
+            let profile = try await withLoading {
+                try await self.usersService.getProfile()
             }
-            self.profile = profiles.first
+            self.profile = profile
         } catch {
             handleError(error)
         }
     }
 
-    func updateProfile(username: String?, displayName: String?, bio: String?) async {
+    func updateProfile(username: String? = nil, profilePic: String? = nil, bio: String? = nil) async {
         do {
-            let profileData: [String: Any] = [
-                "username": username ?? "",
-                "display_name": displayName ?? "",
-                "bio": bio ?? ""
-            ]
+            let request = UpdateProfileRequest(
+                username: username,
+                profilePic: profilePic,
+                bio: bio
+            )
 
-            guard let data = try? JSONSerialization.data(withJSONObject: profileData) else {
-                throw APIError.invalidURL
+            let updatedProfile = try await withLoading {
+                try await self.usersService.updateProfile(request)
             }
 
-            try await withLoading {
-                try await APIClient.shared.request(PakktEndpoint.updateProfile(data: data))
-            }
-
-            // Reload profile after update
-            if let userId = profile?.userId {
-                await loadProfile(userId: userId)
-            }
+            self.profile = updatedProfile
         } catch {
             handleError(error)
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct UpdateProfileRequest: Codable {
+struct UpdateProfileRequest: Codable, Sendable {
     let username: String?
     let profilePic: String?
     let bio: String?

@@ -1,6 +1,6 @@
 import Foundation
 
-struct PackInviteCode: Codable, Identifiable, Equatable {
+struct PackInviteCode: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     let packId: UUID
     let code: String
@@ -13,7 +13,7 @@ struct PackInviteCode: Codable, Identifiable, Equatable {
     let updatedAt: Date
 }
 
-struct CreateInviteCodeRequest: Codable {
+struct CreateInviteCodeRequest: Codable, Sendable {
     let maxUses: Int?
     let expiresInHours: Int?
 
@@ -23,16 +23,16 @@ struct CreateInviteCodeRequest: Codable {
     }
 }
 
-struct UseInviteCodeRequest: Codable {
+struct UseInviteCodeRequest: Codable, Sendable {
     let code: String
 }
 
-struct InviteCodeResponse: Codable {
+struct InviteCodeResponse: Codable, Sendable {
     let success: Bool
     let data: PackInviteCode
 }
 
-struct InviteCodeListResponse: Codable {
+struct InviteCodeListResponse: Codable, Sendable {
     let success: Bool
     let data: [PackInviteCode]
 }
