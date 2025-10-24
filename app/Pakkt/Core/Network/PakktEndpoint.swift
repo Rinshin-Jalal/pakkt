@@ -52,6 +52,13 @@ enum PakktEndpoint: Endpoint {
     case deleteComment(id: UUID)
     case getComments(checkInId: UUID)
 
+    // Fines
+    case listPackFines(packId: UUID)
+    case getFine(id: UUID)
+    case voteOnFine(fineId: UUID, request: VoteRequest)
+    case resolveFine(id: UUID)
+    case appealFine(id: UUID, request: AppealRequest)
+
     // Tasks
     case getTasks(packId: String)
     case createTask(packId: String, data: Data)
@@ -118,6 +125,16 @@ enum PakktEndpoint: Endpoint {
             return "/api/social/comments/\(id.uuidString)"
         case .getComments(let checkInId):
             return "/api/checkins/\(checkInId.uuidString)/comments"
+        case .listPackFines(let packId):
+            return "/api/packs/\(packId.uuidString)/fines"
+        case .getFine(let id):
+            return "/api/fines/\(id.uuidString)"
+        case .voteOnFine(let fineId, _):
+            return "/api/fines/\(fineId.uuidString)/vote"
+        case .resolveFine(let id):
+            return "/api/fines/\(id.uuidString)/resolve"
+        case .appealFine(let id, _):
+            return "/api/fines/\(id.uuidString)/appeal"
         case .getTasks(let packId):
             return "/rest/v1/tasks?pack_id=eq.\(packId)"
         case .createTask:
@@ -136,11 +153,13 @@ enum PakktEndpoint: Endpoint {
              .listGoals, .listPackGoals, .getGoal,
              .getCheckIn, .getPackCheckIns,
              .getReactions, .getComments,
+             .listPackFines, .getFine,
              .getTasks, .getFeed, .getPost:
             return .get
         case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
              .createPackGoal, .createCheckIn, .getPresignedURL,
              .createReaction, .createComment,
+             .voteOnFine, .resolveFine, .appealFine,
              .createTask:
             return .post
         case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal,
@@ -179,6 +198,10 @@ enum PakktEndpoint: Endpoint {
         case .createComment(let request):
             return try? JSONEncoder().encode(request)
         case .editComment(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .voteOnFine(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .appealFine(_, let request):
             return try? JSONEncoder().encode(request)
         case .createTask(_, let data), .updateTask(_, let data):
             return data
