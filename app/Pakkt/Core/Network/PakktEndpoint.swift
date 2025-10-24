@@ -41,6 +41,17 @@ enum PakktEndpoint: Endpoint {
     // Uploads
     case getPresignedURL(PresignedURLRequest)
 
+    // Social - Reactions
+    case createReaction(CreateReactionRequest)
+    case deleteReaction(id: UUID)
+    case getReactions(checkInId: UUID)
+
+    // Social - Comments
+    case createComment(CreateCommentRequest)
+    case editComment(id: UUID, request: EditCommentRequest)
+    case deleteComment(id: UUID)
+    case getComments(checkInId: UUID)
+
     // Tasks
     case getTasks(packId: String)
     case createTask(packId: String, data: Data)
@@ -95,6 +106,18 @@ enum PakktEndpoint: Endpoint {
             return "/api/checkins/\(id.uuidString)"
         case .getPresignedURL:
             return "/api/uploads/presigned-url"
+        case .createReaction:
+            return "/api/social/reactions"
+        case .deleteReaction(let id):
+            return "/api/social/reactions/\(id.uuidString)"
+        case .getReactions(let checkInId):
+            return "/api/checkins/\(checkInId.uuidString)/reactions"
+        case .createComment:
+            return "/api/social/comments"
+        case .editComment(let id, _), .deleteComment(let id):
+            return "/api/social/comments/\(id.uuidString)"
+        case .getComments(let checkInId):
+            return "/api/checkins/\(checkInId.uuidString)/comments"
         case .getTasks(let packId):
             return "/rest/v1/tasks?pack_id=eq.\(packId)"
         case .createTask:
@@ -112,15 +135,19 @@ enum PakktEndpoint: Endpoint {
              .listInviteCodes, .validateInviteCode,
              .listGoals, .listPackGoals, .getGoal,
              .getCheckIn, .getPackCheckIns,
+             .getReactions, .getComments,
              .getTasks, .getFeed, .getPost:
             return .get
         case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
-             .createPackGoal, .createCheckIn, .getPresignedURL, .createTask:
+             .createPackGoal, .createCheckIn, .getPresignedURL,
+             .createReaction, .createComment,
+             .createTask:
             return .post
-        case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal, .updateTask:
+        case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal,
+             .editComment, .updateTask:
             return .patch
         case .deletePushToken, .dissolvePack, .removePackMember, .deleteInviteCode,
-             .deleteGoal, .deleteTask:
+             .deleteGoal, .deleteReaction, .deleteComment, .deleteTask:
             return .delete
         }
     }
@@ -146,6 +173,12 @@ enum PakktEndpoint: Endpoint {
         case .createCheckIn(let request):
             return try? JSONEncoder().encode(request)
         case .getPresignedURL(let request):
+            return try? JSONEncoder().encode(request)
+        case .createReaction(let request):
+            return try? JSONEncoder().encode(request)
+        case .createComment(let request):
+            return try? JSONEncoder().encode(request)
+        case .editComment(_, let request):
             return try? JSONEncoder().encode(request)
         case .createTask(_, let data), .updateTask(_, let data):
             return data
