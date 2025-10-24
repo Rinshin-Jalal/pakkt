@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0E0EE1172EAB90710089287A /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 0E0EE1162EAB90710089287A /* Kingfisher */; };
 		0E0EE11A2EAB90C70089287A /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 0E0EE1192EAB90C70089287A /* KeychainAccess */; };
+		0E0EE1222EAB94450089287A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0E0EE1212EAB94450089287A /* Supabase */; };
 		0E6DF8392EA65C2B0087589D /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 0E6DF8382EA65C2B0087589D /* Auth */; };
 		0E6DF83B2EA65C2B0087589D /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 0E6DF83A2EA65C2B0087589D /* Functions */; };
 		0E6DF83D2EA65C2B0087589D /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0E6DF83C2EA65C2B0087589D /* PostgREST */; };
@@ -37,6 +38,7 @@
 				0E6DF83D2EA65C2B0087589D /* PostgREST in Frameworks */,
 				0E0EE11A2EAB90C70089287A /* KeychainAccess in Frameworks */,
 				0E6DF83B2EA65C2B0087589D /* Functions in Frameworks */,
+				0E0EE1222EAB94450089287A /* Supabase in Frameworks */,
 				0E6DF8392EA65C2B0087589D /* Auth in Frameworks */,
 				0E6DF8412EA65C2B0087589D /* Storage in Frameworks */,
 				0E6DF83F2EA65C2B0087589D /* Realtime in Frameworks */,
@@ -46,10 +48,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E0EE1202EAB94380089287A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0E6DF7F82EA657C20087589D = {
 			isa = PBXGroup;
 			children = (
 				0E6DF8032EA657C20087589D /* Pakkt */,
+				0E0EE1202EAB94380089287A /* Frameworks */,
 				0E6DF8022EA657C20087589D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -89,6 +99,7 @@
 				0E6DF8402EA65C2B0087589D /* Storage */,
 				0E0EE1162EAB90710089287A /* Kingfisher */,
 				0E0EE1192EAB90C70089287A /* KeychainAccess */,
+				0E0EE1212EAB94450089287A /* Supabase */,
 			);
 			productName = Pakkt;
 			productReference = 0E6DF8012EA657C20087589D /* Pakkt.app */;
@@ -399,6 +410,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0E0EE1182EAB90C70089287A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		0E0EE1212EAB94450089287A /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0E6DF8372EA65C2B0087589D /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 		0E6DF8382EA65C2B0087589D /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
