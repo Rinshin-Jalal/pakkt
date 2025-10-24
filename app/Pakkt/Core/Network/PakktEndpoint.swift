@@ -80,15 +80,16 @@ enum PakktEndpoint: Endpoint {
         switch self {
         case .getProfile, .listPacks, .getPack, .getPackMembers, .getPackStats,
              .listInviteCodes, .validateInviteCode,
+             .listGoals, .listPackGoals, .getGoal,
              .getTasks, .getFeed, .getPost:
             return .get
         case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
-             .createTask:
+             .createPackGoal, .createTask:
             return .post
-        case .updateProfile, .updatePack, .deactivateInviteCode, .updateTask:
+        case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal, .updateTask:
             return .patch
         case .deletePushToken, .dissolvePack, .removePackMember, .deleteInviteCode,
-             .deleteTask:
+             .deleteGoal, .deleteTask:
             return .delete
         }
     }
@@ -106,6 +107,10 @@ enum PakktEndpoint: Endpoint {
         case .createInviteCode(_, let request):
             return try? JSONEncoder().encode(request)
         case .useInviteCode(let request):
+            return try? JSONEncoder().encode(request)
+        case .createPackGoal(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .updateGoal(_, let request):
             return try? JSONEncoder().encode(request)
         case .createTask(_, let data), .updateTask(_, let data):
             return data
