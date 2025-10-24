@@ -59,6 +59,13 @@ enum PakktEndpoint: Endpoint {
     case resolveFine(id: UUID)
     case appealFine(id: UUID, request: AppealRequest)
 
+    // Jail
+    case startJail(StartJailRequest)
+    case getActiveJailSession
+    case jailHeartbeat(sessionId: UUID)
+    case completeJail(sessionId: UUID)
+    case breakJail(sessionId: UUID, request: BreakJailRequest)
+
     // Tasks
     case getTasks(packId: String)
     case createTask(packId: String, data: Data)
@@ -135,6 +142,16 @@ enum PakktEndpoint: Endpoint {
             return "/api/fines/\(id.uuidString)/resolve"
         case .appealFine(let id, _):
             return "/api/fines/\(id.uuidString)/appeal"
+        case .startJail:
+            return "/api/jail/sessions"
+        case .getActiveJailSession:
+            return "/api/jail/sessions/active"
+        case .jailHeartbeat(let sessionId):
+            return "/api/jail/sessions/\(sessionId.uuidString)/heartbeat"
+        case .completeJail(let sessionId):
+            return "/api/jail/sessions/\(sessionId.uuidString)/complete"
+        case .breakJail(let sessionId, _):
+            return "/api/jail/sessions/\(sessionId.uuidString)/break"
         case .getTasks(let packId):
             return "/rest/v1/tasks?pack_id=eq.\(packId)"
         case .createTask:
@@ -154,16 +171,18 @@ enum PakktEndpoint: Endpoint {
              .getCheckIn, .getPackCheckIns,
              .getReactions, .getComments,
              .listPackFines, .getFine,
+             .getActiveJailSession,
              .getTasks, .getFeed, .getPost:
             return .get
         case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
              .createPackGoal, .createCheckIn, .getPresignedURL,
              .createReaction, .createComment,
              .voteOnFine, .resolveFine, .appealFine,
+             .startJail, .breakJail, .completeJail,
              .createTask:
             return .post
         case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal,
-             .editComment, .updateTask:
+             .editComment, .updateTask, .jailHeartbeat:
             return .patch
         case .deletePushToken, .dissolvePack, .removePackMember, .deleteInviteCode,
              .deleteGoal, .deleteReaction, .deleteComment, .deleteTask:
@@ -202,6 +221,10 @@ enum PakktEndpoint: Endpoint {
         case .voteOnFine(_, let request):
             return try? JSONEncoder().encode(request)
         case .appealFine(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .startJail(let request):
+            return try? JSONEncoder().encode(request)
+        case .breakJail(_, let request):
             return try? JSONEncoder().encode(request)
         case .createTask(_, let data), .updateTask(_, let data):
             return data

@@ -15,7 +15,10 @@
       "Skill(plan)",
       "Bash(curl:*)",
       "Bash(cat:*)",
-      "Bash(./scripts/test-social-flows.sh:*)"
+      "Bash(./scripts/test-social-flows.sh:*)",
+      "Bash(gh issue:*)",
+      "Bash(mkdir:*)",
+      "Bash(xcodebuild:*)"
     ],
     "deny": [],
     "ask": []
