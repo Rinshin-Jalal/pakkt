@@ -30,7 +30,7 @@ actor APIClient {
     // MARK: - Request with Response
 
     func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
-        let urlRequest = try await buildURLRequest(from: endpoint)
+        let urlRequest = try buildURLRequest(from: endpoint)
 
         requestLogger?(urlRequest)
 

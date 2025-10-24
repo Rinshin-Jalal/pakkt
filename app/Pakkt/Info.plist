@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSCameraUsageDescription</key>
+    <string>Pakkt needs camera access to capture proof of check-ins</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Pakkt needs photo library access to select proof images</string>
+</dict>
+</plist>

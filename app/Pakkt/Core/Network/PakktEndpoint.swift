@@ -25,6 +25,22 @@ enum PakktEndpoint: Endpoint {
     case deactivateInviteCode(packId: UUID, codeId: UUID)
     case deleteInviteCode(packId: UUID, codeId: UUID)
 
+    // Goals
+    case listGoals
+    case listPackGoals(packId: UUID)
+    case createPackGoal(packId: UUID, request: CreateGoalRequest)
+    case getGoal(id: UUID)
+    case updateGoal(id: UUID, request: UpdateGoalRequest)
+    case deleteGoal(id: UUID)
+
+    // Check-ins
+    case createCheckIn(CreateCheckInRequest)
+    case getCheckIn(id: UUID)
+    case getPackCheckIns(packId: UUID)
+
+    // Uploads
+    case getPresignedURL(PresignedURLRequest)
+
     // Tasks
     case getTasks(packId: String)
     case createTask(packId: String, data: Data)
@@ -63,14 +79,28 @@ enum PakktEndpoint: Endpoint {
             return "/api/packs/\(packId.uuidString)/invite-codes/\(codeId.uuidString)/deactivate"
         case .deleteInviteCode(let packId, let codeId):
             return "/api/packs/\(packId.uuidString)/invite-codes/\(codeId.uuidString)"
+        case .listGoals:
+            return "/api/goals"
+        case .listPackGoals(let packId), .createPackGoal(let packId, _):
+            return "/api/packs/\(packId.uuidString)/goals"
+        case .getGoal(let id), .updateGoal(let id, _), .deleteGoal(let id):
+            return "/api/goals/\(id.uuidString)"
+        case .createCheckIn:
+            return "/api/checkins"
+        case .getFeed:
+            return "/api/checkins/feed"
+        case .getPackCheckIns(let packId):
+            return "/api/packs/\(packId.uuidString)/checkins"
+        case .getCheckIn(let id):
+            return "/api/checkins/\(id.uuidString)"
+        case .getPresignedURL:
+            return "/api/uploads/presigned-url"
         case .getTasks(let packId):
             return "/rest/v1/tasks?pack_id=eq.\(packId)"
         case .createTask:
             return "/rest/v1/tasks"
         case .updateTask(let id, _), .deleteTask(let id):
             return "/rest/v1/tasks?id=eq.\(id)"
-        case .getFeed:
-            return "/rest/v1/feed"
         case .getPost(let id):
             return "/rest/v1/posts?id=eq.\(id)"
         }
