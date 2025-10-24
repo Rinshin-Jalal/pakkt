@@ -6,7 +6,7 @@ enum PakktEndpoint: Endpoint {
     case updateProfile(UpdateProfileRequest)
     case registerPushToken(PushTokenRequest)
     case deletePushToken
-    
+
     // Packs
     case listPacks
     case createPack(CreatePackRequest)
@@ -16,7 +16,7 @@ enum PakktEndpoint: Endpoint {
     case getPackMembers(packId: UUID)
     case removePackMember(packId: UUID, userId: UUID)
     case getPackStats(packId: UUID)
-    
+
     // Invite Codes (Self-Join System)
     case createInviteCode(packId: UUID, request: CreateInviteCodeRequest)
     case listInviteCodes(packId: UUID)
