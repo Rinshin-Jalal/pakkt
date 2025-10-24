@@ -81,10 +81,11 @@ enum PakktEndpoint: Endpoint {
         case .getProfile, .listPacks, .getPack, .getPackMembers, .getPackStats,
              .listInviteCodes, .validateInviteCode,
              .listGoals, .listPackGoals, .getGoal,
+             .getCheckIn, .getPackCheckIns,
              .getTasks, .getFeed, .getPost:
             return .get
         case .registerPushToken, .createPack, .createInviteCode, .useInviteCode,
-             .createPackGoal, .createTask:
+             .createPackGoal, .createCheckIn, .getPresignedURL, .createTask:
             return .post
         case .updateProfile, .updatePack, .deactivateInviteCode, .updateGoal, .updateTask:
             return .patch
@@ -111,6 +112,10 @@ enum PakktEndpoint: Endpoint {
         case .createPackGoal(_, let request):
             return try? JSONEncoder().encode(request)
         case .updateGoal(_, let request):
+            return try? JSONEncoder().encode(request)
+        case .createCheckIn(let request):
+            return try? JSONEncoder().encode(request)
+        case .getPresignedURL(let request):
             return try? JSONEncoder().encode(request)
         case .createTask(_, let data), .updateTask(_, let data):
             return data
