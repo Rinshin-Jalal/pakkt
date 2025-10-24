@@ -1,6 +1,12 @@
 import Foundation
 
 enum PakktEndpoint: Endpoint {
+    // Users
+    case getProfile
+    case updateProfile(UpdateProfileRequest)
+    case registerPushToken(PushTokenRequest)
+    case deletePushToken
+    
     // Packs
     case getPacks
     case createPack(data: Data)
@@ -18,12 +24,14 @@ enum PakktEndpoint: Endpoint {
     case getFeed
     case getPost(id: String)
 
-    // Profile
-    case getProfile(userId: String)
-    case updateProfile(data: Data)
-
     var path: String {
         switch self {
+        case .getProfile, .updateProfile:
+            return "/api/users/profile"
+        case .registerPushToken:
+            return "/api/users/push-token"
+        case .deletePushToken:
+            return "/api/users/push-token"
         case .getPacks, .createPack:
             return "/rest/v1/packs"
         case .getPack(let id), .updatePack(let id, _), .deletePack(let id):
@@ -38,31 +46,30 @@ enum PakktEndpoint: Endpoint {
             return "/rest/v1/feed"
         case .getPost(let id):
             return "/rest/v1/posts?id=eq.\(id)"
-        case .getProfile(let userId):
-            return "/rest/v1/profiles?user_id=eq.\(userId)"
-        case .updateProfile:
-            return "/rest/v1/profiles"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .getPacks, .getPack, .getTasks, .getFeed, .getPost, .getProfile:
+        case .getProfile, .getPacks, .getPack, .getTasks, .getFeed, .getPost:
             return .get
-        case .createPack, .createTask:
+        case .registerPushToken, .createPack, .createTask:
             return .post
-        case .updatePack, .updateTask, .updateProfile:
+        case .updateProfile, .updatePack, .updateTask:
             return .patch
-        case .deletePack, .deleteTask:
+        case .deletePushToken, .deletePack, .deleteTask:
             return .delete
         }
     }
 
     var body: Data? {
         switch self {
+        case .updateProfile(let request):
+            return try? JSONEncoder().encode(request)
+        case .registerPushToken(let request):
+            return try? JSONEncoder().encode(request)
         case .createPack(let data), .updatePack(_, let data),
-             .createTask(_, let data), .updateTask(_, let data),
-             .updateProfile(let data):
+             .createTask(_, let data), .updateTask(_, let data):
             return data
         default:
             return nil
