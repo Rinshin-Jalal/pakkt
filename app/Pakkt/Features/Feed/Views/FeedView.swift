@@ -28,6 +28,12 @@ struct FeedView: View {
                         // Yesterday Section
                         DateDivider(text: "Yesterday")
 
+                        // CHECK-IN FAILED CARD (Voting)
+                        CheckInFailedCard()
+                            .padding(.horizontal, 16)
+
+                        Spacer().frame(height: 8)
+                        
                         // FINE ACTIVATED CARD
                         FineActivatedCard()
                             .padding(.horizontal, 16)  // Reduced from 24
@@ -142,6 +148,203 @@ struct NextGoalCard: View {
     }
 }
 
+// MARK: - Check-In Failed Card - Voting System
+struct CheckInFailedCard: View {
+    @State private var selectedVote: VoteOption? = nil
+    
+    enum VoteOption {
+        case dontFine
+        case fine
+        case wait
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Card Body with glass effect
+            VStack(alignment: .leading, spacing: 16) {
+           
+                // User + Goal
+                HStack(spacing: 12) {
+                    Circle()
+                        .fill(Color(hex: "#FF9500").opacity(0.2))
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Text("SK")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(Color(hex: "#FF9500"))
+                        )
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sarah Kim")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        Text("📚 Read 30 pages")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    
+                    Spacer()
+                    
+                    Text("18h left")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+                // ⚠️ WARNING BANNER - Orange/Yellow
+                HStack {
+                    Text("Check-In Failed")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("$5")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                
+
+                Divider()
+                    .background(Color.white.opacity(0.2))
+
+                // Voting section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Should Sarah be fined?")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                    
+                    // Progress bar showing vote distribution
+                    VStack(alignment: .leading, spacing: 8) {
+                        GeometryReader { geometry in
+                            HStack(spacing: 2) {
+                                // Don't Fine segment (3 votes)
+                                RoundedRectangle(cornerRadius: selectedVote != nil ? 12 : 8)
+                                    .fill(Color(hex: "#00D448"))
+                                    .frame(width: geometry.size.width * (3.0 / 8.0))
+                                
+                                // Fine segment (1 vote)
+                                RoundedRectangle(cornerRadius: selectedVote != nil ? 12 : 8)
+                                    .fill(Color(hex: "#FF3B30"))
+                                    .frame(width: geometry.size.width * (1.0 / 8.0))
+                                
+                                // Wait segment (1 vote)
+                                RoundedRectangle(cornerRadius: selectedVote != nil ? 12 : 8)
+                                    .fill(Color(hex: "#FF9500"))
+                                    .frame(width: geometry.size.width * (1.0 / 8.0))
+                                
+                                // Remaining votes (3 left)
+                                RoundedRectangle(cornerRadius: selectedVote != nil ? 12 : 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .frame(height: selectedVote != nil ? 40 : 20)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedVote)
+                        
+                        // Legend with color markers
+                        HStack(spacing: 16) {
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#00D448"))
+                                    .frame(width: 8, height: 8)
+                                Text("Don't Fine")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#FF3B30"))
+                                    .frame(width: 8, height: 8)
+                                Text("Fine")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#FF9500"))
+                                    .frame(width: 8, height: 8)
+                                Text("Wait 30m")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                        Text("5/8 pack members voted")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+
+                    // Voting buttons - Simple text (disappear when voted)
+                    if selectedVote == nil {
+                        VStack(spacing: 12) {
+                            // Don't Fine
+                            Button(action: { 
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedVote = .dontFine
+                                }
+                            }) {
+                                Text("Don't Fine (3)")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                            }
+                            .buttonStyle(.glass)
+                            
+                            // Fine
+                            Button(action: { 
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedVote = .fine
+                                }
+                            }) {
+                                Text("Fine (1)")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                            }
+                            .buttonStyle(.glass)
+                            
+                            // Wait 30 mins
+                            Button(action: { 
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedVote = .wait
+                                }
+                            }) {
+                                Text("Wait 30m")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                            }
+                            .buttonStyle(.glass)
+                        }
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                    } else {
+                        // Show what you voted for
+                        HStack {
+                            Text("You voted:")
+                                .font(.system(size: 13))
+                                .foregroundColor(.white.opacity(0.6))
+                            
+                            Text(selectedVote == .dontFine ? "Don't Fine" : selectedVote == .fine ? "Fine" : "Wait 30m")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(selectedVote == .dontFine ? Color(hex: "#00D448") : selectedVote == .fine ? Color(hex: "#FF3B30") : Color(hex: "#FF9500"))
+                        }
+                        .transition(.opacity.combined(with: .scale(scale: 1.05)))
+                    }
+                }
+            }
+            .padding(20)
+            .glassEffect(in: .rect(cornerRadius: 30))
+        }
+    }
+}
+
 // MARK: - Fine Activated Card - Liquid Glass
 struct FineActivatedCard: View {
     var body: some View {
@@ -189,33 +392,66 @@ struct FineActivatedCard: View {
 
                 // Voting section
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Pack is voting on this fine")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white.opacity(0.6))
-
-                    HStack(spacing: 20) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: "#00D448"))
-                            Text("3")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
+                    Text("Pack voted to fine you")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                    
+                    // Progress bar showing final vote results
+                    VStack(alignment: .leading, spacing: 8) {
+                        GeometryReader { geometry in
+                            HStack(spacing: 2) {
+                                // Don't Fine segment (2 votes)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(hex: "#00D448"))
+                                    .frame(width: geometry.size.width * (2.0 / 8.0))
+                                
+                                // Fine segment (4 votes - MAJORITY)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(hex: "#FF3B30"))
+                                    .frame(width: geometry.size.width * (4.0 / 8.0))
+                                
+                                // Wait segment (2 votes)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(hex: "#FF9500"))
+                                    .frame(width: geometry.size.width * (2.0 / 8.0))
+                            }
                         }
-
-                        HStack(spacing: 8) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: "#FF3B30"))
-                            Text("1")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
+                        .frame(height: 40)
+                        
+                        // Legend with color markers
+                        HStack(spacing: 16) {
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#00D448"))
+                                    .frame(width: 8, height: 8)
+                                Text("Don't Fine (2)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#FF3B30"))
+                                    .frame(width: 8, height: 8)
+                                Text("Fine (4)")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                            
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: "#FF9500"))
+                                    .frame(width: 8, height: 8)
+                                Text("Wait (2)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            
+                            Spacer()
                         }
-
-                        Spacer()
-
-                        Text("18h left")
-                            .font(.system(size: 14))
+                        
+                        Text("8/8 pack members voted")
+                            .font(.system(size: 12))
                             .foregroundColor(.white.opacity(0.6))
                     }
                 }
@@ -270,7 +506,7 @@ struct CheckInCard: View {
             HStack {
                 if isCurrentUser { Spacer(minLength: 50) }
                 VStack(alignment: .leading, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 10) {  // Proper spacing between header and content
+                    VStack(alignment: .leading, spacing: 10) {
                         // Goal Text - BOLD HEADER with glass effect
                         Text(checkIn.goalText)
                             .font(.system(size: 20, weight: .bold))
@@ -280,18 +516,6 @@ struct CheckInCard: View {
                             .padding(.bottom, 16)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        // Proof Image
-                        if let _ = checkIn.proofImage {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.black.opacity(0.4))
-                                .aspectRatio(1/1, contentMode: .fit)
-                                .overlay(
-                                    Image(systemName: "photo.fill")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.white.opacity(0.3))
-                                )
-                        }
-                        
                         // Check-in message
                         if let message = checkIn.message {
                             Text(message)
@@ -299,52 +523,96 @@ struct CheckInCard: View {
                                 .foregroundColor(.secondary)
                         }
                         
-                        // Bottom: Streak + XP + Actions
-                        HStack(spacing: 16) {
-                            
-                            
-                            // XP Badge - Amber
-                            HStack(spacing: 6) {
-                                Text("+\(checkIn.xpEarned)")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("xp")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .glassEffect(.regular.tint(.green.opacity(0.1)),in: .capsule)
-                            
-                            Spacer()
-                            
-                            // Like
-                            Button(action: {}) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: checkIn.isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.white)
-                                    Text("\(checkIn.likeCount)")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
+                        // Bottom section with image background
+                        ZStack(alignment: .topLeading) {
+                            // Background Image (if exists)
+                            if let imageURL = checkIn.proofImage {
+                                GeometryReader { geo in
+                                    AsyncImage(url: URL(string: imageURL)) { phase in
+                                        switch phase {
+                                        case .empty:
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.black.opacity(0.4))
+                                                .overlay(
+                                                    ProgressView()
+                                                        .tint(.white)
+                                                )
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: geo.size.width, height: geo.size.height)
+                                                .clipped()
+                                        case .failure:
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.black.opacity(0.4))
+                                                .overlay(
+                                                    Image(systemName: "photo.fill")
+                                                        .font(.system(size: 40))
+                                                        .foregroundColor(.white.opacity(0.3))
+                                                )
+                                        @unknown default:
+                                            EmptyView()
+                                        }
+                                    }
                                 }
+                                .aspectRatio(4/3, contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             
-                            // Comment
-                            Button(action: {}) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "message.fill")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.white)
-                                    Text("\(checkIn.commentCount)")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
+                            // Bottom: Streak + XP + Actions overlaid on image
+                            VStack(spacing: 0) {
+                                Spacer()
+                                
+                                HStack(spacing: 16) {
+                                    // XP Badge - Amber
+                                    HStack(spacing: 6) {
+                                        Text("+\(checkIn.xpEarned)")
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(.primary)
+                                        Text("xp")
+                                            .font(.system(size: 13, weight: .semibold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .glassEffect(.regular.tint(.green.opacity(0.1)),in: .capsule)
+                                    
+                                    Spacer()
+                                    
+                                    // Like
+                                    Button(action: {}) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: checkIn.isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                                .font(.system(size: 16))
+                                                .foregroundColor(.white)
+                                            Text("\(checkIn.likeCount)")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundColor(.white)
+                                        }
+                                    }.buttonStyle(.glass)
+                                    
+                                    // Comment
+                                    Button(action: {}) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "message.fill")
+                                                .font(.system(size: 16))
+                                                .foregroundColor(.white)
+                                            Text("\(checkIn.commentCount)")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundColor(.white)
+                                        }
+                                    }.buttonStyle(.glass)
                                 }
+                                .padding(10)
+                               
                             }
+                            .padding(0)
                         }
+                        .frame(height: checkIn.proofImage != nil ? nil : 60)
                     }
-                    .padding(16)  // Reduced from 20
-                    .glassEffect(in: .rect(cornerRadius: 16))  // Reduced from 20
+                    .padding(16)
+                    .glassEffect(in: .rect(cornerRadius: 30))
                 }
                 if !isCurrentUser { Spacer(minLength: 40) }
 
@@ -380,7 +648,7 @@ let mockCheckIns: [MockCheckIn] = [
         timeAgo: "2m ago",
         goalText: "🏃‍♂️ 5km morning run",
         message: "Crushed it today! Feeling strong 💪",
-        proofImage: "running",
+        proofImage: "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=800&q=80",
         streak: 7,
         likeCount: 12,
         commentCount: 3,
@@ -412,7 +680,7 @@ let mockCheckIns: [MockCheckIn] = [
         timeAgo: "Yesterday",
         goalText: "🏋️ Gym session complete",
         message: "Leg day = best day",
-        proofImage: "gym",
+        proofImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80",
         streak: 14,
         likeCount: 24,
         commentCount: 5,
@@ -427,7 +695,7 @@ let mockCheckIns: [MockCheckIn] = [
         timeAgo: "Yesterday",
         goalText: "📚 Read 30 pages",
         message: "This book is incredible!",
-        proofImage: nil,
+        proofImage: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=80",
         streak: 5,
         likeCount: 6,
         commentCount: 2,
@@ -444,7 +712,7 @@ let mockCheckIns: [MockCheckIn] = [
         timeAgo: "3 days ago",
         goalText: "☀️ Wake up at 6am",
         message: "Another day, another win!",
-        proofImage: "sunrise",
+        proofImage: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80",
         streak: 21,
         likeCount: 31,
         commentCount: 7,
