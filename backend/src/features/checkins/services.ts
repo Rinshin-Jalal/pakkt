@@ -23,6 +23,8 @@ import {
 } from './utils';
 import { createSupabaseClient } from '../../lib/supabase';
 import type { Env } from '../../types';
+import { sendNotificationToPack } from '../notifications/services';
+import { NotificationType } from '../notifications/types';
 
 /**
  * Create a check-in for a goal
@@ -183,6 +185,20 @@ export async function createCheckIn(
       throw new InternalError('Failed to award pack XP');
     }
   }
+
+  // Notify pack members about new check-in
+  await sendNotificationToPack(
+    serviceSupabase,
+    goal.pack_id,
+    NotificationType.NEW_CHECK_IN,
+    {
+      username: user?.username || 'Someone',
+      goalTitle: goal.title,
+      checkInId: checkIn.id,
+      packId: goal.pack_id,
+    },
+    userId // Exclude the check-in author
+  );
 
   // Return check-in with calculated streak and XP
   return {

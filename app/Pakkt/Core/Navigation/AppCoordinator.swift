@@ -94,6 +94,32 @@ class AppCoordinator: ObservableObject {
         profilePath.append(NavigationDestination.about)
     }
 
+    // MARK: - Notification Deep Link Navigation
+
+    func showCheckInDetail(id: String) {
+        // Navigate to check-in detail
+        selectedTab = 0 // Feed tab
+        feedPath.append(NavigationDestination.checkInDetail(id: id))
+    }
+
+    func showFineDetail(id: String) {
+        // Navigate to fine detail
+        selectedTab = 1 // Pack tab
+        packsPath.append(NavigationDestination.fineDetail(id: id))
+    }
+
+    func showGoalDetail(id: String) {
+        // Navigate to goal detail
+        selectedTab = 1 // Pack tab
+        packsPath.append(NavigationDestination.goalDetail(id: id))
+    }
+
+    func showPackNotification(id: String) {
+        // Navigate to pack notification
+        selectedTab = 1 // Pack tab
+        packsPath.append(NavigationDestination.packNotification(id: id))
+    }
+
     // MARK: - Global Navigation
 
     func popToRoot(for tab: Int) {
@@ -125,6 +151,29 @@ class AppCoordinator: ObservableObject {
             }
         default:
             break
+        }
+    }
+
+    // MARK: - Deep Link Handling
+
+    func handleDeepLink(_ deepLink: DeepLink) {
+        switch deepLink {
+        case .pack(let id):
+            showPackDetail(id: id.uuidString)
+        case .goal(let id):
+            showGoalDetail(id: id.uuidString)
+        case .checkIn(let id):
+            showCheckInDetail(id: id.uuidString)
+        case .fine(let id):
+            showFineDetail(id: id.uuidString)
+        case .jailSession(let id):
+            // Navigate to jail session detail
+            selectedTab = 1 // Pack tab
+            packsPath.append(NavigationDestination.taskDetail(id: id.uuidString))
+        case .feed:
+            showFeed()
+        case .profile:
+            showProfile()
         }
     }
 }

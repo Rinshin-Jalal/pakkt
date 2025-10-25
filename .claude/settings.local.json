@@ -18,7 +18,8 @@
       "Bash(./scripts/test-social-flows.sh:*)",
       "Bash(gh issue:*)",
       "Bash(mkdir:*)",
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

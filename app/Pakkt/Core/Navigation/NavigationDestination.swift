@@ -27,4 +27,10 @@ enum NavigationDestination: Hashable {
     case editProfile
     case settings
     case about
+
+    // Check-in and Notification Flow
+    case checkInDetail(id: String)
+    case fineDetail(id: String)
+    case goalDetail(id: String)
+    case packNotification(id: String)
 }

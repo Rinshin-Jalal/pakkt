@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.76.1",
+    "@types/apn": "^0.0.31",
+    "apn": "^2.2.0",
     "hono": "^4.10.1",
     "zod": "^4.1.12"
   },

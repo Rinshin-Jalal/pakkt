@@ -7,9 +7,11 @@ class ProfileViewModel: BaseViewModel {
     @Published var profile: UserProfile?
     
     private let usersService: UsersService
+    let notificationSettingsViewModel: NotificationSettingsViewModel
 
     init(usersService: UsersService = UsersService()) {
         self.usersService = usersService
+        self.notificationSettingsViewModel = NotificationSettingsViewModel()
         super.init()
     }
 

@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { rateLimitMiddleware } from './middleware/rateLimit';
 import { requireAuth, optionalAuth, getAuthenticatedUserId } from './middleware/auth';
 import type { Env } from './types/env';
+import { initializeAPNs } from './lib/apns';
 
 // Import feature routers
 import usersRouter from './features/users/router';
@@ -24,6 +25,16 @@ import { getReactionsHandler, getCommentsHandler } from './features/social/route
 import { validateInviteCodeHandler, useInviteCodeHandler } from './features/packs/routes';
 
 const app = new Hono<{ Bindings: Env }>();
+
+// Initialize APNs middleware (runs once on first request)
+let apnsInitialized = false;
+app.use('*', async (c, next) => {
+  if (!apnsInitialized) {
+    initializeAPNs(c.env);
+    apnsInitialized = true;
+  }
+  await next();
+});
 
 // Global middleware
 app.use('*', corsMiddleware);

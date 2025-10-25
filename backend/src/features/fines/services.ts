@@ -24,6 +24,8 @@ import {
   calculateFineAmount,
   determineFineStatus,
 } from './utils';
+import { sendNotificationToPack, sendNotificationToUser } from '../notifications/services';
+import { NotificationType } from '../notifications/types';
 
 /**
  * Create a new fine
@@ -72,6 +74,19 @@ export async function createFine(
     console.error('Fine creation error:', error);
     throw new InternalError('Failed to create fine');
   }
+
+  // Notify pack members about new fine and voting
+  await sendNotificationToPack(
+    supabase,
+    packId,
+    NotificationType.FINE_CREATED,
+    {
+      username: fine.user?.username || 'Someone',
+      amount,
+      fineId: fine.id,
+      packId,
+    }
+  );
 
   return {
     ...fine,
@@ -261,6 +276,19 @@ export async function resolveFine(
     await createPunishment(supabase, updatedFine);
   }
 
+  // Notify the fined user about resolution result
+  await sendNotificationToUser(
+    supabase,
+    updatedFine.user_id,
+    NotificationType.FINE_RESOLVED,
+    {
+      username: updatedFine.user?.username || 'You',
+      amount: updatedFine.amount,
+      fineId: updatedFine.id,
+      enforced: newStatus === 'enforced',
+    }
+  );
+
   return {
     ...updatedFine,
     user: updatedFine.user,
@@ -380,6 +408,18 @@ export async function appealFine(
     console.error('Fine appeal error:', error);
     throw new InternalError('Failed to appeal fine');
   }
+
+  // Notify pack members about the appeal
+  await sendNotificationToPack(
+    supabase,
+    updatedFine.pack_id,
+    NotificationType.FINE_APPEALED,
+    {
+      username: updatedFine.user?.username || 'Someone',
+      fineId: updatedFine.id,
+    },
+    userId // Exclude the appealing user
+  );
 
   return {
     ...updatedFine,

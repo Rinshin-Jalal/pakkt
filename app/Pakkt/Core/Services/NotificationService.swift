@@ -1,6 +1,7 @@
 // app/Pakkt/Core/Services/NotificationService.swift
 import Foundation
 import UserNotifications
+import UIKit
 
 actor NotificationService {
     private let usersService: UsersService
@@ -24,6 +25,26 @@ actor NotificationService {
         return settings.authorizationStatus
     }
 
+    // MARK: - Notification Settings Configuration
+
+    func configureNotificationCategories() {
+        let checkInCategory = UNNotificationCategory(
+            identifier: "CHECK_IN",
+            actions: [],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        let fineVoteCategory = UNNotificationCategory(
+            identifier: "FINE_VOTE",
+            actions: [],
+            intentIdentifiers: [],
+            options: []
+        )
+
+        UNUserNotificationCenter.current().setNotificationCategories([checkInCategory, fineVoteCategory])
+    }
+
     // MARK: - Register Device Token
 
     func registerDeviceToken(_ token: Data) async throws {
@@ -33,6 +54,12 @@ actor NotificationService {
             deviceType: "ios",
             deviceId: UIDevice.current.identifierForVendor?.uuidString
         )
+    }
+
+    // MARK: - Delete Push Token (for disabling notifications)
+
+    func unregisterDeviceToken() async throws {
+        try await usersService.deletePushToken()
     }
 
     // MARK: - Local Notifications

@@ -23,6 +23,8 @@ import {
   determineFeedEventVisibility,
   sortComments,
 } from './utils';
+import { sendNotificationToCheckInAuthor } from '../notifications/services';
+import { NotificationType } from '../notifications/types';
 
 /**
  * Add or update reaction
@@ -80,6 +82,20 @@ export async function addReaction(
   if (error || !reaction) {
     console.error('Reaction creation error:', error);
     throw new InternalError('Failed to create reaction');
+  }
+
+  // Notify check-in author about new reaction (if it's a check-in)
+  if (input.check_in_id) {
+    await sendNotificationToCheckInAuthor(
+      supabase,
+      input.check_in_id,
+      NotificationType.NEW_REACTION,
+      {
+        username: reaction.user?.username || 'Someone',
+        emoji: input.emoji,
+        checkInId: input.check_in_id,
+      }
+    );
   }
 
   return {
@@ -186,6 +202,18 @@ export async function addComment(
     console.error('Comment creation error:', error);
     throw new InternalError('Failed to create comment');
   }
+
+  // Notify check-in author about new comment
+  await sendNotificationToCheckInAuthor(
+    supabase,
+    input.check_in_id,
+    NotificationType.NEW_COMMENT,
+    {
+      username: comment.user?.username || 'Someone',
+      commentText: input.content.substring(0, 100), // Truncate for notification
+      checkInId: input.check_in_id,
+    }
+  );
 
   return {
     ...comment,

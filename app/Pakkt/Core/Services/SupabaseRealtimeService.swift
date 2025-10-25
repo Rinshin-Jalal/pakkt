@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import Combine
 
 @available(iOS 16.0, *)
 actor SupabaseRealtimeService {
@@ -24,25 +25,27 @@ actor SupabaseRealtimeService {
 
     func subscribeToCheckIns(
         packId: String,
-        onInsert: @escaping (CheckIn) -> Void
+        onInsert: @escaping ([String: Any]) -> Void
     ) async throws {
         let channelId = "check_ins:\(packId)"
 
         let channel = supabase.realtime.channel(channelId)
 
+        // Subscribe to INSERT operations on check_ins table
         channel.on(
-            "INSERT",
-            filter: ChannelFilter(
-                event: "INSERT",
-                schema: "public",
-                table: "check_ins",
-                filter: "pack_id=eq.\(packId)"
-            )
+            .postgresChange(event: .insert, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
         ) { message in
-            if let record = message.payload["record"] as? [String: Any],
-               let jsonData = try? JSONSerialization.data(withJSONObject: record),
-               let checkIn = try? JSONDecoder().decode(CheckIn.self, from: jsonData) {
-                onInsert(checkIn)
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
+            }
+        }
+
+        // Subscribe to UPDATE operations on check_ins table for status changes
+        channel.on(
+            .postgresChange(event: .update, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+        ) { message in
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
             }
         }
 
@@ -50,32 +53,19 @@ actor SupabaseRealtimeService {
         channels[channelId] = channel
     }
 
-    // MARK: - Fine Votes Subscription (Phase 6)
-    // NOTE: FineVote model will be implemented in Phase 6
-    // This method signature is ready, implementation will be completed when model exists
-
+    // MARK: - Fine Votes Subscription
     func subscribeToFineVotes(
         fineId: String,
-        onInsert: @escaping (Any) -> Void
+        onInsert: @escaping ([String: Any]) -> Void
     ) async throws {
         let channelId = "fine_votes:\(fineId)"
 
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            "INSERT",
-            filter: ChannelFilter(
-                event: "INSERT",
-                schema: "public",
-                table: "fine_votes",
-                filter: "fine_id=eq.\(fineId)"
-            )
+            .postgresChange(event: .insert, schema: "public", table: "fine_votes", filter: "fine_id=eq.\(fineId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
-                // TODO: Replace 'Any' with FineVote when model is implemented in Phase 6
-                // if let vote = try? JSONDecoder().decode(FineVote.self, from: JSONSerialization.data(withJSONObject: record)) {
-                //     onInsert(vote)
-                // }
                 onInsert(record)
             }
         }
@@ -84,32 +74,19 @@ actor SupabaseRealtimeService {
         channels[channelId] = channel
     }
 
-    // MARK: - Comments Subscription (Phase 5)
-    // NOTE: Comment model will be implemented in Phase 5
-    // This method signature is ready, implementation will be completed when model exists
-
+    // MARK: - Comments Subscription
     func subscribeToComments(
         checkInId: String,
-        onInsert: @escaping (Any) -> Void
+        onInsert: @escaping ([String: Any]) -> Void
     ) async throws {
         let channelId = "comments:\(checkInId)"
 
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            "INSERT",
-            filter: ChannelFilter(
-                event: "INSERT",
-                schema: "public",
-                table: "comments",
-                filter: "check_in_id=eq.\(checkInId)"
-            )
+            .postgresChange(event: .insert, schema: "public", table: "comments", filter: "check_in_id=eq.\(checkInId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
-                // TODO: Replace 'Any' with Comment when model is implemented in Phase 5
-                // if let comment = try? JSONDecoder().decode(Comment.self, from: JSONSerialization.data(withJSONObject: record)) {
-                //     onInsert(comment)
-                // }
                 onInsert(record)
             }
         }
@@ -118,38 +95,86 @@ actor SupabaseRealtimeService {
         channels[channelId] = channel
     }
 
-    // MARK: - Reactions Subscription (Phase 5)
-    // NOTE: Reaction model will be implemented in Phase 5
-    // This method signature is ready, implementation will be completed when model exists
-
+    // MARK: - Reactions Subscription
     func subscribeToReactions(
         checkInId: String,
-        onInsert: @escaping (Any) -> Void
+        onInsert: @escaping ([String: Any]) -> Void
     ) async throws {
         let channelId = "reactions:\(checkInId)"
 
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            "INSERT",
-            filter: ChannelFilter(
-                event: "INSERT",
-                schema: "public",
-                table: "reactions",
-                filter: "check_in_id=eq.\(checkInId)"
-            )
+            .postgresChange(event: .insert, schema: "public", table: "reactions", filter: "check_in_id=eq.\(checkInId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
-                // TODO: Replace 'Any' with Reaction when model is implemented in Phase 5
-                // if let reaction = try? JSONDecoder().decode(Reaction.self, from: JSONSerialization.data(withJSONObject: record)) {
-                //     onInsert(reaction)
-                // }
                 onInsert(record)
             }
         }
 
         await channel.subscribe()
         channels[channelId] = channel
+    }
+
+    // MARK: - Pack Feed Subscription (to update when teammates submit check-ins)
+    func subscribeToPackFeed(
+        packId: String,
+        onInsert: @escaping ([String: Any]) -> Void
+    ) async throws {
+        let channelId = "pack_feed:\(packId)"
+
+        let channel = supabase.realtime.channel(channelId)
+
+        // Subscribe to INSERT events on check_ins table for the pack
+        channel.on(
+            .postgresChange(event: .insert, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+        ) { message in
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
+            }
+        }
+
+        // Subscribe to updates on existing check-ins (status changes, etc.)
+        channel.on(
+            .postgresChange(event: .update, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+        ) { message in
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
+            }
+        }
+
+        // Also subscribe to related tables that affect the feed
+        channel.on(
+            .postgresChange(event: .insert, schema: "public", table: "comments", filter: "check_in_id=cs.@check_ins.pack_id=eq.\(packId)")
+        ) { message in
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
+            }
+        }
+
+        channel.on(
+            .postgresChange(event: .insert, schema: "public", table: "reactions", filter: "check_in_id=cs.@check_ins.pack_id=eq.\(packId)")
+        ) { message in
+            if let record = message.payload["record"] as? [String: Any] {
+                onInsert(record)
+            }
+        }
+
+        await channel.subscribe()
+        channels[channelId] = channel
+    }
+
+    // MARK: - App Lifecycle Management
+
+    func handleAppDidEnterBackground() async {
+        // Store the channels that were subscribed so we can reconnect when app becomes active
+        print("App entered background, storing subscriptions...")
+    }
+
+    func handleAppWillEnterForeground() async {
+        // Reconnect to channels if they were disconnected during background
+        print("App will enter foreground, checking subscriptions...")
+        // Channels should automatically reconnect when possible
     }
 
     // MARK: - Unsubscribe
