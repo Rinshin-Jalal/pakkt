@@ -171,41 +171,24 @@ An iOS app where friend groups ("packs") hold each other accountable to daily go
 
 ### Design Philosophy:
 
-**"Dark Neobrutalism meets Liquid Glass meets BeReal rawness"**
+**"Liquid Glass meets BeReal Rawness"**
 
 #### Core Aesthetic Principles:
 
-**1. DARK NEOBRUTALISM**
-- Harsh, high-contrast elements
-- Thick borders (3-4px) on important elements
-- Bold, all-caps typography for emphasis
-- Sharp corners mixed with rounded elements
-- Vibrant accent colors against dark backgrounds
-- No subtlety - everything is LOUD
+**1. LIQUID GLASS**
+- The entire UI is built on a foundation of layered, frosted glass panels.
+- A sense of depth is created through transparency, soft shadows, and backdrop blur.
+- The aesthetic is clean, premium, and inspired by Apple's native design language.
 
-**2. LIQUID GLASS**
-- Frosted glass cards with backdrop blur
-- Semi-transparent overlays
-- Layered depth with multiple blur levels
-- Smooth gradients underneath glass
-- Light refracts through elements
+**2. BEREAL RAWNESS**
+- While the UI is polished, the content remains raw and authentic.
+- The focus is on immediate, unfiltered check-ins and interactions.
+- This creates a contrast between the premium interface and the real-world content it holds.
 
-**3. BEREAL RAWNESS**
-- Unpolished, authentic feel
-- Cards can overlap chaotically
-- Not perfectly aligned grids
-- Immediate, in-your-face content
-- Real photos, no filters
-- Time-sensitive urgency
-
-**4. COMBINED EFFECT**
-- **Background:** Dark with vibrant gradient overlays
-- **Cards:** Glass morphism BUT with thick neo-brutal borders
-- **Typography:** Bold, sans-serif, high contrast
-- **Colors:** Vibrant neons against dark (cyan, magenta, yellow, lime)
-- **Shadows:** Both soft (glass) and hard (neo-brutal) shadows
-- **Buttons:** Chunky, 3D-effect, bright colors
-- **Overall:** Premium chaos - expensive-looking but aggressive
+**3. SINGLE ACCENT FOCUS**
+- The design uses a single, vibrant accent color (Electric Cyan) for all primary actions and highlights.
+- This creates a focused, minimalist, and deliberate user experience.
+- Semantic states (like errors or success) are communicated with iconography and typography, not additional colors.
 
 ### Visual Hierarchy:
 
@@ -215,198 +198,70 @@ An iOS app where friend groups ("packs") hold each other accountable to daily go
 DARK FOUNDATION:
 - Pure Black: #000000 (backgrounds)
 - Deep Gray: #0A0A0A (elevated surfaces)
-- Charcoal: #1A1A1A (cards)
 
-NEON ACCENTS (Neo-brutal):
-- Electric Cyan: #00F0FF (info, primary actions)
-- Hot Magenta: #FF006E (danger, fines)
-- Acid Yellow: #FFFF00 (warnings, highlights)
-- Toxic Green: #39FF14 (success, check-ins)
-- Deep Purple: #7B2CBF (premium features)
+PRIMARY ACCENT:
+- Electric Cyan: #00F0FF (primary actions, highlights)
 
 GLASS EFFECTS:
-- Glass Light: rgba(255, 255, 255, 0.05)
-- Glass Border: rgba(255, 255, 255, 0.15)
-- Blur: 40-60px backdrop filter
-
-GRADIENTS (Under glass):
-- Success: Toxic Green → Electric Cyan
-- Danger: Hot Magenta → Deep Purple
-- Warning: Acid Yellow → Orange
-- Neutral: Deep Purple → Cyan
+- Glass Fill: rgba(255, 255, 255, 0.1)
+- Glass Border: rgba(255, 255, 255, 0.2)
+- Blur: 30-60px backdrop filter
 ```
 
 **Typography:**
 
 ```
-HEADERS (Neo-brutal):
-- Font: SF Pro Display, Black weight
-- Size: 28-40pt
-- Case: ALL CAPS or Title Case
-- Color: White or neon accents
-- Stroke: 2px outline on important headers
-
-BODY (Readable):
-- Font: SF Pro Text, Bold for emphasis
-- Size: 16-18pt
-- Color: White (#FFFFFF) or Light Gray (#E0E0E0)
-
-LABELS (Loud):
-- Font: SF Pro Rounded, Heavy
-- Size: 13-15pt
-- Case: UPPERCASE
-- Color: Neon accents
-- Background: Dark with thick border
+- Font: SF Pro (Display, Text, Rounded)
+- Hierarchy is established through size and weight (e.g., Bold, Semibold, Regular).
+- The style is clean, readable, and native to iOS.
+- The accent color is used for interactive text elements.
 ```
 
-**Card Styles:**
+**Card & Button Styles:**
 
 ```
-GLASS CARDS (Main content):
-- Background: rgba(26, 26, 26, 0.8)
-- Backdrop blur: 40px
-- Border: 3px solid rgba(255, 255, 255, 0.2)
-- Shadow: 0 8px 32px rgba(0, 0, 0, 0.5)
-- Rounded: 16px
-
-BRUTAL CARDS (Urgent/Important):
-- Background: Solid dark #1A1A1A
-- Border: 4px solid neon color (cyan/magenta/yellow)
-- Shadow: 8px 8px 0px neon color (hard shadow, offset)
-- Rounded: 8px (less rounded, more sharp)
-- Transform: Slight rotation (-2 to +2 deg)
-
-HYBRID (Best of both):
-- Glass background with blur
-- Thick neon border (3-4px)
-- Soft inner glow + hard outer shadow
-- Content "pops" off the glass
-```
-
-**Button Styles:**
-
-```
-PRIMARY BUTTONS (Neo-brutal 3D):
-- Background: Neon gradient
-- Height: 56px
-- Border: 3px solid darker shade
-- Shadow: 0 6px 0 darker shade (3D pressed effect)
-- Rounded: 12px
-- Text: Black or White (max contrast)
-- Hover: Lift up (-2px)
-- Press: Squash down (+4px)
-
-GLASS BUTTONS (Secondary):
-- Background: rgba(255, 255, 255, 0.1)
-- Backdrop blur: 20px
-- Border: 2px solid rgba(255, 255, 255, 0.3)
-- Text: White
-- Hover: Increase blur, brighter
+- All components follow the Liquid Glass style.
+- Cards are semi-transparent panels with soft shadows and thin borders.
+- Buttons are pill-shaped, either filled with the accent color (primary) or made of glass (secondary).
+- The focus is on a clean, consistent, and polished component library.
 ```
 
 ### Core Screens:
 
-1. **FEED (80% of time)**
-   - **Background:** 
-     - Pure black with animated gradient overlays
-     - Gradient shifts based on pack activity (green = all checked in, red = multiple fines)
-   - **Cards:**
-     - Glass morphism base with thick neon borders
-     - Slight chaotic rotation (-3 to +3 degrees)
-     - Overlapping with depth
-     - Check-ins = cyan border
-     - Fines = magenta border
-     - Jail = yellow/orange gradient background
-   - **Typography:**
-     - Names in ALL CAPS, bold
-     - Times/dates in smaller caps
-     - Emojis HUGE (56pt+)
-   - **Floating Elements:**
-     - Streak widget (small glass card, top-left)
-     - Online indicators (neon dots)
-     - Reaction pills (glass + neon text)
+1. **FEED**
+   - A clean, vertical scroll of glass cards against a dark background.
+   - Each card represents a check-in or an event.
+   - The accent color is used for interactive elements like buttons and links.
 
-2. **GOALS**
-   - Neobrutalist card grid
-   - Each goal card has:
-     - Thick colored border based on status
-     - Hard shadow offset (8px 8px)
-     - Emoji + ALL CAPS title
-     - Chunky check-in button (3D effect)
-   - Glass overlay for upcoming goals
-
-3. **PACK**
-   - Member list with glass cards
-   - Profile pics with thick neon borders
-   - Stats displayed in neon colors
-   - Brutalist leaderboard (hard shadows, stacked)
-
-4. **WALLET**
-   - Glass coin counter (frosted, glowing)
-   - Power-up cards: neo-brutal style
-   - Thick borders, 3D buttons
-   - Neon gradient backgrounds for premium items
-
-5. **PHONE JAIL (Full-screen takeover)**
-   - **Background:** 
-     - Dark with vibrant gradient (magenta → purple → orange)
-     - Prison bar overlay (thick, high contrast)
-   - **Timer:** 
-     - MASSIVE (80pt+)
-     - Neon glow effect
-     - Pulsing animation
-   - **UI:**
-     - Glass info card with thick yellow border
-     - Brutal "BREAK JAIL" button (3D, red, huge)
-     - Friends watching: Glass chat overlay
+2. **PHONE JAIL (Full-screen takeover)**
+   - A full-screen glass overlay blurs the app behind it.
+   - A large, clean timer is the central focus.
+   - The design is minimal and focused, creating a sense of calm restriction, not chaotic punishment.
 
 ### Animation Style:
 
-**Neobrutalist animations:**
-- Hard, snappy transitions (no slow fades)
-- Immediate state changes
-- Squash and stretch on buttons
-- Elements "pop" in rather than fade
-- Shake/bounce effects on errors
-- Exaggerated reactions to interactions
-
-**Glass animations:**
-- Smooth blur transitions
-- Gradient shifts (slow, 3-5s)
-- Floating motion (subtle, constant)
-- Refraction effects on interaction
-- Light rays passing through glass
-
-**BeReal rawness:**
-- Camera flash effect on check-ins
-- Countdown timers (urgent)
-- Instant updates (no loading spinners)
-- Notifications SLAM onto screen
+- **Fluid & Responsive:** Animations are smooth, with `ease-in-out` transitions.
+- **Subtle & Purposeful:** Motion guides the user without being distracting.
+- **Polished:** All animations feel high-quality, like a native iOS app.
 
 ### Overall Vibe:
 
 **Imagine:**
-- Opening the app feels like entering a **neon-lit underground club**
-- Everything is **urgent and immediate** (BeReal)
-- But also **premium and expensive** (Liquid Glass)
-- With **aggressive, in-your-face energy** (Neobrutalism)
-- **Dark but colorful** - black canvas, neon paint splashes
-- **Chaotic but functional** - looks wild but everything makes sense
-- **Raw but polished** - authentic but clearly high-quality
+- Opening the app feels like using a premium, well-crafted utility.
+- The interface is clean, calm, and focused.
+- The 'rawness' comes from the user content, not the UI itself.
+- It feels like a native Apple app, but with a distinct, modern edge.
 
 **NOT:**
-- Corporate productivity app
-- Pastel minimalism
-- Calm, zen, peaceful
-- Professional, buttoned-up
-- Soft, gentle, encouraging
+- Loud, aggressive, or chaotic.
+- Overly colorful or distracting.
+- Brutalist or overtly stylized.
 
 **YES:**
-- Underground, rebellious
-- Loud, aggressive, competitive
-- Raw, authentic, unfiltered
-- High-energy, intense
-- Brotherhood, pack mentality
+- Clean, polished, premium.
+- Minimalist and focused.
+- Intuitive and native-feeling.
+- A beautiful container for raw, authentic content.
 
 ---
 
@@ -441,10 +296,9 @@ GLASS BUTTONS (Secondary):
 - Subscription for serious users
 
 ### 6. **Design is unforgettable**
-- Stands out in App Store screenshots
-- Shareable aesthetic (people post their jail screens)
-- Premium look justifies premium features
-- Appeals to target demographic (young, design-conscious)
+- Stands out in the App Store for its polish and clarity.
+- The premium feel justifies premium features.
+- Appeals to a design-conscious demographic.
 
 ---
 
@@ -517,9 +371,9 @@ GLASS BUTTONS (Secondary):
 - **Mitigation:** Remove all randomness (fixed fines, guaranteed rewards), charity redirect option
 - **Backup:** Position as productivity tool, not game
 
-### Risk 6: Design too aggressive/niche
-- **Mitigation:** Test with target demographic first (college males love this aesthetic)
-- **Backup:** Tone down neon colors, keep glass + dark but less brutal
+### Risk 6: Design feels too generic
+- **Mitigation:** The "rawness" of the content and the social dynamics will be the key differentiator, not an aggressive UI.
+- **Backup:** Introduce subtle thematic elements or customization options post-launch.
 
 ---
 
@@ -527,7 +381,7 @@ GLASS BUTTONS (Secondary):
 
 1. **Finalize name** (placeholder: [APP_NAME])
 2. **Apple Family Controls entitlement request** (3-8 week approval)
-3. **Figma design system** (dark + neo-brutal + glass components)
+3. **Figma design system** (dark, liquid glass components)
 4. **MVP scope definition** (see PLAN.md)
 5. **Supabase setup** (database, auth, real-time)
 6. **iOS development start** (Swift/SwiftUI)
@@ -537,12 +391,9 @@ GLASS BUTTONS (Secondary):
 ## 📊 Comparable Apps (Design Inspiration)
 
 **Design Style:**
-- **BeReal** (rawness, immediacy, authentic UX)
 - **Opal** (liquid glass, premium iOS feel)
-- **Bruno Simon's portfolio** (neobrutalism, bold, playful)
-- **Metalabel** (neo-brutal web design)
-- **Discord** (dark theme, gaming aesthetic)
-- **Robinhood** (gradients, glass elements, modern)
+- **Apple's native apps** (Fitness, Home, Wallet)
+- **BeReal** (rawness, immediacy, authentic UX)
 
 **Functionality:**
 - Beeminder (money stakes, but solo and ugly)
@@ -552,14 +403,13 @@ GLASS BUTTONS (Secondary):
 
 **What we take from each:**
 - BeReal → Daily ritual, social proof, rawness
-- Opal → Screen time blocking, glass UI
-- Neobrutalism → Bold, aggressive, memorable
+- Opal / Apple → Polished Liquid Glass UI, native feel
 - Discord → Dark theme done right, community
 - Duolingo → Streak psychology
 - Strava → Social competition
 
 **What we do better:**
-- **Design:** More distinctive, premium yet aggressive
+- **Design:** A unique combination of premium, polished UI and raw, social content.
 - **Stakes:** Real consequences (not just points)
 - **Social:** Pack-first, not solo
 - **Innovation:** Phone jail (novel Screen Time use)

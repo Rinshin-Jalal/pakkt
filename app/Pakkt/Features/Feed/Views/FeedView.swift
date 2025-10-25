@@ -6,7 +6,7 @@ struct FeedView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             // Background
-            Color(red: 0.98, green: 0.97, blue: 0.95)
+            Color.white
                 .ignoresSafeArea()
 
             ScrollViewReader { proxy in
@@ -99,7 +99,7 @@ struct FeedView: View {
                             .stroke(Color.black, lineWidth: 3)
                     )
                     .rotationEffect(.degrees(-5))
-                    .shadow(color: .black, radius: 0, x: 5, y: 5)
+                    .shadow(color: .black.opacity(0.5), radius: 0, x: 5, y: 5)
             }
             .padding(20)
         }
@@ -137,12 +137,7 @@ struct NextGoalCard: View {
                     .foregroundColor(.black.opacity(0.5))
             }
             .frame(width: 70, height: 70)
-            .background(Color.orange)
-            .cornerRadius(35)
-            .overlay(
-                Circle()
-                    .stroke(Color.black, lineWidth: 3)
-            )
+
 
             // Right: Goal info
             VStack(alignment: .leading, spacing: 6) {
@@ -162,7 +157,7 @@ struct NextGoalCard: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.orange.opacity(0.2))
+        .background(Color.orange)
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
@@ -193,12 +188,12 @@ struct FineActivatedCard: View {
                 // User + Goal
                 HStack(spacing: 10) {
                     Circle()
-                        .fill(Color.red.opacity(0.2))
+                        .fill(Color.red)
                         .frame(width: 36, height: 36)
                         .overlay(
                             Text("ME")
                                 .font(.system(size: 12, weight: .black))
-                                .foregroundColor(.red)
+                                .foregroundColor(.white)
                         )
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -251,13 +246,13 @@ struct FineActivatedCard: View {
             .background(Color.white)
         }
         .background(Color.white)
-        .cornerRadius(12)
+        .cornerRadius(10)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.red, lineWidth: 3)
         )
-        .rotationEffect(.degrees(-2))
-        .shadow(color: .red.opacity(0.3), radius: 0, x: 6, y: 6)
+        .rotationEffect(.degrees(-1.5))
+        .shadow(color: .black.opacity(0.4), radius: 0, x: 5, y: 5)
     }
 }
 
@@ -281,12 +276,12 @@ struct StreakMilestoneCard: View {
 
                     Text("\(streak) DAY STREAK!")
                         .font(.system(size: 11, weight: .black))
-                        .foregroundColor(.orange)
+                        .foregroundColor(.white)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(Color.orange.opacity(0.3))
+            .background(Color.orange)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -322,11 +317,11 @@ struct PackLevelUpCard: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(Color.yellow.opacity(0.3))
-            .cornerRadius(20)
+            .background(Color.blue)
+            .cornerRadius(12)
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.black, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.black, lineWidth: 3)
             )
 
             Spacer()
@@ -340,7 +335,7 @@ struct CheckInCard: View {
     let isCurrentUser: Bool
 
     private var accentColor: Color {
-        [Color(red: 0.0, green: 0.95, blue: 1.0), Color(red: 1.0, green: 0.27, blue: 0.0), Color(red: 0.0, green: 1.0, blue: 0.4), Color(red: 1.0, green: 0.8, blue: 0.0)].randomElement()!
+        [Color.yellow, Color.cyan, Color.pink, Color.green].randomElement()!
     }
     
     private var randomRotation: Double {
@@ -348,19 +343,11 @@ struct CheckInCard: View {
     }
 
     var body: some View {
-        VStack(alignment: isCurrentUser ? .trailing : .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             // Avatar, name and time above card
             HStack(spacing: 8) {
                 // Avatar on LEFT for others
                 if !isCurrentUser {
-                    Circle()
-                        .fill(accentColor)
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            Text(checkIn.userInitials)
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.black)
-                        )
                     
                     Text(checkIn.userName)
                         .font(.system(size: 13, weight: .semibold))
@@ -375,93 +362,81 @@ struct CheckInCard: View {
                     Text(checkIn.userName)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(.black.opacity(0.7))
-                    
-                    // Avatar on RIGHT for current user
-                    Circle()
-                        .fill(accentColor)
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            Text(checkIn.userInitials)
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.black)
-                        )
+                            
                 }
             }
 
             // Card content
             VStack(alignment: .leading, spacing: 0) {
-                // Goal Text - AGGRESSIVE HEADER
+                // Goal Text - BOLD HEADER
                 Text(checkIn.goalText)
-                    .font(.system(size: 17, weight: .black))
-                    .textCase(.uppercase)
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.black)
-                    .padding(16)
+                    .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(accentColor)
-                    .overlay(
-                        Rectangle()
-                            .stroke(Color.black, lineWidth: 3)
-                    )
 
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 12) {
                     // Proof Image
                     if let _ = checkIn.proofImage {
-                        Rectangle()
-                            .fill(Color.black.opacity(0.08))
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.black.opacity(0.05))
                             .aspectRatio(16/9, contentMode: .fit)
                             .overlay(
                                 Image(systemName: "photo.fill")
-                                    .font(.system(size: 40, weight: .black))
-                                    .foregroundColor(.black.opacity(0.3))
+                                    .font(.system(size: 32))
+                                    .foregroundColor(.black.opacity(0.2))
                             )
                             .overlay(
-                                Rectangle()
-                                    .stroke(Color.black, lineWidth: 3)
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.black, lineWidth: 2)
                             )
                     }
 
                     // Check-in message
                     if let message = checkIn.message {
                         Text(message)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.black.opacity(0.85))
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.black.opacity(0.8))
                     }
 
                     // Bottom: Streak + XP + Actions
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         // Streak Badge
                         if checkIn.streak > 0 {
                             HStack(spacing: 4) {
                                 Text("🔥")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 13))
                                 Text("\(checkIn.streak)")
-                                    .font(.system(size: 14, weight: .black))
+                                    .font(.system(size: 13, weight: .black))
                                     .foregroundColor(.black)
                             }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Color(red: 1.0, green: 0.4, blue: 0.0))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Color.orange.opacity(0.5))
+                            .cornerRadius(6)
                             .overlay(
-                                Rectangle()
-                                    .stroke(Color.black, lineWidth: 3)
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.black, lineWidth: 2)
                             )
                         }
 
                         // XP Badge
                         HStack(spacing: 4) {
                             Text("+\(checkIn.xpEarned)")
-                                .font(.system(size: 14, weight: .black))
+                                .font(.system(size: 13, weight: .black))
                                 .foregroundColor(.black)
                             Text("XP")
-                                .font(.system(size: 12, weight: .black))
+                                .font(.system(size: 11, weight: .black))
                                 .foregroundColor(.black)
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(red: 1.0, green: 0.85, blue: 0.0))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.yellow.opacity(0.6))
+                        .cornerRadius(6)
                         .overlay(
-                            Rectangle()
-                                .stroke(Color.black, lineWidth: 3)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.black, lineWidth: 2)
                         )
 
                         Spacer()
@@ -470,10 +445,10 @@ struct CheckInCard: View {
                         Button(action: {}) {
                             HStack(spacing: 4) {
                                 Image(systemName: checkIn.isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                                    .font(.system(size: 16, weight: .black))
+                                    .font(.system(size: 15, weight: .bold))
                                     .foregroundColor(.black)
                                 Text("\(checkIn.likeCount)")
-                                    .font(.system(size: 14, weight: .black))
+                                    .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(.black)
                             }
                         }
@@ -482,27 +457,27 @@ struct CheckInCard: View {
                         Button(action: {}) {
                             HStack(spacing: 4) {
                                 Image(systemName: "message.fill")
-                                    .font(.system(size: 16, weight: .black))
+                                    .font(.system(size: 15, weight: .bold))
                                     .foregroundColor(.black)
                                 Text("\(checkIn.commentCount)")
-                                    .font(.system(size: 14, weight: .black))
+                                    .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(.black)
                             }
                         }
                     }
                 }
-                .padding(16)
+                .padding(14)
                 .background(Color.white)
             }
             .background(Color.white)
+            .cornerRadius(10)
             .overlay(
-                Rectangle()
-                    .stroke(Color.black, lineWidth: 4)
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.black, lineWidth: 2)
             )
             .rotationEffect(.degrees(randomRotation))
-            .shadow(color: .black, radius: 0, x: 6, y: 6)
+            .shadow(color: .black, radius: 0, x: -4, y: 4)
         }
-        .padding(.horizontal, isCurrentUser ? 24 : 0)
     }
 }
 
