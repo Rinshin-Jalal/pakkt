@@ -6,8 +6,7 @@ import Combine
 class PackDetailViewModel: BaseViewModel {
     @Published var pack: Pack?
     @Published var checkIns: [CheckIn] = []
-    @Published var isLoading = false
-    
+
     private let packsService: PacksService
     private let checkInsService: CheckInsService
     private let realtimeFeedManager: RealtimeFeedManager
@@ -28,21 +27,21 @@ class PackDetailViewModel: BaseViewModel {
     func loadPackDetail() async {
         do {
             let pack = try await withLoading {
-                try await packsService.getPack(id: UUID(uuidString: packId) ?? UUID())
+                try await self.packsService.getPack(id: UUID(uuidString: self.packId) ?? UUID())
             }
             self.pack = pack
-            
+
             // Start listening for check-in updates for this pack
             await startRealtimeCheckInUpdates()
         } catch {
             handleError(error)
         }
     }
-    
+
     func loadCheckIns() async {
         do {
             let checkIns = try await withLoading {
-                try await checkInsService.getPackCheckIns(packId: UUID(uuidString: packId) ?? UUID())
+                try await self.checkInsService.getPackCheckIns(packId: UUID(uuidString: self.packId) ?? UUID())
             }
             self.checkIns = checkIns
         } catch {
@@ -62,16 +61,10 @@ class PackDetailViewModel: BaseViewModel {
                     let now = Date().timeIntervalSince1970
                     // Avoid rapid refreshes - wait at least 0.5 seconds between refreshes
                     if now - lastRefreshTime > 0.5 {
-                        await MainActor.run {
-                            Task {
-                                await refreshCheckIns()
-                            }
-                        }
+                        await refreshCheckIns()
                         lastRefreshTime = now
                         // Reset the flag after processing
-                        await MainActor.run {
-                            await realtimeFeedManager.resetRefreshFlag()
-                        }
+                        await realtimeFeedManager.resetRefreshFlag()
                     }
                 }
                 try? await Task.sleep(nanoseconds: 200_000_000) // Sleep 0.2 seconds to check for updates

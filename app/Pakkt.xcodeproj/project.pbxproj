@@ -21,9 +21,22 @@
 		0E6DF8012EA657C20087589D /* Pakkt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pakkt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0E0EE1232EABA2F00089287A /* Exceptions for "Pakkt" folder in "Pakkt" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0E6DF8002EA657C20087589D /* Pakkt */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0E6DF8032EA657C20087589D /* Pakkt */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0E0EE1232EABA2F00089287A /* Exceptions for "Pakkt" folder in "Pakkt" target */,
+			);
 			path = Pakkt;
 			sourceTree = "<group>";
 		};
@@ -295,9 +308,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9AKL4J8794;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Pakkt needs camera access to capture proof of check-ins";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pakkt needs photo library access to select proof images";
+				INFOPLIST_FILE = Pakkt/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -329,9 +340,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9AKL4J8794;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Pakkt needs camera access to capture proof of check-ins";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pakkt needs photo library access to select proof images";
+				INFOPLIST_FILE = Pakkt/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

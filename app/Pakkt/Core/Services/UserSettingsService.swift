@@ -1,8 +1,10 @@
 // app/Pakkt/Core/Services/UserSettingsService.swift
 import Foundation
 import UserNotifications
+import Combine
 
-actor UserSettingsService: ObservableObject {
+@MainActor
+class UserSettingsService: ObservableObject {
     @Published var notificationsEnabled: Bool = true
     @Published var dailyReminderEnabled: Bool = true
     @Published var checkInNotificationsEnabled: Bool = true
@@ -10,17 +12,16 @@ actor UserSettingsService: ObservableObject {
     
     private let notificationService: NotificationService
     private let usersService: UsersService
-    
-    init(notificationService: NotificationService = NotificationService(), 
-         usersService: UsersService = UsersService()) {
+
+    nonisolated init(notificationService: NotificationService = NotificationService(),
+                     usersService: UsersService = UsersService()) {
         self.notificationService = notificationService
         self.usersService = usersService
-        
-        // Load settings from UserDefaults or other source
-        loadSettings()
+
+        // Note: loadSettings() will be called separately on main actor
     }
     
-    private func loadSettings() {
+    func loadSettings() {
         notificationsEnabled = UserDefaults.standard.bool(forKey: "notificationsEnabled")
         dailyReminderEnabled = UserDefaults.standard.bool(forKey: "dailyReminderEnabled")
         checkInNotificationsEnabled = UserDefaults.standard.bool(forKey: "checkInNotificationsEnabled")

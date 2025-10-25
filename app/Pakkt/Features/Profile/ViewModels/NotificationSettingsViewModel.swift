@@ -2,6 +2,7 @@
 import Foundation
 import UserNotifications
 import SwiftUI
+import Combine
 
 @MainActor
 class NotificationSettingsViewModel: ObservableObject {
@@ -19,11 +20,14 @@ class NotificationSettingsViewModel: ObservableObject {
          notificationService: NotificationService = NotificationService()) {
         self.userSettingsService = userSettingsService
         self.notificationService = notificationService
-        
+
         loadSettings()
+        Task {
+            await userSettingsService.loadSettings()
+        }
     }
     
-    private func loadSettings() {
+    func loadSettings() {
         notificationsEnabled = userSettingsService.notificationsEnabled
         dailyReminderEnabled = userSettingsService.dailyReminderEnabled
         checkInNotificationsEnabled = userSettingsService.checkInNotificationsEnabled

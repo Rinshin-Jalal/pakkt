@@ -7,6 +7,8 @@ enum DeepLink: Equatable {
     case checkIn(id: UUID)
     case fine(id: UUID)
     case jailSession(id: UUID)
+    case comment(checkInId: UUID)
+    case reaction(checkInId: UUID)
     case feed
     case profile
 }
@@ -53,11 +55,26 @@ actor DeepLinkHandler {
 
     func handle(userInfo: [AnyHashable: Any]) -> DeepLink? {
         // Handle push notification payload
-        guard let type = userInfo["type"] as? String,
-              let idString = userInfo["id"] as? String else {
+        // APNs sends custom data inside the root level of userInfo
+        // Our backend sends: data: { type: 'check_in', id: '...', ... }
+
+        // Try to extract from root level first (for backwards compatibility)
+        var type: String? = userInfo["type"] as? String
+        var idString: String? = userInfo["id"] as? String
+
+        // If not found, try the 'data' object (APNs format)
+        if type == nil || idString == nil {
+            if let data = userInfo["data"] as? [String: Any] {
+                type = data["type"] as? String
+                idString = data["id"] as? String
+            }
+        }
+
+        guard let type = type, let idString = idString else {
             return nil
         }
 
+        // Handle non-UUID types
         if type == "feed" {
             return .feed
         }
@@ -68,17 +85,24 @@ actor DeepLinkHandler {
 
         guard let id = UUID(uuidString: idString) else { return nil }
 
+        // Map backend notification types (with underscores) to iOS deep links
         switch type {
         case "pack":
             return .pack(id: id)
         case "goal":
             return .goal(id: id)
-        case "checkin":
+        case "check_in", "checkin":  // Handle both formats
             return .checkIn(id: id)
         case "fine":
             return .fine(id: id)
-        case "jail":
+        case "jail", "jail_session":  // Handle both formats
             return .jailSession(id: id)
+        case "comment":
+            // For comments, navigate to the check-in that was commented on
+            return .comment(checkInId: id)
+        case "reaction":
+            // For reactions, navigate to the check-in that was reacted to
+            return .reaction(checkInId: id)
         default:
             return nil
         }

@@ -16,7 +16,7 @@ extension NavigationDestination {
         case .forgotPassword: Text("Forgot Password Screen").font(.largeTitle)
         case .onboarding: Text("Onboarding Screen").font(.largeTitle)
         case .onboardingStep(let step): Text("Onboarding Step \(step)").font(.largeTitle)
-        case .feed: Text("Feed Screen").font(.largeTitle)
+        case .feed: FeedView()
         case .postDetail(let id): Text("Post Detail: \(id)").font(.largeTitle)
         case .comments(let postId): Text("Comments for Post: \(postId)").font(.largeTitle)
         case .packList: Text("Pack List Screen").font(.largeTitle)

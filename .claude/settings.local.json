@@ -19,7 +19,12 @@
       "Bash(gh issue:*)",
       "Bash(mkdir:*)",
       "Bash(xcodebuild:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(for file in AppCoordinator.swift RootView.swift DeepLinkHandler.swift NavigationDestination.swift)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

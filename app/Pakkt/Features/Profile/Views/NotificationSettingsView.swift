@@ -10,7 +10,7 @@ struct NotificationSettingsView: View {
                 Section("Push Notifications") {
                     Toggle("Enable Notifications", isOn: Binding(
                         get: { viewModel.notificationsEnabled },
-                        set: { Task { await viewModel.toggleAllNotifications() } }
+                        set: { _ in Task { await viewModel.toggleAllNotifications() } }
                     ))
                     .onChange(of: viewModel.notificationsEnabled) { _ in
                         // Update the toggle state based on the service
@@ -21,17 +21,17 @@ struct NotificationSettingsView: View {
                     Section("Notification Types") {
                         Toggle("Daily Reminders", isOn: Binding(
                             get: { viewModel.dailyReminderEnabled },
-                            set: { Task { await viewModel.toggleDailyReminder() } }
+                            set: { _ in Task { await viewModel.toggleDailyReminder() } }
                         ))
-                        
+
                         Toggle("Check-in Notifications", isOn: Binding(
                             get: { viewModel.checkInNotificationsEnabled },
-                            set: { Task { await viewModel.toggleCheckInNotifications() } }
+                            set: { _ in Task { await viewModel.toggleCheckInNotifications() } }
                         ))
-                        
+
                         Toggle("Fine Notifications", isOn: Binding(
                             get: { viewModel.fineNotificationsEnabled },
-                            set: { Task { await viewModel.toggleFineNotifications() } }
+                            set: { _ in Task { await viewModel.toggleFineNotifications() } }
                         ))
                     }
                 }

@@ -33,7 +33,8 @@ actor SupabaseRealtimeService {
 
         // Subscribe to INSERT operations on check_ins table
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -42,7 +43,8 @@ actor SupabaseRealtimeService {
 
         // Subscribe to UPDATE operations on check_ins table for status changes
         channel.on(
-            .postgresChange(event: .update, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "update", schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -63,7 +65,8 @@ actor SupabaseRealtimeService {
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "fine_votes", filter: "fine_id=eq.\(fineId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "fine_votes", filter: "fine_id=eq.\(fineId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -84,7 +87,8 @@ actor SupabaseRealtimeService {
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "comments", filter: "check_in_id=eq.\(checkInId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "comments", filter: "check_in_id=eq.\(checkInId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -105,7 +109,8 @@ actor SupabaseRealtimeService {
         let channel = supabase.realtime.channel(channelId)
 
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "reactions", filter: "check_in_id=eq.\(checkInId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "reactions", filter: "check_in_id=eq.\(checkInId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -127,7 +132,8 @@ actor SupabaseRealtimeService {
 
         // Subscribe to INSERT events on check_ins table for the pack
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -136,7 +142,8 @@ actor SupabaseRealtimeService {
 
         // Subscribe to updates on existing check-ins (status changes, etc.)
         channel.on(
-            .postgresChange(event: .update, schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "update", schema: "public", table: "check_ins", filter: "pack_id=eq.\(packId)")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -145,7 +152,8 @@ actor SupabaseRealtimeService {
 
         // Also subscribe to related tables that affect the feed
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "comments", filter: "check_in_id=cs.@check_ins.pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "comments")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)
@@ -153,7 +161,8 @@ actor SupabaseRealtimeService {
         }
 
         channel.on(
-            .postgresChange(event: .insert, schema: "public", table: "reactions", filter: "check_in_id=cs.@check_ins.pack_id=eq.\(packId)")
+            "postgres_changes",
+            filter: ChannelFilter(event: "insert", schema: "public", table: "reactions")
         ) { message in
             if let record = message.payload["record"] as? [String: Any] {
                 onInsert(record)

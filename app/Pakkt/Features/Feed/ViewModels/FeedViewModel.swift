@@ -47,16 +47,10 @@ class FeedViewModel: BaseViewModel {
                     let now = Date().timeIntervalSince1970
                     // Avoid rapid refreshes - wait at least 0.5 seconds between refreshes
                     if now - lastRefreshTime > 0.5 {
-                        await MainActor.run {
-                            Task {
-                                await refreshFeed()
-                            }
-                        }
+                        await refreshFeed()
                         lastRefreshTime = now
                         // Reset the flag after processing
-                        await MainActor.run {
-                            await realtimeFeedManager.resetRefreshFlag()
-                        }
+                        await realtimeFeedManager.resetRefreshFlag()
                     }
                 }
                 try? await Task.sleep(nanoseconds: 200_000_000) // Sleep 0.2 seconds to check for updates

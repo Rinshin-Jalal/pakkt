@@ -170,6 +170,12 @@ class AppCoordinator: ObservableObject {
             // Navigate to jail session detail
             selectedTab = 1 // Pack tab
             packsPath.append(NavigationDestination.taskDetail(id: id.uuidString))
+        case .comment(let checkInId):
+            // Navigate to check-in detail (comments are shown there)
+            showCheckInDetail(id: checkInId.uuidString)
+        case .reaction(let checkInId):
+            // Navigate to check-in detail (reactions are shown there)
+            showCheckInDetail(id: checkInId.uuidString)
         case .feed:
             showFeed()
         case .profile:

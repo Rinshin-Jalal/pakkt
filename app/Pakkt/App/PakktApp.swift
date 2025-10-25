@@ -1,12 +1,13 @@
 import SwiftUI
 import UIKit
+import Combine
 
 @main
 struct PakktApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var coordinator = AppCoordinator()
-    @StateObject private var pushNotificationManager = PushNotificationManager.shared
-    @StateObject private var realtimeFeedManager = RealtimeFeedManager.shared
+    @ObservedObject private var pushNotificationManager = PushNotificationManager.shared
+    @ObservedObject private var realtimeFeedManager = RealtimeFeedManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -31,7 +32,9 @@ struct PakktApp: App {
                     )
                 ) { _ in
                     // Update the badge count when app becomes active
-                    UIApplication.shared.applicationIconBadgeNumber = 0
+                    Task {
+                        try? await UNUserNotificationCenter.current().setBadgeCount(0)
+                    }
                     // Handle app becoming active for real-time updates
                     Task {
                         await realtimeFeedManager.handleAppWillEnterForeground()

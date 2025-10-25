@@ -2,8 +2,8 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var coordinator: AppCoordinator
-    @State private var isAuthenticated = false
-    @State private var hasCompletedOnboarding = false
+    @State private var isAuthenticated = true  // Set to true for UI testing
+    @State private var hasCompletedOnboarding = true  // Set to true for UI testing
 
     var body: some View {
         Group {
@@ -23,6 +23,7 @@ struct RootView: View {
                 }
             } else {
                 TabView(selection: $coordinator.selectedTab) {
+                    // Tab 1: Feed (Your Pack's Check-ins)
                     NavigationStack(path: $coordinator.feedPath) {
                         NavigationFactory.createView(for: .feed)
                             .navigationDestination(for: NavigationDestination.self) { destination in
@@ -34,17 +35,7 @@ struct RootView: View {
                     }
                     .tag(0)
 
-                    NavigationStack(path: $coordinator.packsPath) {
-                        NavigationFactory.createView(for: .packList)
-                            .navigationDestination(for: NavigationDestination.self) { destination in
-                                NavigationFactory.createView(for: destination)
-                            }
-                    }
-                    .tabItem {
-                        Label("Packs", systemImage: "square.stack.3d.up.fill")
-                    }
-                    .tag(1)
-
+                    // Tab 2: Profile
                     NavigationStack(path: $coordinator.profilePath) {
                         NavigationFactory.createView(for: .profile)
                             .navigationDestination(for: NavigationDestination.self) { destination in
@@ -54,7 +45,7 @@ struct RootView: View {
                     .tabItem {
                         Label("Profile", systemImage: "person.fill")
                     }
-                    .tag(2)
+                    .tag(1)
                 }
             }
         }
