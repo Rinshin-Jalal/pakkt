@@ -10,6 +10,21 @@ struct PakktColors {
     static let purple = Color(hex: "#800080")
     static let orange = Color(hex: "#FFA500")
 
+    // MARK: - Vibrant Colors (Energy & Emotion)
+    // Primary Actions - Warm & Energetic
+    static let vibrantOrange = Color(hex: "#FF6B00")
+    static let vibrantAmber = Color(hex: "#FFC107")
+
+    // Achievements - Cool & Premium
+    static let vibrantBlue = Color(hex: "#0066FF")
+    static let vibrantPurple = Color(hex: "#8B5CF6")
+
+    // Warnings - Urgent & Attention
+    static let vibrantRed = Color(hex: "#FF3B30")
+
+    // Success - Positive Reinforcement
+    static let vibrantGreen = Color(hex: "#00D448")
+
     // MARK: - Glass Effect Colors
     static let glassWhite = Color.white.opacity(0.1)
     static let glassBorder = Color.white.opacity(0.2)
@@ -24,24 +39,23 @@ struct PakktColors {
     static let secondaryText = Color.white.opacity(0.7)
     static let tertiaryText = Color.white.opacity(0.5)
 
-    static let success = green
-    static let warning = yellow
-    static let error = red
-    static let info = purple
+    static let success = vibrantGreen
+    static let warning = vibrantAmber
+    static let error = vibrantRed
+    static let info = vibrantPurple
 
-    static let accent = yellow
-    static let accentSecondary = orange
+    static let accent = vibrantOrange // Primary brand accent
+    static let accentSecondary = vibrantAmber
 
-    // MARK: - Brutal Shadows
-    static let brutalShadowRed = red.opacity(0.3)
-    static let brutalShadowYellow = yellow.opacity(0.3)
-    static let brutalShadowGreen = green.opacity(0.3)
-    static let brutalShadowPurple = purple.opacity(0.3)
-    static let brutalShadowOrange = orange.opacity(0.3)
+    // MARK: - Gradients (Vibrant & Energetic)
+    static let primaryGradient = LinearGradient(
+        colors: [vibrantOrange, vibrantAmber],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 
-    // MARK: - Gradients
-    static let accentGradient = LinearGradient(
-        colors: [yellow, orange],
+    static let achievementGradient = LinearGradient(
+        colors: [vibrantBlue, vibrantPurple],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )

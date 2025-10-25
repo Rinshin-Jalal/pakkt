@@ -5,69 +5,58 @@ struct FeedView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            // Background
-            Color.white
+            // Background with native dark mode support
+            Color(.systemBackground)
                 .ignoresSafeArea()
-
+                .background(.ultraThinMaterial)
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: 50) {
+                    LazyVStack(spacing: 20) {  // Reduced from 50
                         // Earlier This Week (OLDEST - at top)
-                        DateDivider(text: "EARLIER THIS WEEK")
+                        DateDivider(text: "Earlier this week")
 
                         ForEach(mockCheckIns.dropFirst(4)) { checkIn in
                             CheckInCard(checkIn: checkIn, isCurrentUser: checkIn.isCurrentUser)
-                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 24)
-                                .padding(.trailing, checkIn.isCurrentUser ? 24 : 0)
-                                .padding(.leading, checkIn.isCurrentUser ? 24 : 0)
+                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 16)  // Reduced from 24
+                                .padding(.trailing, checkIn.isCurrentUser ? 16 : 0)  // Reduced from 24
+                                .padding(.leading, checkIn.isCurrentUser ? 16 : 0)   // Reduced from 24
                         }
+                
 
-                        Spacer().frame(height: 30)
-
-                        // STREAK MILESTONE
-                        StreakMilestoneCard(userName: "Jordan Lee", streak: 21)
-                            .padding(.horizontal, 24)
-
-                        Spacer().frame(height: 30)
+                        Spacer().frame(height: 10)  // Reduced from 30
 
                         // Yesterday Section
-                        DateDivider(text: "YESTERDAY")
+                        DateDivider(text: "Yesterday")
 
                         // FINE ACTIVATED CARD
                         FineActivatedCard()
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, 16)  // Reduced from 24
 
-                        Spacer().frame(height: 20)
+                        Spacer().frame(height: 8)  // Reduced from 20
 
                         ForEach(mockCheckIns.dropFirst(2).prefix(2)) { checkIn in
                             CheckInCard(checkIn: checkIn, isCurrentUser: checkIn.isCurrentUser)
-                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 24)
-                                .padding(.trailing, checkIn.isCurrentUser ? 24 : 0)
-                                .padding(.leading, checkIn.isCurrentUser ? 24 : 0)
+                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 16)  // Reduced from 24
+                                .padding(.trailing, checkIn.isCurrentUser ? 16 : 0)  // Reduced from 24
+                                .padding(.leading, checkIn.isCurrentUser ? 16 : 0)   // Reduced from 24
                         }
 
-                        Spacer().frame(height: 30)
-
-                        // PACK LEVEL UP
-                        PackLevelUpCard(newLevel: 5)
-                            .padding(.horizontal, 24)
-
-                        Spacer().frame(height: 40)
+                        Spacer().frame(height: 20)  // Reduced from 40
 
                         // Today Section (NEWEST - at bottom)
-                        DateDivider(text: "TODAY")
+                        DateDivider(text: "Today")
 
                         // NEXT GOAL REMINDER CARD
                         NextGoalCard()
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, 16)  // Reduced from 24
 
-                        Spacer().frame(height: 20)
+                        Spacer().frame(height: 8)  // Reduced from 20
 
                         ForEach(mockCheckIns.prefix(2)) { checkIn in
                             CheckInCard(checkIn: checkIn, isCurrentUser: checkIn.isCurrentUser)
-                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 24)
-                                .padding(.trailing, checkIn.isCurrentUser ? 24 : 0)
-                                .padding(.leading, checkIn.isCurrentUser ? 24 : 0)
+                                .padding(.horizontal, checkIn.isCurrentUser ? 0 : 16)  // Reduced from 24
+                                .padding(.trailing, checkIn.isCurrentUser ? 16 : 0)  // Reduced from 24
+                                .padding(.leading, checkIn.isCurrentUser ? 16 : 0)   // Reduced from 24
                         }
 
                         // Bottom anchor
@@ -75,8 +64,8 @@ struct FeedView: View {
                             .frame(height: 1)
                             .id("bottom")
                     }
-                    .padding(.top, 16)
-                    .padding(.bottom, 120)
+                    .padding(.top, 8)      // Reduced from 16
+                    .padding(.bottom, 80)   // Reduced from 120
                 }
                 .onAppear {
                     proxy.scrollTo("bottom", anchor: .bottom)
@@ -85,23 +74,15 @@ struct FeedView: View {
             .navigationTitle("My Pack")
             .navigationBarTitleDisplayMode(.large)
 
-            // NEO-BRUTAL Floating Action Button
+            // Primary Action - Liquid Glass Style (72x72pt for big thumbs)
             Button(action: { showCreateCheckIn = true }) {
                 Image(systemName: "camera.fill")
-                    .font(.title2)
-                    .fontWeight(.black)
-                    .foregroundColor(.black)
-                    .frame(width: 60, height: 60)
-                    .background(Color.green)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.black, lineWidth: 3)
-                    )
-                    .rotationEffect(.degrees(-5))
-                    .shadow(color: .black.opacity(0.5), radius: 0, x: 5, y: 5)
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 72, height: 72)
             }
-            .padding(20)
+            .buttonStyle(.glass)
+            .padding(24)
         }
         .sheet(isPresented: $showCreateCheckIn) {
             CreateCheckInView()
@@ -115,219 +96,138 @@ struct DateDivider: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .black))
-            .foregroundColor(.black.opacity(0.4))
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundColor(.secondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
     }
 }
 
-// MARK: - Next Goal Reminder Card - BANNER STYLE
+// MARK: - Next Goal Reminder Card - ACTUAL Liquid Glass
 struct NextGoalCard: View {
     var body: some View {
-        HStack(spacing: 12) {
-            // Left: Timer circle
+        HStack(spacing: 16) {
+            // Timer
             VStack(spacing: 4) {
                 Text("2:34")
-                    .font(.system(size: 20, weight: .black))
-                    .foregroundColor(.red)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.orange)
 
                 Text("LEFT")
-                    .font(.system(size: 10, weight: .black))
-                    .foregroundColor(.black.opacity(0.5))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.secondary)
             }
-            .frame(width: 70, height: 70)
+            .frame(width: 80, height: 80)
 
-
-            // Right: Goal info
-            VStack(alignment: .leading, spacing: 6) {
+            // Goal info
+            VStack(alignment: .leading, spacing: 8) {
                 Text("🏋️ Gym session")
-                    .font(.system(size: 16, weight: .black))
-                    .foregroundColor(.black)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.primary)
 
                 Text("Due by 6:00 PM")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.black.opacity(0.6))
+                    .font(.system(size: 16))
+                    .foregroundColor(.secondary)
 
-                Text("TAP TO CHECK IN →")
-                    .font(.system(size: 11, weight: .black))
-                    .foregroundColor(.green)
+                Text("Check in now")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.orange)
             }
 
             Spacer()
         }
-        .padding(12)
-        .background(Color.orange)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black, lineWidth: 3)
-        )
+        .padding(20)
+        .glassEffect(in: .rect(cornerRadius: 20))
     }
 }
 
-// MARK: - Fine Activated Card - LOUD AND VISIBLE
+// MARK: - Fine Activated Card - Liquid Glass
 struct FineActivatedCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // ⚠️ WARNING BANNER
-            HStack {
-                Text("⚠️ FINE ACTIVATED")
-                    .font(.system(size: 13, weight: .black))
-                    .foregroundColor(.white)
-                Spacer()
-                Text("$5")
-                    .font(.system(size: 18, weight: .black))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color.red)
-            
+     
+
+            // Card Body with glass effect
             VStack(alignment: .leading, spacing: 16) {
+                // ⚠️ WARNING BANNER - Red gradient
+                HStack {
+                    Text("⚠️ Fine Activated")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("$5")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
                 // User + Goal
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     Circle()
-                        .fill(Color.red)
-                        .frame(width: 36, height: 36)
+                        .fill(Color(.red).opacity(0.2))
+                        .frame(width: 44, height: 44)
                         .overlay(
                             Text("ME")
-                                .font(.system(size: 12, weight: .black))
-                                .foregroundColor(.white)
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(Color(hex: "#FF3B30"))
                         )
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("You")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.black)
-                        
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+
                         Text("📚 Read 30 pages")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.black.opacity(0.8))
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.7))
                     }
                 }
-                
+
                 Divider()
+                    .background(Color.white.opacity(0.2))
 
                 // Voting section
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text("Pack is voting on this fine")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.black.opacity(0.6))
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.6))
 
-                    HStack(spacing: 16) {
-                        HStack(spacing: 6) {
+                    HStack(spacing: 20) {
+                        HStack(spacing: 8) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(.green)
+                                .foregroundColor(Color(hex: "#00D448"))
                             Text("3")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.black)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
                         }
 
-                        HStack(spacing: 6) {
+                        HStack(spacing: 8) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(.red)
+                                .foregroundColor(Color(hex: "#FF3B30"))
                             Text("1")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.black)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
                         }
 
                         Spacer()
 
                         Text("18h left")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.black.opacity(0.5))
+                            .font(.system(size: 14))
+                            .foregroundColor(.white.opacity(0.6))
                     }
                 }
             }
-            .padding(16)
-            .background(Color.white)
-        }
-        .background(Color.white)
-        .cornerRadius(10)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.red, lineWidth: 3)
-        )
-        .rotationEffect(.degrees(-1.5))
-        .shadow(color: .black.opacity(0.4), radius: 0, x: 5, y: 5)
-    }
-}
-
-// MARK: - Streak Milestone Card - SMALL BADGE
-struct StreakMilestoneCard: View {
-    let userName: String
-    let streak: Int
-
-    var body: some View {
-        HStack {
-            Spacer()
-
-            HStack(spacing: 8) {
-                Text("🔥")
-                    .font(.system(size: 24))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(userName)")
-                        .font(.system(size: 13, weight: .black))
-                        .foregroundColor(.black)
-
-                    Text("\(streak) DAY STREAK!")
-                        .font(.system(size: 11, weight: .black))
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color.orange)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.black, lineWidth: 2)
-            )
-
-            Spacer()
+            .padding(20)
+            .glassEffect(in: .rect(cornerRadius: 20))
         }
     }
 }
 
-// MARK: - Pack Level Up Card - SIMPLE
-struct PackLevelUpCard: View {
-    let newLevel: Int
 
-    var body: some View {
-        HStack {
-            Spacer()
 
-            HStack(spacing: 12) {
-                Text("🎉")
-                    .font(.system(size: 28))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Pack Level \(newLevel)")
-                        .font(.system(size: 16, weight: .black))
-                        .foregroundColor(.black)
-
-                    Text("Keep it up!")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.black.opacity(0.6))
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(Color.blue)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.black, lineWidth: 3)
-            )
-
-            Spacer()
-        }
-    }
-}
 
 // MARK: - Check-In Card Component
 struct CheckInCard: View {
@@ -335,148 +235,120 @@ struct CheckInCard: View {
     let isCurrentUser: Bool
 
     private var accentColor: Color {
-        [Color.yellow, Color.cyan, Color.pink, Color.green].randomElement()!
-    }
-    
-    private var randomRotation: Double {
-        Double.random(in: -1.0...1.0)
+        // Glass card with blue accent for high streaks
+        if checkIn.streak > 5 {
+            return Color(hex: "#0066FF")
+        } else {
+            return Color.white.opacity(0.15)
+        }
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Avatar, name and time above card
+        VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                // Avatar on LEFT for others
-                if !isCurrentUser {
-                    
-                    Text(checkIn.userName)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.black.opacity(0.7))
-                }
-
-                Text(checkIn.timeAgo)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.black.opacity(0.4))
-
                 if isCurrentUser {
+                    Spacer()
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
                     Text(checkIn.userName)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.black.opacity(0.7))
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+
+
+         
+            HStack {
+                if isCurrentUser { Spacer(minLength: 50) }
+                VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 10) {  // Proper spacing between header and content
+                        // Goal Text - BOLD HEADER with glass effect
+                        Text(checkIn.goalText)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 0)
+                            .padding(.top, 16)
+                            .padding(.bottom, 16)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        // Proof Image
+                        if let _ = checkIn.proofImage {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black.opacity(0.4))
+                                .aspectRatio(1/1, contentMode: .fit)
+                                .overlay(
+                                    Image(systemName: "photo.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.white.opacity(0.3))
+                                )
+                        }
+                        
+                        // Check-in message
+                        if let message = checkIn.message {
+                            Text(message)
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        // Bottom: Streak + XP + Actions
+                        HStack(spacing: 16) {
                             
-                }
-            }
-
-            // Card content
-            VStack(alignment: .leading, spacing: 0) {
-                // Goal Text - BOLD HEADER
-                Text(checkIn.goalText)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.black)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(accentColor)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    // Proof Image
-                    if let _ = checkIn.proofImage {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.black.opacity(0.05))
-                            .aspectRatio(16/9, contentMode: .fit)
-                            .overlay(
-                                Image(systemName: "photo.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.black.opacity(0.2))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.black, lineWidth: 2)
-                            )
-                    }
-
-                    // Check-in message
-                    if let message = checkIn.message {
-                        Text(message)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.black.opacity(0.8))
-                    }
-
-                    // Bottom: Streak + XP + Actions
-                    HStack(spacing: 10) {
-                        // Streak Badge
-                        if checkIn.streak > 0 {
-                            HStack(spacing: 4) {
-                                Text("🔥")
-                                    .font(.system(size: 13))
-                                Text("\(checkIn.streak)")
-                                    .font(.system(size: 13, weight: .black))
-                                    .foregroundColor(.black)
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 5)
-                            .background(Color.orange.opacity(0.5))
-                            .cornerRadius(6)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.black, lineWidth: 2)
-                            )
-                        }
-
-                        // XP Badge
-                        HStack(spacing: 4) {
-                            Text("+\(checkIn.xpEarned)")
-                                .font(.system(size: 13, weight: .black))
-                                .foregroundColor(.black)
-                            Text("XP")
-                                .font(.system(size: 11, weight: .black))
-                                .foregroundColor(.black)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(Color.yellow.opacity(0.6))
-                        .cornerRadius(6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.black, lineWidth: 2)
-                        )
-
-                        Spacer()
-
-                        // Like
-                        Button(action: {}) {
-                            HStack(spacing: 4) {
-                                Image(systemName: checkIn.isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                            
+                            // XP Badge - Amber
+                            HStack(spacing: 6) {
+                                Text("+\(checkIn.xpEarned)")
                                     .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text("\(checkIn.likeCount)")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
+                                Text("xp")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.secondary)
                             }
-                        }
-
-                        // Comment
-                        Button(action: {}) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "message.fill")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(.black)
-                                Text("\(checkIn.commentCount)")
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.black)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .glassEffect(.regular.tint(.green.opacity(0.1)),in: .capsule)
+                            
+                            Spacer()
+                            
+                            // Like
+                            Button(action: {}) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: checkIn.isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.white)
+                                    Text("\(checkIn.likeCount)")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            
+                            // Comment
+                            Button(action: {}) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "message.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.white)
+                                    Text("\(checkIn.commentCount)")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
                             }
                         }
                     }
+                    .padding(16)  // Reduced from 20
+                    .glassEffect(in: .rect(cornerRadius: 16))  // Reduced from 20
                 }
-                .padding(14)
-                .background(Color.white)
+                if !isCurrentUser { Spacer(minLength: 40) }
+
             }
-            .background(Color.white)
-            .cornerRadius(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.black, lineWidth: 2)
-            )
-            .rotationEffect(.degrees(randomRotation))
-            .shadow(color: .black, radius: 0, x: -4, y: 4)
         }
     }
 }

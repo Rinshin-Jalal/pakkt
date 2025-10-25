@@ -13,6 +13,7 @@ struct PakktApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(coordinator)
+                .preferredColorScheme(.dark) // Force dark mode for the entire app
                 .onAppear {
                     // Set the coordinator in the push notification manager for deep linking
                     pushNotificationManager.setAppCoordinator(coordinator)

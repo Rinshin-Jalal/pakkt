@@ -24,7 +24,11 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(head:*)",
       "Bash(done)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "WebSearch",
+      "WebFetch(domain:blog.logrocket.com)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
     ],
     "deny": [],
     "ask": []

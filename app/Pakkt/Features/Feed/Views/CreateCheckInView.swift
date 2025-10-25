@@ -16,233 +16,152 @@ struct CreateCheckInView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Background
-                Color(red: 0.98, green: 0.97, blue: 0.95)
-                    .ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Camera/Photo Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("PROOF PHOTO")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Camera/Photo Section
-                        VStack(spacing: 0) {
-                            // Header
-                            HStack {
-                                Image(systemName: "camera.fill")
-                                    .font(.system(size: 18, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Text("PROOF PHOTO")
-                                    .font(.system(size: 14, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Spacer()
-
-                                if hasPhoto {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.green)
-                                }
-                            }
-                            .padding(12)
-                            .background(Color.purple.opacity(0.3))
-
-                            // Camera Preview
-                            Button(action: {
-                                hasPhoto.toggle()
-                            }) {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.black.opacity(0.1))
-                                    .aspectRatio(4/3, contentMode: .fit)
-                                    .overlay(
-                                        VStack(spacing: 12) {
-                                            Image(systemName: hasPhoto ? "photo.fill" : "camera.fill")
-                                                .font(.system(size: 50, weight: .black))
-                                                .foregroundColor(.black.opacity(0.3))
-
-                                            Text(hasPhoto ? "TAP TO RETAKE" : "TAP TO CAPTURE")
-                                                .font(.system(size: 13, weight: .black))
-                                                .foregroundColor(.black.opacity(0.4))
-                                        }
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color.black, lineWidth: 2)
-                                    )
-                            }
-                            .padding(16)
-                        }
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black, lineWidth: 3)
-                        )
-                        .rotationEffect(.degrees(-1))
-                        .shadow(color: .black, radius: 0, x: 6, y: 6)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-
-                        // Goal Selection
-                        VStack(spacing: 0) {
-                            // Header
-                            HStack {
-                                Image(systemName: "target")
-                                    .font(.system(size: 18, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Text("SELECT GOAL")
-                                    .font(.system(size: 14, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Spacer()
-                            }
-                            .padding(12)
-                            .background(Color.yellow.opacity(0.5))
-
-                            // Goals List
-                            VStack(spacing: 0) {
-                                ForEach(availableGoals, id: \.self) { goal in
-                                    Button(action: {
-                                        selectedGoal = goal
-                                    }) {
-                                        HStack {
-                                            Text(goal)
-                                                .font(.system(size: 15, weight: .bold))
-                                                .foregroundColor(.black)
-
-                                            Spacer()
-
-                                            if selectedGoal == goal {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .font(.system(size: 20))
-                                                    .foregroundColor(.green)
-                                            } else {
-                                                Image(systemName: "circle")
-                                                    .font(.system(size: 20))
-                                                    .foregroundColor(.black.opacity(0.3))
-                                            }
-                                        }
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 14)
-                                        .background(selectedGoal == goal ? Color.yellow.opacity(0.2) : Color.white)
-                                    }
-
-                                    if goal != availableGoals.last {
-                                        Rectangle()
-                                            .fill(Color.black)
-                                            .frame(height: 2)
-                                    }
-                                }
-                            }
-                        }
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black, lineWidth: 3)
-                        )
-                        .rotationEffect(.degrees(1))
-                        .shadow(color: .black, radius: 0, x: 6, y: 6)
-                        .padding(.horizontal, 20)
-
-                        // Message Section
-                        VStack(spacing: 0) {
-                            // Header
-                            HStack {
-                                Image(systemName: "text.bubble.fill")
-                                    .font(.system(size: 18, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Text("ADD MESSAGE (OPTIONAL)")
-                                    .font(.system(size: 14, weight: .black))
-                                    .foregroundColor(.black)
-
-                                Spacer()
-                            }
-                            .padding(12)
-                            .background(Color.cyan.opacity(0.3))
-
-                            // Text Editor
-                            ZStack(alignment: .topLeading) {
-                                if message.isEmpty {
-                                    Text("Share your thoughts...")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.black.opacity(0.3))
-                                        .padding(.horizontal, 16)
-                                        .padding(.top, 16)
-                                }
-
-                                TextEditor(text: $message)
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.black)
-                                    .frame(height: 100)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 8)
-                                    .scrollContentBackground(.hidden)
-                                    .background(Color.white)
-                            }
-                        }
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black, lineWidth: 3)
-                        )
-                        .rotationEffect(.degrees(-0.5))
-                        .shadow(color: .black, radius: 0, x: 6, y: 6)
-                        .padding(.horizontal, 20)
-
-                        // Submit Button
                         Button(action: {
-                            // TODO: Submit check-in
-                            dismiss()
+                            hasPhoto.toggle()
                         }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 20, weight: .black))
-
-                                Text("SUBMIT CHECK-IN")
-                                    .font(.system(size: 16, weight: .black))
+                            HStack {
+                                Image(systemName: hasPhoto ? "photo.fill" : "camera.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.secondary)
+                                    .padding(12)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(hasPhoto ? "TAP TO RETAKE" : "TAP TO CAPTURE")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("Add proof of your accomplishment")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.secondary)
                             }
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.green)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black, lineWidth: 3)
-                            )
+                            .padding(.horizontal, 20)
                         }
-                        .rotationEffect(.degrees(0.5))
-                        .shadow(color: .black, radius: 0, x: 6, y: 6)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 10)
-
-                        Spacer(minLength: 40)
+                        .padding(.bottom, 16)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .glassEffect(in: .rect(cornerRadius: 16))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    
+                    // Goal Selection Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("SELECT GOAL")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
+
+                        ForEach(availableGoals, id: \.self) { goal in
+                            Button(action: {
+                                selectedGoal = goal
+                            }) {
+                                HStack {
+                                    Text(goal)
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(.primary)
+
+                                    Spacer()
+
+                                    if selectedGoal == goal {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 20))
+                                    } else {
+                                        Image(systemName: "circle")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(Color(.label).opacity(0.3))
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 16)
+                                .if(selectedGoal == goal) { view in
+                                    view.glassEffect(in: .rect(cornerRadius: 16))
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .glassEffect(in: .rect(cornerRadius: 16))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    
+                    // Message Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("ADD MESSAGE (OPTIONAL)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
+
+                        ZStack(alignment: .topLeading) {
+                            if message.isEmpty {
+                                Text("Share your thoughts...")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary.opacity(0.6))
+                                    .padding(.top, 8)
+                                    .padding(.horizontal, 16)
+                            }
+                            TextEditor(text: $message)
+                                .font(.system(size: 14))
+                                .foregroundColor(.primary)
+                                .frame(height: 100)
+                                .padding(.horizontal, 12)
+                                .scrollContentBackground(.hidden)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .glassEffect(in: .rect(cornerRadius: 16))
+                    .padding(16)
+                    .padding(.top, 8)
+                    
+                    // Submit Button
+                    Button(action: {
+                        // TODO: Submit check-in
+                        dismiss()
+                    }) {
+                        HStack {
+                            Text("Check In")
+                                .font(.system(size: 20, weight: .bold))
+                                .frame(maxWidth: .infinity).foregroundStyle(Color(.label))
+                        }
+                        .padding(.vertical, 16)
+                        
+                        
+                    }.buttonStyle(.glassProminent)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    
+                    Spacer(minLength: 20)
                 }
             }
-            .navigationTitle("New Check-In")
+            .navigationTitle("Check In")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .black))
-                            Text("CANCEL")
-                                .font(.system(size: 14, weight: .black))
-                        }
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.pink.opacity(0.5))
-                        .cornerRadius(6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.black, lineWidth: 2)
-                        )
+                        Text("Cancel")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.primary)
                     }
                 }
             }
