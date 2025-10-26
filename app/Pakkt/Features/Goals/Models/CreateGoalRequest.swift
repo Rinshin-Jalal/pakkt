@@ -17,6 +17,10 @@ struct CreateGoalRequest: Codable, Sendable {
     let proofRequired: Bool?
     let baseXp: Int?
 
+    enum CodingKeys: String, CodingKey {
+        case title, description, checkInTime, recurrenceRule, goalType, assignedToUserId, fineAmount, jailDuration, proofRequired, baseXp
+    }
+
     init(
         title: String,
         description: String? = nil,
