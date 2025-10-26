@@ -31,25 +31,13 @@ struct ProfileView: View {
                                 Text("jordan.lee@example.com")
                                     .font(.system(size: 16))
                                     .foregroundColor(.secondary)
-                                
-                                HStack(spacing: 8) {
-                                    Image(systemName: "crown.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.yellow)
-                                    Text("FREE")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(.primary)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(.yellow.opacity(0.1))
-                                .clipShape(.capsule)
                             }
                         }
                     }
                     .padding(24)
                     .glassEffect(in: .rect(cornerRadius: 20))
                     .padding(.horizontal, 20)
+                    
                     
                     // Stats Overview
                     VStack(spacing: 20) {
@@ -112,8 +100,335 @@ struct ProfileView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .glassEffect(in: .rect(cornerRadius: 12))
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // Edit Profile Button
+                    Button(action: {
+                        print("Edit profile tapped")
+                    }) {
+                        HStack {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 16, weight: .medium))
+                            Text("Edit Profile")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                    }
+                    .glassEffect(in: .capsule)
+                    .padding(.horizontal, 24)
+                    
+                    // Account Settings Section
+                    VStack(spacing: 12) {
+                        Text("Account Settings")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 20)
+                        
+                        VStack(spacing: 8) {
+                            Button(action: {
+                                print("Notifications tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "bell")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.blue)
+                                        .frame(width: 24)
+                                    Text("Notifications")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Privacy tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "lock.shield")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.green)
+                                        .frame(width: 24)
+                                    Text("Privacy")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
                         }
                         .padding(.horizontal, 20)
+                    }
+                    
+                    // Help & Support Section
+                    VStack(spacing: 12) {
+                        Text("Help & Support")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 20)
+                        
+                        VStack(spacing: 8) {
+                            Button(action: {
+                                print("FAQ tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "questionmark.circle")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.orange)
+                                        .frame(width: 24)
+                                    Text("FAQ")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Contact Support tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "envelope")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.purple)
+                                        .frame(width: 24)
+                                    Text("Contact Support")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Report a Bug tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "ant")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.red)
+                                        .frame(width: 24)
+                                    Text("Report a Bug")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    // App Version
+                    VStack(spacing: 8) {
+                        Text("App Version")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        Text("Version 1.0.0 (Build 1)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // Edit Profile Button
+                    Button(action: {
+                        print("Edit profile tapped")
+                    }) {
+                        HStack {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 16, weight: .medium))
+                            Text("Edit Profile")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                    }
+                    .glassEffect(in: .capsule)
+                    .padding(.horizontal, 20)
+                    
+                    // Account Settings Section
+                    VStack(spacing: 12) {
+                        Text("Account Settings")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                        
+                        VStack(spacing: 8) {
+                            Button(action: {
+                                print("Notifications tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "bell")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.blue)
+                                        .frame(width: 24)
+                                    Text("Notifications")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Privacy tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "lock.shield")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.green)
+                                        .frame(width: 24)
+                                    Text("Privacy")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                        }
+                        .padding(.horizontal, 0)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // Help & Support Section
+                    VStack(spacing: 12) {
+                        Text("Help & Support")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                        
+                        VStack(spacing: 8) {
+                            Button(action: {
+                                print("FAQ tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "questionmark.circle")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.orange)
+                                        .frame(width: 24)
+                                    Text("FAQ")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Contact Support tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "envelope")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.purple)
+                                        .frame(width: 24)
+                                    Text("Contact Support")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                            
+                            Button(action: {
+                                print("Report a Bug tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "ant")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.red)
+                                        .frame(width: 24)
+                                    Text("Report a Bug")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                        }
+                        .padding(.horizontal, 0)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // App Version
+                    VStack(spacing: 8) {
+                        Text("App Version")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        Text("Version 1.0.0 (Build 1)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.top, 20)
+                    .padding(.bottom, 10)
                     }
                     .padding(.horizontal, 24)
                     
