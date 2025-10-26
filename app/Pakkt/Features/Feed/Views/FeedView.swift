@@ -184,6 +184,10 @@ struct SuccessCard: View {
             HStack(spacing: 8) {
                 if checkIn.isCurrentUser {
                     Spacer()
+                    
+                    // Success badge
+                    StatusBadge(icon: "checkmark.circle.fill", color: Color(hex: "#00D448"))
+                    
                     Text(checkIn.timeAgo)
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
@@ -197,6 +201,10 @@ struct SuccessCard: View {
                     Text(checkIn.timeAgo)
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
+                    
+                    // Success badge
+                    StatusBadge(icon: "checkmark.circle.fill", color: Color(hex: "#00D448"))
+                    
                     Spacer()
                 }
             }
@@ -313,7 +321,33 @@ struct LateCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            UserHeader(checkIn: checkIn)
+            HStack(spacing: 8) {
+                if checkIn.isCurrentUser {
+                    Spacer()
+                    
+                    // Late badge
+                    StatusBadge(icon: "clock.fill", color: Color(hex: "#FF9500"))
+                    
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    
+                    // Late badge
+                    StatusBadge(icon: "clock.fill", color: Color(hex: "#FF9500"))
+                    
+                    Spacer()
+                }
+            }
             
             HStack {
                 if checkIn.isCurrentUser { Spacer(minLength: 50) }
@@ -368,36 +402,66 @@ struct PendingCard: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            VStack(spacing: 4) {
-                Text(timeString)
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.orange)
-                
-                Text("LEFT")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                if checkIn.isCurrentUser {
+                    Spacer()
+                    
+                    // Pending badge
+                    StatusBadge(icon: "hourglass", color: Color(hex: "#007AFF"))
+                    
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    
+                    // Pending badge
+                    StatusBadge(icon: "hourglass", color: Color(hex: "#007AFF"))
+                    
+                    Spacer()
+                }
             }
-            .frame(width: 80, height: 80)
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text(checkIn.goalText)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.primary)
+            HStack(spacing: 16) {
+                VStack(spacing: 4) {
+                    Text(timeString)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.orange)
+                    
+                    Text("LEFT")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 80, height: 80)
                 
-                Text("Due by 6:00 PM")
-                    .font(.system(size: 16))
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(checkIn.goalText)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    Text("Due by 6:00 PM")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                    
+                    Text("Check in now")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.orange)
+                }
                 
-                Text("Check in now")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.orange)
+                Spacer()
             }
-            
-            Spacer()
+            .padding(20)
+            .glassEffect(in: .rect(cornerRadius: 20))
         }
-        .padding(20)
-        .glassEffect(in: .rect(cornerRadius: 20))
     }
 }
 
@@ -409,7 +473,33 @@ struct VotingCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            UserHeader(checkIn: checkIn)
+            HStack(spacing: 8) {
+                if checkIn.isCurrentUser {
+                    Spacer()
+                    
+                    // Voting badge
+                    StatusBadge(icon: "hand.raised.fill", color: Color(hex: "#FF9500"))
+                    
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    
+                    // Voting badge
+                    StatusBadge(icon: "hand.raised.fill", color: Color(hex: "#FF9500"))
+                    
+                    Spacer()
+                }
+            }
             
             HStack {
                 if checkIn.isCurrentUser { Spacer(minLength: 50) }
@@ -466,7 +556,33 @@ struct FineActivatedCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            UserHeader(checkIn: checkIn)
+            HStack(spacing: 8) {
+                if checkIn.isCurrentUser {
+                    Spacer()
+                    
+                    // Fine badge
+                    StatusBadge(icon: "exclamationmark.triangle.fill", color: Color(hex: "#FF3B30"))
+                    
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    
+                    // Fine badge
+                    StatusBadge(icon: "exclamationmark.triangle.fill", color: Color(hex: "#FF3B30"))
+                    
+                    Spacer()
+                }
+            }
             
             HStack {
                 if checkIn.isCurrentUser { Spacer(minLength: 50) }
@@ -513,7 +629,33 @@ struct ForgivenCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            UserHeader(checkIn: checkIn)
+            HStack(spacing: 8) {
+                if checkIn.isCurrentUser {
+                    Spacer()
+                    
+                    // Forgiven badge
+                    StatusBadge(icon: "heart.fill", color: Color(hex: "#00D448"))
+                    
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                } else {
+                    Text(checkIn.userName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text(checkIn.timeAgo)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    
+                    // Forgiven badge
+                    StatusBadge(icon: "heart.fill", color: Color(hex: "#00D448"))
+                    
+                    Spacer()
+                }
+            }
             
             HStack {
                 if checkIn.isCurrentUser { Spacer(minLength: 50) }
@@ -559,6 +701,20 @@ struct ForgivenCard: View {
 
 
 // MARK: - Reusable Subcomponents
+
+struct StatusBadge: View {
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        Image(systemName: icon)
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundColor(color)
+            .frame(width: 20, height: 20)
+            .background(color.opacity(0.15))
+            .clipShape(Circle())
+    }
+}
 
 struct UserHeader: View {
     let checkIn: MockCheckIn
