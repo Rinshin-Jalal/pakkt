@@ -700,21 +700,6 @@ struct ForgivenCard: View {
 
 
 
-// MARK: - Reusable Subcomponents
-
-struct StatusBadge: View {
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        Image(systemName: icon)
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(color)
-            .frame(width: 20, height: 20)
-            .background(color.opacity(0.15))
-            .clipShape(Circle())
-    }
-}
 
 struct UserHeader: View {
     let checkIn: MockCheckIn

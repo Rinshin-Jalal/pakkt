@@ -32,10 +32,10 @@
 - Avoid try! in production code
 
 ### UI & Design System
-- Follow Dark Neobrutalism: black backgrounds (#000000), neon accents (Electric Cyan #00F0FF, Hot Magenta #FF006E)
-- Glass morphism cards with 40-60px backdrop blur
-- Thick borders (3-4px) on important elements
-- SF Pro fonts, ALL CAPS for headers, aggressive copy ("SHOW UP OR PAY UP")
+- Dark backgrounds (#000000)
+- Glass morphism cards with backdrop blur
+- Borders on important elements
+- SF Pro fonts, ALL CAPS for headers
 
 ### Voice & Tone
 - Direct, no-bullshit communication
@@ -49,4 +49,4 @@
 - After completing a task, ask "Is there anything that needs improvement or refinement?"
 
 ## Project Context
-Pakkt is an iOS social accountability app where friend groups enforce real consequences (fines/phone jail) for missed goals. Target: college-aged males. Design: Dark + Neon + Brutal + Glass.
+Pakkt is an iOS social accountability app where friend groups enforce real consequences (fines/phone jail) for missed goals. Target: college-aged males.
