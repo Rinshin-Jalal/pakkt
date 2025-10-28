@@ -1063,12 +1063,6 @@ struct VoteResults {
     let fineAmount: Int
 }
 
-enum VoteOption {
-    case dontFine
-    case fine
-    case wait
-}
-
 // MARK: - Mock Data
 struct MockCheckIn: Identifiable {
     let id = UUID()

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OnboardingStep13View: View {
+    let onContinue: () -> Void
     @State private var vulnerabilityLevel: Double = 3
     
     let vulnerabilityOptions: [(level: Int, title: String, subtitle: String)] = [
@@ -108,9 +109,7 @@ struct OnboardingStep13View: View {
                 .padding(.horizontal, 20)
                 
                 // Continue button
-                Button(action: {
-                    // Continue action
-                }) {
+                Button(action: onContinue) {
                     Text("CONTINUE")
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
@@ -127,5 +126,5 @@ struct OnboardingStep13View: View {
 }
 
 #Preview {
-    OnboardingStep13View()
+    OnboardingStep13View(onContinue: {})
 }

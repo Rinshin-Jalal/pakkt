@@ -15,6 +15,7 @@ struct ContactCircle: Identifiable {
 }
 
 struct OnboardingStep12View: View {
+    let onContinue: () -> Void
     @State private var selectedContacts: Set<String> = []
     @State private var showingContactPicker = false
     @State private var selectedCircle: ContactCircle?
@@ -111,9 +112,7 @@ struct OnboardingStep12View: View {
                 
                 // Actions
                 VStack(spacing: 12) {
-                    Button(action: {
-                        // Continue action
-                    }) {
+                    Button(action: onContinue) {
                         Text("CONTINUE")
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(selectedContacts.count >= 3 ? .white : .white.opacity(0.3))
@@ -322,5 +321,5 @@ struct ContactPickerRow: View {
 }
 
 #Preview {
-    OnboardingStep12View()
+    OnboardingStep12View(onContinue: {})
 }
