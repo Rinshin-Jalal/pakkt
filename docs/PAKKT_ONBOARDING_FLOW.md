@@ -278,11 +278,16 @@ A 25-step raw, authentic journey that transforms users from curious individuals 
 ### Phase 7: The Investment (Steps 32-33)
 
 #### **Step 32: The Value Proposition**
-**Visual**: Split screen - "Free: Willpower alone" vs "Pakkt: Your crew has your back"
-**Text**: "$4/month or keep failing alone. Your call."
-**Interaction**: "See the math" button shows failure cost
-**Motion**: Numbers calculate showing cost of quitting
-**Psychology**: Financial justification of social accountability
+**Visual**: Glass card showing real transformation - "You've tried alone. Time to try with your crew."
+**Text**: 
+- "$4/week = One coffee. But instead of caffeine, you get:"
+- "Real accountability from people who care"
+- "Your crew watching your back 24/7"  
+- "Instant jail time if you slip (they'll know)"
+- "A feed where your wins matter"
+**Interaction**: Scroll through 3-4 real pack success stories with metrics (e.g., "Sarah's pack - 47 days strong", "Jake quit vaping with 5 guys - $2,840 saved")
+**Motion**: Stats counter animating upward showing collective savings/days
+**Psychology**: Social proof + tangible value. Not about cost, about having people who actually give a damn when you're about to cave at 2am.
 
 #### **Step 33: The Paywall**
 **Visual**: Dark screen with pack confidence elements

@@ -46,7 +46,10 @@ struct OnboardingStep23View: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.secondary)
                         
-                        VStack(spacing: 8) {
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 12) {
                             ForEach(["You", "Alex", "Jordan", "Sam"], id: \.self) { member in
                                 HStack {
                                     Circle()
