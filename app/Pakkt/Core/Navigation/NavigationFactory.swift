@@ -11,10 +11,10 @@ extension NavigationDestination {
     @ViewBuilder
     var view: some View {
         switch self {
-        case .auth: Text("Auth Screen").font(.largeTitle)
+        case .auth: AuthView()
         case .signUp: Text("Sign Up Screen").font(.largeTitle)
         case .forgotPassword: Text("Forgot Password Screen").font(.largeTitle)
-        case .onboarding: Text("Onboarding Screen").font(.largeTitle)
+        case .onboarding: OnboardingFlowView(onComplete: {})
         case .onboardingStep(let step): Text("Onboarding Step \(step)").font(.largeTitle)
         case .feed: FeedView()
         case .postDetail(let id): Text("Post Detail: \(id)").font(.largeTitle)

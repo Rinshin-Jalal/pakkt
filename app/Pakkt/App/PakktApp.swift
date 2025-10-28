@@ -11,9 +11,13 @@ struct PakktApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(coordinator)
-                .preferredColorScheme(.dark) // Force dark mode for the entire app
+            GeometryReader { geometry in
+                RootView()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .environmentObject(coordinator)
+                    .preferredColorScheme(.dark)
+            }
+            .ignoresSafeArea()
                 .onAppear {
                     // Set the coordinator in the push notification manager for deep linking
                     pushNotificationManager.setAppCoordinator(coordinator)

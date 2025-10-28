@@ -9,6 +9,7 @@ class OnboardingFlowController: ObservableObject {
     @Published var isComplete: Bool = false
     
     let totalSteps = 33
+    var onComplete: (() -> Void)?
     
     // MARK: - Navigation
     func nextStep() {
@@ -47,6 +48,7 @@ class OnboardingFlowController: ObservableObject {
         // Save data to backend/storage
         saveOnboardingData()
         isComplete = true
+        onComplete?()
     }
     
     private func saveOnboardingData() {
@@ -68,8 +70,16 @@ class OnboardingFlowController: ObservableObject {
 
 // MARK: - Onboarding Container View
 struct OnboardingFlowView: View {
-    @StateObject private var controller = OnboardingFlowController()
+    @StateObject private var controller: OnboardingFlowController
     @Environment(\.dismiss) var dismiss
+    
+    init(onComplete: @escaping () -> Void) {
+        _controller = StateObject(wrappedValue: {
+            let ctrl = OnboardingFlowController()
+            ctrl.onComplete = onComplete
+            return ctrl
+        }())
+    }
     
     var body: some View {
         ZStack {

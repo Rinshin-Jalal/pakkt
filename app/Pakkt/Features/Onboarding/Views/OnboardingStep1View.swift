@@ -13,8 +13,6 @@ struct OnboardingStep1View: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                Spacer()
-                
                 // Icon instead of emoji - sad/disappointed face
                 ZStack {
                     
@@ -24,6 +22,7 @@ struct OnboardingStep1View: View {
                 }
                 .opacity(showNotifications ? 1 : 0)
                 .scaleEffect(showNotifications ? 1 : 0.8)
+                .padding(.top, 40)
                 
                 // Header with gradient effect
                 VStack(spacing: 8) {
