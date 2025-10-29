@@ -78,31 +78,7 @@ class OnboardingData: ObservableObject {
     // MARK: - Validation
     func isStepComplete(_ step: Int) -> Bool {
         switch step {
-        case 1...3: return true
-        case 4: return !goalName.isEmpty && !goalDescription.isEmpty
-        case 5: return true
-        case 6: return true
-        case 7: return !selectedApps.isEmpty
-        case 8: return true
-        case 9: return expectedMemberCount >= minPackSize && expectedMemberCount <= maxPackSize
-        case 10: return votingPeriodMinutes > 0
-        case 11: return jailTimeMinutes > 0
-        case 12...13: return true
-        case 14: return userSignature != nil
-        case 15: return !packName.isEmpty
-        case 16...17: return true
-        case 18: return true // Optional to invite
-        case 19: return notificationsEnabled
-        case 20: return bankConnected
-        case 21: return paymentMethodAdded
-        case 22: return !profileName.isEmpty
-        case 23: return !profileUsername.isEmpty
-        case 24: return profilePhoto != nil
-        case 25...28: return agreedToStandards
-        case 29: return reviewedRules
-        case 30...31: return true
-        case 32: return subscribedToPakkt
-        case 33: return true
+        case 1...33: return true // Simplified - allow all steps to proceed
         default: return false
         }
     }

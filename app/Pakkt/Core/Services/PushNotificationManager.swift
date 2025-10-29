@@ -68,7 +68,7 @@ class PushNotificationManager: NSObject, ObservableObject {
     }
     
     func handleDeviceTokenError(_ error: Error) {
-        print("Failed to get device token: $error)")
+//        print("Failed to get device token: $error)")
     }
     
     // MARK: - Handle Notifications

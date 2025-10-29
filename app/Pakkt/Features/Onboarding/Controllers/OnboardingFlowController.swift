@@ -90,17 +90,9 @@ struct OnboardingFlowView: View {
                 Text("Onboarding Complete!")
                     .foregroundColor(.primary)
             } else {
-                VStack(spacing: 0) {
-                    // Progress indicator
-                    ProgressView(value: controller.progress)
-                        .tint(.blue)
-                        .padding(.horizontal)
-                        .padding(.top)
-                    
-                    // Step content
-                    stepView(for: controller.currentStep)
-                        .environmentObject(controller.onboardingData)
-                }
+                // Step content
+                stepView(for: controller.currentStep)
+                    .environmentObject(controller.onboardingData)
             }
         }
     }

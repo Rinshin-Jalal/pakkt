@@ -86,11 +86,6 @@ struct InviteStep1View: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
-                    
-                    Text("Only one spot left")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.red)
-                        .tracking(1.0)
                 }
                 .opacity(showContent ? 1 : 0)
                 
@@ -109,10 +104,6 @@ struct InviteStep1View: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
                     .glassEffect(in: .rect(cornerRadius: 30))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30)
-                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                    )
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 40)

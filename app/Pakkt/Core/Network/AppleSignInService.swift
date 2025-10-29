@@ -104,6 +104,22 @@ extension AppleSignInService: ASAuthorizationControllerDelegate {
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        errorMessage = error.localizedDescription
+        let nsError = error as NSError
+        
+        // Handle user cancellation gracefully
+        if nsError.code == ASAuthorizationError.canceled.rawValue {
+            errorMessage = "Sign in was cancelled"
+            return
+        }
+        
+        // Handle simulator limitation
+        if nsError.code == ASAuthorizationError.unknown.rawValue ||
+           nsError.code == 1000 {
+            errorMessage = "Sign in with Apple is not available in simulator. Please test on a real device or use test credentials."
+        } else {
+            errorMessage = "Sign in failed: \(error.localizedDescription)"
+        }
+        
+        print("❌ Apple Sign In error: \(error) (code: \(nsError.code))")
     }
 }

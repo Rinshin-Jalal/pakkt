@@ -14,6 +14,7 @@ actor SupabaseClient {
     // MARK: - Authentication
 
     func signInWithApple(idToken: String, nonce: String) async throws -> Session {
+        // Authenticate directly with Supabase
         let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=id_token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -36,6 +37,12 @@ actor SupabaseClient {
 
         let session = try JSONDecoder().decode(Session.self, from: data)
         self.currentSession = session
+        
+        // Store the Supabase JWT token in keychain for backend API authentication
+        let keychainService = KeychainService()
+        try keychainService.saveAuthToken(session.accessToken)
+        try keychainService.saveRefreshToken(session.refreshToken)
+        
         return session
     }
 
@@ -57,10 +64,103 @@ actor SupabaseClient {
         }
 
         self.currentSession = nil
+        
+        // Clear tokens from keychain
+        let keychainService = KeychainService()
+        try keychainService.deleteAuthToken()
+        try keychainService.deleteRefreshToken()
     }
 
     func getCurrentSession() -> Session? {
         return currentSession
+    }
+
+    func restoreSessionFromKeychain() async throws -> Session? {
+        let keychainService = KeychainService()
+        
+        guard let accessToken = try? keychainService.getAuthToken(),
+              let refreshToken = try? keychainService.getRefreshToken() else {
+            return nil
+        }
+        
+        // Verify the access token is still valid by getting user info
+        let url = URL(string: "\(baseURL)/auth/v1/user")!
+        var request = URLRequest(url: url)
+        request.setValue(apiKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                // Token is invalid, try to refresh
+                return try await refreshSessionFromKeychain()
+            }
+            
+            let user = try JSONDecoder().decode(User.self, from: data)
+            let session = Session(
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                expiresIn: 3600, // Default value
+                tokenType: "bearer",
+                user: user
+            )
+            
+            self.currentSession = session
+            return session
+        } catch {
+            // Try to refresh the token
+            return try await refreshSessionFromKeychain()
+        }
+    }
+
+    private func refreshSessionFromKeychain() async throws -> Session? {
+        let keychainService = KeychainService()
+        
+        guard let refreshToken = try? keychainService.getRefreshToken() else {
+            // No refresh token, clear everything
+            try keychainService.deleteAuthToken()
+            try keychainService.deleteRefreshToken()
+            return nil
+        }
+
+        let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=refresh_token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "apikey")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: String] = [
+            "refresh_token": refreshToken
+        ]
+        request.httpBody = try JSONEncoder().encode(body)
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                // Refresh failed, clear tokens
+                try keychainService.deleteAuthToken()
+                try keychainService.deleteRefreshToken()
+                return nil
+            }
+
+            let session = try JSONDecoder().decode(Session.self, from: data)
+            self.currentSession = session
+            
+            // Update stored tokens
+            try keychainService.saveAuthToken(session.accessToken)
+            try keychainService.saveRefreshToken(session.refreshToken)
+            
+            return session
+        } catch {
+            // Refresh failed, clear tokens
+            try keychainService.deleteAuthToken()
+            try keychainService.deleteRefreshToken()
+            return nil
+        }
     }
 
     func refreshSession() async throws -> Session {
@@ -88,6 +188,12 @@ actor SupabaseClient {
 
         let session = try JSONDecoder().decode(Session.self, from: data)
         self.currentSession = session
+        
+        // Update stored tokens
+        let keychainService = KeychainService()
+        try keychainService.saveAuthToken(session.accessToken)
+        try keychainService.saveRefreshToken(session.refreshToken)
+        
         return session
     }
 }

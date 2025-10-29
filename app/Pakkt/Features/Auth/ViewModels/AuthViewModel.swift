@@ -6,6 +6,7 @@ import AuthenticationServices
 @MainActor
 class AuthViewModel: BaseViewModel {
     @Published var isAuthenticated = false
+    @Published var showError = false
     private let appleSignInService = AppleSignInService()
 
     func signInWithApple() async {
@@ -31,10 +32,24 @@ class AuthViewModel: BaseViewModel {
     }
 
     func checkAuthStatus() async {
-        if let _ = await SupabaseClient.shared.getCurrentSession() {
-            self.isAuthenticated = true
-        } else {
+        do {
+            if let _ = try await SupabaseClient.shared.restoreSessionFromKeychain() {
+                self.isAuthenticated = true
+            } else {
+                self.isAuthenticated = false
+            }
+        } catch {
             self.isAuthenticated = false
         }
+    }
+    
+    override func handleError(_ error: Error) {
+        super.handleError(error)
+        showError = true
+    }
+    
+    override func clearError() {
+        super.clearError()
+        showError = false
     }
 }

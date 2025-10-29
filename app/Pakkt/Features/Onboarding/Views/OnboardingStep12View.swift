@@ -17,123 +17,125 @@ struct ContactCircle: Identifiable {
 struct OnboardingStep12View: View {
     let onContinue: () -> Void
     @State private var selectedContacts: Set<String> = []
+    @State private var selectedContactNames: [String] = []
     @State private var showingContactPicker = false
-    @State private var selectedCircle: ContactCircle?
     @State private var hasRequestedAccess = false
     @State private var contactAccessGranted = false
     
-    let circles: [ContactCircle] = [
-        ContactCircle(
-            title: "GYM FRIENDS",
-            icon: "figure.run",
-            description: "Friends who work out or want to"
-        ),
-        ContactCircle(
-            title: "STUDY BUDDIES",
-            icon: "book.fill",
-            description: "People you study or work with"
-        ),
-        ContactCircle(
-            title: "ROOMMATES/FAMILY",
-            icon: "house.fill",
-            description: "People you live with or see daily"
-        )
-    ]
-    
     var body: some View {
         ZStack {
-            Color.black
+            Color(.systemBackground)
                 .ignoresSafeArea()
             
-            VStack(spacing: 24) {
+            VStack(spacing: 32) {
+                Spacer()
+                
                 // Header
                 VStack(spacing: 12) {
-                    Text("WHO'S GOT YOUR BACK?")
+                    Text("INVITE YOUR PACK")
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .textCase(.uppercase)
-                        .padding(.top, 60)
+                        .foregroundColor(.primary)
+                        .tracking(2.0)
                     
-                    Text("Select people from your contacts who will hold you accountable")
-                        .font(.system(size: 15))
-                        .foregroundColor(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
+                    Text("Optional - you can do this later")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
                 }
                 
                 Spacer()
                 
-                // Contact Circles
-                VStack(spacing: 16) {
-                    ForEach(circles) { circle in
-                        Button(action: {
-                            selectedCircle = circle
-                            requestContactAccess()
-                        }) {
-                            HStack(spacing: 12) {
-                                Image(systemName: circle.icon)
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.white.opacity(0.6))
-                                    .frame(width: 40)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(circle.title)
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .textCase(.uppercase)
+                // Contact selection box
+                VStack(spacing: 20) {
+                    // Explanation
+                    Text("Pick people from your contacts who will hold you accountable")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                    
+                    // Selected contacts
+                    if !selectedContactNames.isEmpty {
+                        VStack(spacing: 8) {
+                            ForEach(selectedContactNames, id: \.self) { name in
+                                HStack(spacing: 10) {
+                                    Text(name)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.primary)
                                     
-                                    Text(circle.description)
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.white.opacity(0.5))
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        if let index = selectedContactNames.firstIndex(of: name) {
+                                            selectedContactNames.remove(at: index)
+                                        }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.3))
+                                .padding(.horizontal, 16)
                             }
-                            .padding(16)
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(12)
                         }
+                        .padding(.vertical, 8)
                     }
+                    
+                    // Select button
+                    Button(action: {
+                        requestContactAccess()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                                .font(.system(size: 16))
+                            Text(selectedContactNames.isEmpty ? "SELECT CONTACTS" : "ADD MORE")
+                                .font(.system(size: 15, weight: .semibold))
+                                .tracking(1.0)
+                        }
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 16)
+                    .buttonStyle(.glass)
                 }
-                .padding(.horizontal, 20)
-                
-                // Selected count
-                if selectedContacts.count > 0 {
-                    Text("\(selectedContacts.count) contacts selected")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.6))
-                }
+                .padding(.vertical, 24)
+                .glassEffect(in: .rect(cornerRadius: 30))
+                .padding(.horizontal, 24)
                 
                 Spacer()
                 
                 // Actions
                 VStack(spacing: 12) {
                     Button(action: onContinue) {
-                        Text("CONTINUE")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(selectedContacts.count >= 3 ? .white : .white.opacity(0.3))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
+                        HStack(spacing: 8) {
+                            Text("CONTINUE")
+                                .font(.system(size: 16, weight: .bold))
+                                .tracking(1.0)
+                            
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
                     }
                     .buttonStyle(.glass)
-                    .disabled(selectedContacts.count < 3)
                     
-                    Text("Select at least 3 contacts")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.4))
+                    Button(action: onContinue) {
+                        Text("SKIP FOR NOW")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.secondary)
+                            .tracking(1.0)
+                    }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
         }
-        .sheet(item: $selectedCircle) { circle in
-            ContactPickerView(
-                circle: circle,
-                selectedContacts: $selectedContacts
+        .sheet(isPresented: $showingContactPicker) {
+            SimpleContactPickerView(
+                selectedContactNames: $selectedContactNames
             )
         }
     }
@@ -159,9 +161,8 @@ struct OnboardingStep12View: View {
     }
 }
 
-struct ContactPickerView: View {
-    let circle: ContactCircle
-    @Binding var selectedContacts: Set<String>
+struct SimpleContactPickerView: View {
+    @Binding var selectedContactNames: [String]
     @Environment(\.dismiss) var dismiss
     @State private var contacts: [ContactItem] = []
     @State private var searchText = ""
@@ -176,19 +177,19 @@ struct ContactPickerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     // Search bar
                     HStack {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(.white.opacity(0.4))
+                            .foregroundColor(.secondary)
                         
                         TextField("Search contacts", text: $searchText)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     .padding(12)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.secondary.opacity(0.1))
                     .cornerRadius(10)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
@@ -197,43 +198,57 @@ struct ContactPickerView: View {
                     ScrollView {
                         VStack(spacing: 12) {
                             ForEach(filteredContacts) { contact in
-                                ContactPickerRow(
-                                    contact: contact,
-                                    isSelected: selectedContacts.contains(contact.id),
-                                    onTap: {
-                                        if selectedContacts.contains(contact.id) {
-                                            selectedContacts.remove(contact.id)
+                                Button(action: {
+                                    if selectedContactNames.contains(contact.name) {
+                                        selectedContactNames.removeAll { $0 == contact.name }
+                                    } else {
+                                        selectedContactNames.append(contact.name)
+                                    }
+                                }) {
+                                    HStack(spacing: 12) {
+                                        Circle()
+                                            .fill(Color.secondary.opacity(0.2))
+                                            .frame(width: 40, height: 40)
+                                            .overlay(
+                                                Text(contact.name.prefix(1).uppercased())
+                                                    .font(.system(size: 16, weight: .semibold))
+                                                    .foregroundColor(.primary)
+                                            )
+                                        
+                                        Text(contact.name)
+                                            .font(.system(size: 16))
+                                            .foregroundColor(.primary)
+                                        
+                                        Spacer()
+                                        
+                                        if selectedContactNames.contains(contact.name) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 24))
+                                                .foregroundColor(.blue)
                                         } else {
-                                            selectedContacts.insert(contact.id)
+                                            Image(systemName: "circle")
+                                                .font(.system(size: 24))
+                                                .foregroundColor(.secondary)
                                         }
                                     }
-                                )
+                                    .padding(12)
+                                }
                             }
                         }
                         .padding(20)
                     }
                 }
             }
-            .navigationTitle(circle.title)
+            .navigationTitle("Select Contacts")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white.opacity(0.6))
-                }
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
                     .fontWeight(.semibold)
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
         }
         .onAppear {
             loadContacts()
@@ -242,7 +257,7 @@ struct ContactPickerView: View {
     
     private func loadContacts() {
         let store = CNContactStore()
-        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
+        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey] as [CNKeyDescriptor]
         let request = CNContactFetchRequest(keysToFetch: keys)
         
         var loadedContacts: [ContactItem] = []
@@ -250,13 +265,12 @@ struct ContactPickerView: View {
         do {
             try store.enumerateContacts(with: request) { contact, _ in
                 let fullName = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
-                let phoneNumber = contact.phoneNumbers.first?.value.stringValue
                 
                 if !fullName.isEmpty {
                     loadedContacts.append(ContactItem(
                         id: contact.identifier,
                         name: fullName,
-                        phoneNumber: phoneNumber
+                        phoneNumber: nil
                     ))
                 }
             }
@@ -266,56 +280,6 @@ struct ContactPickerView: View {
             }
         } catch {
             print("Failed to fetch contacts: \(error)")
-        }
-    }
-}
-
-struct ContactPickerRow: View {
-    let contact: ContactItem
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                // Avatar
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 44, height: 44)
-                    
-                    Text(contact.name.prefix(1).uppercased())
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-                
-                // Name
-                Text(contact.name)
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                // Checkbox
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                        .frame(width: 24, height: 24)
-                    
-                    if isSelected {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 24, height: 24)
-                        
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.black)
-                    }
-                }
-            }
-            .padding(12)
-            .background(isSelected ? Color.white.opacity(0.08) : Color.white.opacity(0.03))
-            .cornerRadius(8)
         }
     }
 }

@@ -40,9 +40,6 @@ struct OnboardingStep26View: View {
                 }
             } label: {
                 ZStack {
-                    Circle()
-                        .fill(isSealed ? Color.blue.opacity(0.2) : Color.clear)
-                        .frame(width: 200, height: 200)
                     
                     Image(systemName: isSealed ? "checkmark.seal.fill" : "seal")
                         .font(.system(size: 80))

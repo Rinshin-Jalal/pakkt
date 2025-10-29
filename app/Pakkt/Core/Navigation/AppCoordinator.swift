@@ -3,6 +3,10 @@ import Combine
 
 @MainActor
 class AppCoordinator: ObservableObject {
+    // Authentication State
+    @Published var isAuthenticated = false
+    @AppStorage("hasCompletedOnboarding") var isFirstLaunch = true
+    
     // Tab Selection
     @Published var selectedTab = 0
 
@@ -12,6 +16,27 @@ class AppCoordinator: ObservableObject {
     @Published var feedPath = NavigationPath()
     @Published var packsPath = NavigationPath()
     @Published var profilePath = NavigationPath()
+    
+    private let authViewModel = AuthViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        // Subscribe to authentication changes
+        authViewModel.$isAuthenticated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAuthenticated in
+                self?.isAuthenticated = isAuthenticated
+                if isAuthenticated {
+                    self?.showMainApp()
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Check initial authentication status
+        Task {
+            await authViewModel.checkAuthStatus()
+        }
+    }
 
     // MARK: - Auth Navigation
 
@@ -25,6 +50,44 @@ class AppCoordinator: ObservableObject {
 
     func showForgotPassword() {
         authPath.append(NavigationDestination.forgotPassword)
+    }
+    
+    // MARK: - Authentication Flow
+    
+    func handleAuthenticationSuccess() {
+        // Clear auth path and show main app
+        authPath = NavigationPath()
+        showMainApp()
+    }
+    
+    func handleAuthenticationRequired() {
+        // Show auth screen
+        showAuth()
+    }
+    
+    func signOut() {
+        Task {
+            await authViewModel.signOut()
+            // Clear all navigation paths
+            authPath = NavigationPath()
+            onboardingPath = NavigationPath()
+            feedPath = NavigationPath()
+            packsPath = NavigationPath()
+            profilePath = NavigationPath()
+            selectedTab = 0
+            // Show auth screen
+            showAuth()
+        }
+    }
+    
+    private func showMainApp() {
+        // Check if user needs onboarding
+        if isFirstLaunch {
+            startOnboarding()
+        } else {
+            // Show main app (feed by default)
+            showFeed()
+        }
     }
 
     // MARK: - Onboarding Navigation

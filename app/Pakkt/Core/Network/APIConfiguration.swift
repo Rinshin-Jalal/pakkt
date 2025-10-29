@@ -5,7 +5,7 @@ struct APIConfiguration {
     #if DEBUG
     static let baseURL = "http://localhost:8787" // Local development
     #else
-    static let baseURL = "https://your-worker.workers.dev" // TODO: Replace with production URL
+    static let baseURL = "https://pakkt-api.workers.dev" // Production Cloudflare Worker
     #endif
     
     // Supabase Configuration (for Realtime)

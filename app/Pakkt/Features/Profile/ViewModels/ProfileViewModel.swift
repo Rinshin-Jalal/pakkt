@@ -43,4 +43,32 @@ class ProfileViewModel: BaseViewModel {
             handleError(error)
         }
     }
+    
+    func registerPushToken(_ token: String) async {
+        do {
+            // Get device ID (use identifierForVendor or generate UUID)
+            let deviceId = await UIDevice.current.identifierForVendor?.uuidString
+            
+            try await usersService.registerPushToken(
+                token: token,
+                deviceType: "ios",
+                deviceId: deviceId
+            )
+            
+            print("✅ Push token registered successfully")
+        } catch {
+            print("❌ Failed to register push token: \(error)")
+            // Don't show error to user for push token registration
+            // It's a background operation
+        }
+    }
+    
+    func unregisterPushToken() async {
+        do {
+            try await usersService.deletePushToken()
+            print("✅ Push token unregistered successfully")
+        } catch {
+            print("❌ Failed to unregister push token: \(error)")
+        }
+    }
 }

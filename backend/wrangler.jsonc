@@ -3,6 +3,9 @@
   "name": "pakkt-api",
   "main": "src/index.ts",
   "compatibility_date": "2025-01-20",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "vars": {
     "ENVIRONMENT": "development",
   },
@@ -20,9 +23,6 @@
       },
     },
   },
-  // "compatibility_flags": [
-  //   "nodejs_compat"
-  // ],
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },

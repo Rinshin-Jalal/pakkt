@@ -13,16 +13,13 @@ struct OnboardingStep1View: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Icon instead of emoji - sad/disappointed face
-                ZStack {
-                    
-                    Image(systemName: "figure.walk")
-                        .font(.system(size: 48, weight: .regular))
-                        .foregroundColor(Color(.red))
-                }
-                .opacity(showNotifications ? 1 : 0)
-                .scaleEffect(showNotifications ? 1 : 0.8)
-                .padding(.top, 40)
+                // Icon
+                Image(systemName: "figure.walk")
+                    .font(.system(size: 48, weight: .regular))
+                    .foregroundColor(.secondary)
+                    .opacity(showNotifications ? 1 : 0)
+                    .scaleEffect(showNotifications ? 1 : 0.8)
+                    .padding(.top, 40)
                 
                 // Header with gradient effect
                 VStack(spacing: 8) {
@@ -69,28 +66,28 @@ struct OnboardingStep1View: View {
                     VStack(spacing: 10) {
                         MissedNotificationCard(
                             time: "7:00 AM",
-                            title: "Gym Pack",
+                            title: "Gym App",
                             message: "Missed check-in",
                             delay: 0.1
                         )
                         
                         MissedNotificationCard(
                             time: "7:15 AM",
-                            title: "Gym Pack",
+                            title: "Gym App",
                             message: "15 min late",
                             delay: 0.3
                         )
                         
                         MissedNotificationCard(
                             time: "7:30 AM",
-                            title: "Gym Pack",
+                            title: "Gym App",
                             message: "Window closed",
                             delay: 0.5
                         )
                         
                         MissedNotificationCard(
                             time: "8:00 AM",
-                            title: "Gym Pack",
+                            title: "Gym App",
                             message: "You missed it",
                             delay: 0.7
                         )
@@ -98,32 +95,23 @@ struct OnboardingStep1View: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
                     
-                    // Divider with gradient
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color(hex: "#FF3B30").opacity(0.3), Color(hex: "#FF3B30").opacity(0.1)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(height: 1)
+                    // Divider
+                    Divider()
                         .padding(.horizontal, 16)
                     
-                    // Summary stats with emphasis
+                    // Summary stats
                     VStack(spacing: 12) {
-                        StatRow(icon: "xmark.circle.fill", text: "3 missed check-ins", color: Color(hex: "#FF3B30"))
-                        StatRow(icon: "person.slash.fill", text: "0 pack members showed", color: Color(hex: "#FF9500"))
+                        StatRow(icon: "xmark.circle", text: "3 missed check-ins", color: .secondary)
                         
-                        // Final punch line - emphasized
+                        // Final punch line
                         HStack(spacing: 8) {
-                            Image(systemName: "eye.slash.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(Color(hex: "#FF3B30"))
+                            Image(systemName: "eye.slash")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
                             
                             Text("Nobody even noticed")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color(hex: "#FF3B30"))
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
                             
                             Spacer()
                         }
@@ -201,12 +189,12 @@ struct MissedNotificationCard: View {
         HStack(spacing: 12) {
             // App icon mockup
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(hex: "#FF3B30"))
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.secondary.opacity(0.2))
                 
                 Image(systemName: "figure.run")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             .frame(width: 32, height: 32)
             
@@ -223,9 +211,9 @@ struct MissedNotificationCard: View {
                     
                     Spacer()
                     
-                    Image(systemName: "xmark.circle.fill")
+                    Image(systemName: "xmark.circle")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "#FF3B30"))
+                        .foregroundColor(.secondary)
                 }
                 
                 Text(message)
@@ -235,12 +223,8 @@ struct MissedNotificationCard: View {
         }
         .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(hex: "#FF3B30").opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(hex: "#FF3B30").opacity(0.2), lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.secondary.opacity(0.05))
         )
         .opacity(isVisible ? 1 : 0)
         .offset(x: isVisible ? 0 : -30)
