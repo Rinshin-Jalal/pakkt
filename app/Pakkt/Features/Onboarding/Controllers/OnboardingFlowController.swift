@@ -33,6 +33,14 @@ class OnboardingFlowController: ObservableObject {
         currentStep = step
     }
     
+    // MARK: - Invite Code Handling
+    func handleInviteCode(_ code: String) {
+        // TODO: Navigate to invite flow instead of regular onboarding
+        // For now, just store it and continue
+        print("📨 Invite code entered: \(code)")
+        // This should transition to InviteFlowController
+    }
+    
     // MARK: - Validation
     func canProceed() -> Bool {
         return onboardingData.isStepComplete(currentStep)
@@ -101,7 +109,10 @@ struct OnboardingFlowView: View {
     private func stepView(for step: Int) -> some View {
         Group {
             switch step {
-            case 1: OnboardingStep1View(onContinue: controller.nextStep)
+            case 1: OnboardingStep1View(
+                onContinue: controller.nextStep,
+                onInviteCode: controller.handleInviteCode
+            )
             case 2: OnboardingStep2View(onContinue: controller.nextStep)
             case 3: OnboardingStep3View(onContinue: controller.nextStep)
             case 4: OnboardingStep4View(onContinue: controller.nextStep)

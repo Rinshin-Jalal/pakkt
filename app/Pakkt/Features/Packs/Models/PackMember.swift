@@ -21,6 +21,15 @@ struct PackMember: Codable, Identifiable, Equatable, Sendable {
         let username: String
         let profilePic: String?
     }
+    
+    // Convenience properties
+    var username: String {
+        user?.username ?? "Unknown"
+    }
+    
+    var isAdmin: Bool {
+        role == .admin
+    }
 }
 
 struct PackMemberResponse: Codable, Sendable {

@@ -45,6 +45,68 @@ actor SupabaseClient {
         
         return session
     }
+    
+    func signInWithEmail(email: String, password: String) async throws -> Session {
+        let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=password")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "apikey")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = [
+            "email": email,
+            "password": password
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw APIError.unauthorized
+        }
+        
+        let session = try JSONDecoder().decode(Session.self, from: data)
+        self.currentSession = session
+        
+        // Store tokens in keychain
+        let keychainService = KeychainService()
+        try keychainService.saveAuthToken(session.accessToken)
+        try keychainService.saveRefreshToken(session.refreshToken)
+        
+        return session
+    }
+    
+    func signUpWithEmail(email: String, password: String) async throws -> Session {
+        let url = URL(string: "\(baseURL)/auth/v1/signup")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "apikey")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = [
+            "email": email,
+            "password": password
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.unauthorized
+        }
+        
+        let session = try JSONDecoder().decode(Session.self, from: data)
+        self.currentSession = session
+        
+        // Store tokens in keychain
+        let keychainService = KeychainService()
+        try keychainService.saveAuthToken(session.accessToken)
+        try keychainService.saveRefreshToken(session.refreshToken)
+        
+        return session
+    }
 
     func signOut() async throws {
         let url = URL(string: "\(baseURL)/auth/v1/logout")!

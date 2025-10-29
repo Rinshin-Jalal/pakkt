@@ -4,7 +4,16 @@ import SwiftUI
 struct OnboardingStep1View: View {
     @State private var showNotifications = false
     @State private var pulseAnimation = false
+    @State private var showInviteCodeInput = false
+    @State private var showInviteButton = false
+    @State private var inviteCode = ""
     let onContinue: () -> Void
+    let onInviteCode: ((String) -> Void)?
+    
+    init(onContinue: @escaping () -> Void, onInviteCode: ((String) -> Void)? = nil) {
+        self.onContinue = onContinue
+        self.onInviteCode = onInviteCode
+    }
     
     var body: some View {
         ZStack {
@@ -13,13 +22,44 @@ struct OnboardingStep1View: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
+                // Invite Code Button at top
+                if let onInviteCode = onInviteCode {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showInviteCodeInput = true
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "envelope.badge.fill")
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text("Have an invite code?")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .fill(Color.blue.opacity(0.1))
+                            )
+                        }
+                        .opacity(showInviteButton ? 1 : 0)
+                        .scaleEffect(showInviteButton ? 1 : 0.8)
+                        .offset(y: showInviteButton ? 0 : -20)
+                        Spacer()
+                    }
+                    .padding(.top, 20)
+                } else {
+                    Spacer().frame(height: 20)
+                }
+                
                 // Icon
                 Image(systemName: "figure.walk")
                     .font(.system(size: 48, weight: .regular))
                     .foregroundColor(.secondary)
                     .opacity(showNotifications ? 1 : 0)
                     .scaleEffect(showNotifications ? 1 : 0.8)
-                    .padding(.top, 40)
+                    .padding(.top, onInviteCode != nil ? 0 : 40)
                 
                 // Header with gradient effect
                 VStack(spacing: 8) {
@@ -151,6 +191,25 @@ struct OnboardingStep1View: View {
             withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
                 pulseAnimation = true
             }
+            
+            // Show invite button with delay
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(2.5)) {
+                showInviteButton = true
+            }
+        }
+        .alert("Enter Invite Code", isPresented: $showInviteCodeInput) {
+            TextField("Invite Code", text: $inviteCode)
+                .textInputAutocapitalization(.characters)
+            Button("Cancel", role: .cancel) {
+                inviteCode = ""
+            }
+            Button("Join Pack") {
+                if !inviteCode.isEmpty, let onInviteCode = onInviteCode {
+                    onInviteCode(inviteCode.uppercased())
+                }
+            }
+        } message: {
+            Text("Enter the invite code you received from your pack")
         }
     }
 }
@@ -237,9 +296,7 @@ struct MissedNotificationCard: View {
 }
 
 #Preview {
-    OnboardingStep1View(onContinue: {})
-}
-
-#Preview {
-    OnboardingStep1View(onContinue: {})
+    OnboardingStep1View(onContinue: {}, onInviteCode: { code in
+        print("Invite code: \(code)")
+    })
 }

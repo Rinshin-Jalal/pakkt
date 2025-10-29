@@ -5,6 +5,8 @@ import Combine
 @MainActor
 class PackDetailViewModel: BaseViewModel {
     @Published var pack: Pack?
+    @Published var members: [PackMember] = []
+    @Published var stats: PackStats?
     @Published var checkIns: [CheckIn] = []
 
     private let packsService: PacksService
@@ -25,11 +27,23 @@ class PackDetailViewModel: BaseViewModel {
     }
     
     func loadPackDetail() async {
+        guard let uuid = UUID(uuidString: packId) else {
+            handleError(NSError(domain: "PackDetailViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid pack ID"]))
+            return
+        }
+        
         do {
-            let pack = try await withLoading {
-                try await self.packsService.getPack(id: UUID(uuidString: self.packId) ?? UUID())
+            let (pack, members, stats) = try await withLoading {
+                async let packFetch = self.packsService.getPack(id: uuid)
+                async let membersFetch = self.packsService.getMembers(packId: uuid)
+                async let statsFetch = self.packsService.getStats(packId: uuid)
+                
+                return try await (packFetch, membersFetch, statsFetch)
             }
+            
             self.pack = pack
+            self.members = members
+            self.stats = stats
 
             // Start listening for check-in updates for this pack
             await startRealtimeCheckInUpdates()
@@ -39,11 +53,40 @@ class PackDetailViewModel: BaseViewModel {
     }
 
     func loadCheckIns() async {
+        guard let uuid = UUID(uuidString: packId) else { return }
+        
         do {
             let checkIns = try await withLoading {
-                try await self.checkInsService.getPackCheckIns(packId: UUID(uuidString: self.packId) ?? UUID())
+                try await self.checkInsService.getPackCheckIns(packId: uuid)
             }
             self.checkIns = checkIns
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    func removeMember(userId: UUID) async -> Bool {
+        guard let uuid = UUID(uuidString: packId) else { return false }
+        
+        do {
+            try await withLoading {
+                try await self.packsService.removeMember(packId: uuid, userId: userId)
+            }
+            // Reload members after removal
+            await loadMembers()
+            return true
+        } catch {
+            handleError(error)
+            return false
+        }
+    }
+    
+    private func loadMembers() async {
+        guard let uuid = UUID(uuidString: packId) else { return }
+        
+        do {
+            let members = try await packsService.getMembers(packId: uuid)
+            self.members = members
         } catch {
             handleError(error)
         }

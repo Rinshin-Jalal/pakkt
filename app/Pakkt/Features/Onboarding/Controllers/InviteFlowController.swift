@@ -3,27 +3,54 @@ import SwiftUI
 import Combine
 
 // MARK: - Invite Flow Controller
+@MainActor
 class InviteFlowController: ObservableObject {
     @Published var currentStep: Int = 1
     @Published var inviteData = InviteData()
     @Published var isComplete: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
     
+    private let packsService: PacksService
     let totalSteps = 10
     
     // MARK: - Initialization
-    init(inviteCode: String = "") {
+    init(inviteCode: String = "", packsService: PacksService = PacksService()) {
+        self.packsService = packsService
         inviteData.inviteCode = inviteCode
-        loadInviteDetails()
+        
+        if !inviteCode.isEmpty {
+            Task {
+                await loadInviteDetails()
+            }
+        }
     }
     
-    private func loadInviteDetails() {
-        // TODO: Fetch pack details from backend using invite code
-        // Mock data for now
-        inviteData.packName = "Morning Warriors"
-        inviteData.packGoal = "Wake up at 6 AM"
-        inviteData.packSchedule = "Daily at 6:00 AM"
-        inviteData.packConsequence = "1 hour jail"
-        inviteData.existingMembers = ["Alex", "Jordan", "Sam"]
+    func loadInviteDetails() async {
+        guard !inviteData.inviteCode.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            // Validate invite code and get pack details
+            let inviteCode = try await packsService.validateInviteCode(inviteData.inviteCode)
+            let pack = try await packsService.getPack(id: inviteCode.packId)
+            let members = try await packsService.getMembers(packId: inviteCode.packId)
+            
+            // Update invite data with real info
+            inviteData.packName = pack.name
+            inviteData.existingMembers = members.compactMap { $0.user?.username }
+            
+            // TODO: Get goal and schedule from pack
+            // inviteData.packGoal = pack.primaryGoal?.title ?? "Team Goal"
+            // inviteData.packSchedule = pack.primaryGoal?.checkInTime ?? "Daily"
+            
+            print("✅ Loaded invite details for pack: \(pack.name)")
+        } catch {
+            errorMessage = "Invalid or expired invite code"
+            print("❌ Failed to load invite details: \(error)")
+        }
     }
     
     // MARK: - Navigation
@@ -33,7 +60,9 @@ class InviteFlowController: ObservableObject {
         if currentStep < totalSteps {
             currentStep += 1
         } else {
-            completeInviteFlow()
+            Task {
+                await completeInviteFlow()
+            }
         }
     }
     
@@ -59,17 +88,21 @@ class InviteFlowController: ObservableObject {
     }
     
     // MARK: - Completion
-    func completeInviteFlow() {
-        // Save data and join pack
-        joinPack()
-        isComplete = true
-    }
-    
-    private func joinPack() {
-        // TODO: Implement backend join
-        print("🎉 Joining pack...")
-        print("Code: \(inviteData.inviteCode)")
-        print("Pack: \(inviteData.packName)")
+    func completeInviteFlow() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            // Join pack using invite code
+            let request = UseInviteCodeRequest(code: inviteData.inviteCode)
+            let pack = try await packsService.useInviteCode(request)
+            
+            print("🎉 Successfully joined pack: \(pack.name)")
+            isComplete = true
+        } catch {
+            errorMessage = "Failed to join pack. Please try again."
+            print("❌ Failed to join pack: \(error)")
+        }
     }
     
     // MARK: - Reset
@@ -77,6 +110,7 @@ class InviteFlowController: ObservableObject {
         currentStep = 1
         inviteData.reset()
         isComplete = false
+        errorMessage = nil
     }
 }
 
