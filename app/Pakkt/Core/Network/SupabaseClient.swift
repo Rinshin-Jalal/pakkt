@@ -59,10 +59,21 @@ actor SupabaseClient {
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
+        print("🔐 Attempting email sign in to: \(url.absoluteString)")
+        
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid response type")
+            throw APIError.invalidResponse
+        }
+        
+        print("📡 Response status: \(httpResponse.statusCode)")
+        
+        if httpResponse.statusCode != 200 {
+            if let errorString = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorString)")
+            }
             throw APIError.unauthorized
         }
         
@@ -74,6 +85,7 @@ actor SupabaseClient {
         try keychainService.saveAuthToken(session.accessToken)
         try keychainService.saveRefreshToken(session.refreshToken)
         
+        print("✅ Email sign in successful")
         return session
     }
     
@@ -90,10 +102,21 @@ actor SupabaseClient {
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
+        print("🔐 Attempting email sign up to: \(url.absoluteString)")
+        
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid response type")
+            throw APIError.invalidResponse
+        }
+        
+        print("📡 Response status: \(httpResponse.statusCode)")
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            if let errorString = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorString)")
+            }
             throw APIError.unauthorized
         }
         
@@ -105,6 +128,7 @@ actor SupabaseClient {
         try keychainService.saveAuthToken(session.accessToken)
         try keychainService.saveRefreshToken(session.refreshToken)
         
+        print("✅ Email sign up successful")
         return session
     }
 

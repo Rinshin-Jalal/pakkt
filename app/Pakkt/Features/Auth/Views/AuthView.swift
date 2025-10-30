@@ -41,6 +41,60 @@ struct AuthView: View {
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 40)
+                } else if authViewModel.showEmailAuth {
+                    // Email/Password Form
+                    VStack(spacing: 16) {
+                        TextField("Email", text: $authViewModel.email)
+                            .textContentType(.emailAddress)
+                            .autocapitalization(.none)
+                            .keyboardType(.emailAddress)
+                            .font(.system(size: 16))
+                            .padding()
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                        
+                        SecureField("Password", text: $authViewModel.password)
+                            .textContentType(authViewModel.isSignUpMode ? .newPassword : .password)
+                            .font(.system(size: 16))
+                            .padding()
+                            .glassEffect(in: .rect(cornerRadius: 12))
+                        
+                        Button(action: {
+                            Task {
+                                if authViewModel.isSignUpMode {
+                                    await authViewModel.signUpWithEmail()
+                                } else {
+                                    await authViewModel.signInWithEmail()
+                                }
+                                if authViewModel.isAuthenticated {
+                                    coordinator.handleAuthenticationSuccess()
+                                }
+                            }
+                        }) {
+                            Text(authViewModel.isSignUpMode ? "SIGN UP" : "SIGN IN")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                        }
+                        .glassEffect(in: .rect(cornerRadius: 30))
+                        
+                        Button(action: {
+                            authViewModel.isSignUpMode.toggle()
+                        }) {
+                            Text(authViewModel.isSignUpMode ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
+                                .font(.system(size: 14))
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: {
+                            authViewModel.showEmailAuth = false
+                        }) {
+                            Text("Back to Apple Sign In")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 24)
                 } else {
                     // Auth Buttons
                     VStack(spacing: 16) {
@@ -57,6 +111,23 @@ struct AuthView: View {
                                 Image(systemName: "applelogo")
                                     .font(.system(size: 20))
                                 Text("Continue with Apple")
+                                    .font(.system(size: 17, weight: .semibold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .foregroundColor(.primary)
+                        }
+                        .glassEffect(in: .rect(cornerRadius: 30))
+                        .disabled(authViewModel.isLoading)
+                        
+                        // Email/Password option for testing
+                        Button(action: {
+                            authViewModel.showEmailAuth = true
+                        }) {
+                            HStack {
+                                Image(systemName: "envelope.fill")
+                                    .font(.system(size: 20))
+                                Text("Continue with Email")
                                     .font(.system(size: 17, weight: .semibold))
                             }
                             .frame(maxWidth: .infinity)
