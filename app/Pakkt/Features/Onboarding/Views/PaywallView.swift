@@ -126,27 +126,10 @@ struct PaywallView: View {
                             }
                             
                             // Yearly Plan (Best Value)
-                            Button(action: {
-                                selectedPlan = .yearly
-                            }) {
-                                VStack(spacing: 0) {
-                                    // Best Value Badge
-                                    if selectedPlan == .yearly {
-                                        HStack {
-                                            Spacer()
-                                            Text("7 DAYS FREE")
-                                                .font(.system(size: 11, weight: .bold))
-                                                .foregroundColor(.white)
-                                                .padding(.horizontal, 12)
-                                                .padding(.vertical, 4)
-                                                .background(
-                                                    Capsule()
-                                                        .fill(Color.green)
-                                                )
-                                        }
-                                        .offset(y: -1000)
-                                    }
-                                    
+                            ZStack(alignment: .topTrailing) {
+                                Button(action: {
+                                    selectedPlan = .yearly
+                                }) {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("YEARLY")
@@ -176,8 +159,27 @@ struct PaywallView: View {
                                     }
                                     .padding(20)
                                     .frame(maxWidth: .infinity)
-                                    .glassEffect(in: .rect(cornerRadius: 30))
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(selectedPlan == .yearly ? Color.blue.opacity(0.1) : Color.secondary.opacity(0.05))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(selectedPlan == .yearly ? Color.blue : Color.secondary.opacity(0.3), lineWidth: 2)
+                                    )
                                 }
+                                
+                                // Free Trial Badge - Always visible for yearly
+                                Text("7 DAYS FREE")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color.green)
+                                    )
+                                    .offset(x: -10, y: -10)
                             }
                         }
                         .padding(.horizontal, 24)

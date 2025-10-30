@@ -57,38 +57,10 @@ struct SuccessVisionView: View {
                                 .allowsHitTesting(false)
                         }
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(Color.secondary.opacity(0.1))
-                    )
+                    .glassEffect(in: .rect(cornerRadius: 30))
+
                     .padding(.horizontal, 24)
-                    
-                    // Examples
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("EXAMPLES:")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .tracking(1.0)
-                        
-                        ForEach(examples, id: \.self) { example in
-                            HStack(spacing: 8) {
-                                Image(systemName: "star.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.yellow)
-                                
-                                Text(example)
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(Color.green.opacity(0.05))
-                    )
-                    .padding(.horizontal, 24)
+
                     
                     // Transition Message
                     VStack(spacing: 8) {

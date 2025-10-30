@@ -86,14 +86,7 @@ struct YourPackRealityView: View {
                     }
                     .padding(20)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.green.opacity(0.05))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.green.opacity(0.3), lineWidth: 2)
-                    )
+                    .glassEffect(in: .rect(cornerRadius: 30))
                     .padding(.horizontal, 24)
                     .opacity(showComparison ? 1 : 0)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showComparison)
@@ -124,14 +117,7 @@ struct YourPackRealityView: View {
                     }
                     .padding(20)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.red.opacity(0.05))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.red.opacity(0.3), lineWidth: 2)
-                    )
+                    .glassEffect(in: .rect(cornerRadius: 30))
                     .padding(.horizontal, 24)
                     .opacity(showComparison ? 1 : 0)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.4), value: showComparison)

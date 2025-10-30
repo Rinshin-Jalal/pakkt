@@ -74,10 +74,6 @@ struct WhatYouveTriedView: View {
                                     Spacer()
                                 }
                                 .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .fill(failedApproaches.contains(title) ? Color.blue.opacity(0.1) : Color.secondary.opacity(0.05))
-                                )
                             }
                         }
                     }
