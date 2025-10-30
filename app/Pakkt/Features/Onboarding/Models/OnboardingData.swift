@@ -6,6 +6,13 @@ import Combine
 class OnboardingData: ObservableObject {
     // Step 1-3: Introduction (no data)
     
+    // New Flow: Steps 1-14 (Pre-Pack Creation)
+    @Published var failureCount: Int = 15
+    @Published var failedApproaches: [String] = []
+    @Published var emotionalImpact: String = ""
+    @Published var successVision: String = ""
+    @Published var firstCheckInTime: Date = Calendar.current.date(byAdding: .hour, value: 24, to: Date()) ?? Date()
+    
     // Step 4: Goal Setting
     @Published var goalName: String = ""
     @Published var goalDescription: String = ""
@@ -37,9 +44,31 @@ class OnboardingData: ObservableObject {
     // Step 14: Signature
     @Published var userSignature: UIImage?
     
-    // Step 15: Pack Name & Photo
+    // Step 17: Pack Foundation
     @Published var packName: String = ""
+    @Published var packSize: Int = 5
     @Published var packPhoto: UIImage?
+
+    // Step 18: Pack Identity
+    @Published var packSymbol: String = "pawprint.fill"
+    @Published var packColor: String = "blue"
+    @Published var packMotto: String = "Together We Rise"
+
+    // Step 19: Goals Creation
+    @Published var goalTime: Date = Calendar.current.date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
+    @Published var goalActiveDays: Set<Int> = [1, 2, 3, 4, 5] // Mon-Fri
+    @Published var goalFrequency: String = "Daily"
+
+    // Step 20: Pack Rules
+    @Published var photoProofRequired: Bool = true
+    @Published var checkInWindowBefore: Int = 0
+    @Published var checkInWindowAfter: Int = 15
+    @Published var weekendPassesEnabled: Bool = false
+    @Published var gracePeriodMinutes: Int = 0
+
+    // Step 21: Pack Consequences
+    @Published var cashFine: Double = 5.0
+    @Published var requireMajorityVote: Bool = true
     
     // Step 16-17: Privacy Settings
     @Published var packVisibility: String = "private"
@@ -85,6 +114,11 @@ class OnboardingData: ObservableObject {
     
     // MARK: - Reset
     func reset() {
+        failureCount = 15
+        failedApproaches = []
+        emotionalImpact = ""
+        successVision = ""
+        firstCheckInTime = Calendar.current.date(byAdding: .hour, value: 24, to: Date()) ?? Date()
         goalName = ""
         goalDescription = ""
         checkInTime = Date()
@@ -97,7 +131,21 @@ class OnboardingData: ObservableObject {
         jailTimeMinutes = 60
         userSignature = nil
         packName = ""
+        packSize = 5
         packPhoto = nil
+        packSymbol = "pawprint.fill"
+        packColor = "blue"
+        packMotto = "Together We Rise"
+        goalTime = Calendar.current.date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
+        goalActiveDays = [1, 2, 3, 4, 5]
+        goalFrequency = "Daily"
+        photoProofRequired = true
+        checkInWindowBefore = 0
+        checkInWindowAfter = 15
+        weekendPassesEnabled = false
+        gracePeriodMinutes = 0
+        cashFine = 5.0
+        requireMajorityVote = true
         packVisibility = "private"
         allowInvites = true
         allowJoinRequests = false

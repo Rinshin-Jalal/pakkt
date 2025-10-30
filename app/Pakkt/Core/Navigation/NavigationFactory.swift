@@ -15,78 +15,53 @@ struct OnboardingStepWrapper: View {
     var body: some View {
         Group {
             switch step {
-            case 1:
-                OnboardingStep1View(onContinue: {})
-            case 2:
-                OnboardingStep2View(onContinue: {})
-            case 3:
-                OnboardingStep3View(onContinue: {})
-            case 4:
-                OnboardingStep4View(onContinue: {})
-            case 5:
-                OnboardingStep5View(onContinue: {})
-            case 6:
-                OnboardingStep6View(onContinue: {})
-            case 7:
-                OnboardingStep7View(onContinue: {})
-            case 8:
-                OnboardingStep8View(onContinue: {})
-            case 9:
-                OnboardingStep9View { goalText in
-                    // Handle the goal text if needed
-                }
-            case 10:
-                OnboardingStep10View(goal: "Default Goal", onContinue: { _, _ in
-                    // Handle the impact values if needed
-                })
-            case 11:
-                OnboardingStep11View(goal: "Default Goal", onContinue: { _ in
-                    // Handle the cost value if needed
-                })
-            case 12:
-                OnboardingStep12View(onContinue: {})
-            case 13:
-                OnboardingStep13View(onContinue: {})
-            case 14:
-                OnboardingStep14View(commitmentStyle: .constant(""), onContinue: {})
-            case 15:
-                OnboardingStep15View(successVision: .constant(""), onContinue: {})
-            case 16:
-                OnboardingStep16View(selectedGoal: "Default", selectedWhy: "Default", estimatedCost: 16.0, onContinue: {})
-            case 17:
-                OnboardingStep17View(onContinue: {})
-            case 18:
-                OnboardingStep18View(onContinue: {})
-            case 19:
-                OnboardingStep19View(onContinue: {})
-            case 20:
-                OnboardingStep20View(onContinue: {})
-            case 21:
-                OnboardingStep21View(onContinue: {})
-            case 22:
-                OnboardingStep22View(onContinue: {})
-            case 23:
-                OnboardingStep23View(onContinue: {})
-            case 24:
-                OnboardingStep24View(onContinue: {})
-            case 25:
-                OnboardingStep25View(onContinue: {})
-            case 26:
-                OnboardingStep26View(onContinue: {})
-            case 27:
-                OnboardingStep27View(onContinue: {})
-            case 28:
-                OnboardingStep28View(onContinue: {})
-            case 29:
-                OnboardingStep29View(onContinue: {})
-            case 30:
-                OnboardingStep30View(onContinue: {})
-            case 31:
-                OnboardingStep31View(onContinue: {})
-            case 32:
-                OnboardingStep32View(onContinue: {})
-            case 33:
-                OnboardingStep33View(onContinue: {})
+            // ACT 1: HOOK
+            case 1: WelcomeToPacktView(onContinue: {})
+            case 2: WhatIsPackView(onContinue: {})
+            
+            // ACT 2: PAIN
+            case 3: GoalFailureInputView(onContinue: {}, goalName: .constant(""))
+            case 4: WhyWillpowerFailsView(onContinue: {})
+            case 5: FailurePatternView(onContinue: {}, failureCount: .constant(15))
+            case 6: FailedApproachesVisualView(onContinue: {})
+            case 7: WhatYouveTriedView(onContinue: {}, failedApproaches: .constant([]))
+            case 8: EmotionalImpactView(onContinue: {}, emotionalImpact: .constant(""))
+            case 9: SuccessVisionView(onContinue: {}, successVision: .constant(""))
+            
+            // ACT 3: RELIEF
+            case 10: ConsequencesVsWillpowerView(onContinue: {})
+            case 11: HowPacktWorksView(onContinue: {})
+            case 12: LivePackExampleView(onContinue: {})
+            case 13: BrotherhoodFeaturesView(onContinue: {})
+            
+            // ACT 4: BRIDGE
+            case 14: ValuePropositionView(onContinue: {})
+            
+            // ACT 5: BUILD
+            case 15: PackFoundationView(onContinue: {})
+            case 16: PackIdentityView(onContinue: {})
+            case 17: GoalsCreationView(onContinue: {})
+            case 18: PackRulesView(onContinue: {})
+            case 19: PackConsequencesView(onContinue: {})
+            case 20: PackPreviewView(onContinue: {})
+            case 21: PackPactAgreementView(onContinue: {})
+            case 22: SignPackPactView(onContinue: {})
+            
+            // ACT 6: URGENCY
+            case 23: CountdownToFirstChallengeView(onContinue: {}, firstCheckInTime: .constant(Date()))
+            
+            // ACT 7: COMMIT
+            case 24: PermissionsSetupView(onContinue: {})
+            case 25: YourPackRealityView(
+                onContinue: {},
+                packName: .constant(""),
+                packSize: .constant(5),
+                goalName: .constant(""),
+                cashFine: .constant(10),
+                jailTimeMinutes: .constant(30)
+            )
+            case 26: PaywallView(onContinue: {})
+            
             default:
                 Text("Onboarding Step \(step)").font(.largeTitle)
             }

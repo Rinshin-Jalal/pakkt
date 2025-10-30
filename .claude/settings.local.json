@@ -28,7 +28,10 @@
       "WebSearch",
       "WebFetch(domain:blog.logrocket.com)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(git mv:*)",
+      "Bash(for i in 1 2 3 4 9 10 11 12 13 14 15 16)",
+      "Bash(do echo \"=== Step $i ===\")"
     ],
     "deny": [],
     "ask": []
